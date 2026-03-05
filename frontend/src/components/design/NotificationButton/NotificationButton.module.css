@@ -1,0 +1,136 @@
+.button {
+  width: 36px;
+  height: 36px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: none;
+
+  /* Match Avatar styles exactly */
+  background-color: hsl(var(--muted));
+  border: 1px solid hsl(var(--border) / 0.5);
+  color: hsl(var(--foreground));
+}
+
+.button:hover {
+  /* Simple opacity change for hover state to maintain color consistency */
+  opacity: 0.9;
+}
+
+.bell {
+  width: 16px;
+  height: 16px;
+}
+
+.bell path {
+  fill: currentColor;
+  transition: fill 0.3s ease;
+}
+
+/* Badge Style - Keep existing style */
+.badge {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  color: white;
+  font-size: 10px;
+  font-weight: bold;
+  height: 16px;
+  min-width: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  border: 2px solid white;
+  padding: 0 4px;
+  z-index: 10;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  animation: bounceIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+:global(.dark) .badge {
+  border-color: rgb(44, 44, 44); /* Match dark mode background if needed, or transparent */
+  /* Since button bg is dynamic (muted), badge border should probably match the button bg or page bg */
+  /* Avatar uses bg-muted. Page bg is bg-background. */
+  /* Usually badge border matches the parent container's outside color (page bg) to create a "cutout" effect */
+  border-color: hsl(var(--background));
+}
+
+.button:hover .bell {
+  animation: bellRing 0.9s both;
+}
+
+/* Animations */
+@keyframes bellRing {
+  0%,
+  100% {
+    transform-origin: top;
+  }
+
+  15% {
+    transform: rotateZ(10deg);
+  }
+
+  30% {
+    transform: rotateZ(-10deg);
+  }
+
+  45% {
+    transform: rotateZ(5deg);
+  }
+
+  60% {
+    transform: rotateZ(-5deg);
+  }
+
+  75% {
+    transform: rotateZ(2deg);
+  }
+}
+
+@keyframes bounceIn {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.button:active {
+  transform: scale(0.95);
+}
+
+/* Scrollbar Utilities */
+.noScrollbar {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+.noScrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.customScrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+
+.customScrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.customScrollbar::-webkit-scrollbar-thumb {
+  background: hsl(var(--muted-foreground) / 0.3);
+  border-radius: 4px;
+}
+
+.customScrollbar::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--muted-foreground) / 0.5);
+}

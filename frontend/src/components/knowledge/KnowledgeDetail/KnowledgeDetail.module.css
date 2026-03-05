@@ -1,0 +1,386 @@
+/* ============================================================
+   Markdown Prose Styles — KnowledgeDetail
+   Supports both light and dark themes via CSS variables
+   ============================================================ */
+
+.prose {
+  --prose-body: hsl(240 10% 15%);
+  --prose-headings: hsl(240 10% 6%);
+  --prose-lead: hsl(240 6% 40%);
+  --prose-links: hsl(195.8 100% 40%);
+  --prose-bold: hsl(240 10% 6%);
+  --prose-counters: hsl(240 6% 55%);
+  --prose-bullets: hsl(240 6% 65%);
+  --prose-hr: hsl(240 5.9% 90%);
+  --prose-quotes: hsl(240 10% 20%);
+  --prose-quote-borders: hsl(195.8 100% 60%);
+  --prose-captions: hsl(240 6% 55%);
+  --prose-kbd: hsl(240 5.9% 10%);
+  --prose-kbd-shadows: hsl(240 5.9% 10% / 0.15);
+  --prose-code: hsl(340 80% 55%);
+  --prose-code-bg: hsl(240 5% 96%);
+  --prose-pre-code: hsl(240 5% 88%);
+  --prose-pre-bg: hsl(240 10% 10%);
+  --prose-th-borders: hsl(240 5.9% 82%);
+  --prose-td-borders: hsl(240 5.9% 90%);
+  --prose-table-header-bg: hsl(240 5% 97%);
+
+  color: var(--prose-body);
+  font-size: 15px;
+  line-height: 1.75;
+  font-feature-settings: "kern" 1, "liga" 1;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Dark theme overrides */
+:global(.dark) .prose {
+  --prose-body: hsl(0 0% 85%);
+  --prose-headings: hsl(0 0% 97%);
+  --prose-lead: hsl(0 0% 65%);
+  --prose-links: hsl(195.8 100% 55%);
+  --prose-bold: hsl(0 0% 97%);
+  --prose-counters: hsl(0 0% 55%);
+  --prose-bullets: hsl(0 0% 45%);
+  --prose-hr: hsl(0 0% 22%);
+  --prose-quotes: hsl(0 0% 85%);
+  --prose-quote-borders: hsl(195.8 100% 50%);
+  --prose-code: hsl(340 70% 68%);
+  --prose-code-bg: hsl(0 0% 18%);
+  --prose-pre-bg: hsl(0 0% 11%);
+  --prose-th-borders: hsl(0 0% 25%);
+  --prose-td-borders: hsl(0 0% 20%);
+  --prose-table-header-bg: hsl(0 0% 16%);
+}
+
+/* ---- Headings ---- */
+.prose :global(h1),
+.prose :global(h2),
+.prose :global(h3),
+.prose :global(h4),
+.prose :global(h5),
+.prose :global(h6) {
+  color: var(--prose-headings);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  scroll-margin-top: 96px;
+}
+
+.prose :global(h1) {
+  font-size: 1.875rem;
+  line-height: 1.25;
+  margin-top: 0;
+  margin-bottom: 1.2rem;
+}
+
+.prose :global(h2) {
+  font-size: 1.375rem;
+  line-height: 1.35;
+  margin-top: 2.25rem;
+  margin-bottom: 0.9rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--prose-hr);
+}
+
+.prose :global(h3) {
+  font-size: 1.125rem;
+  line-height: 1.4;
+  margin-top: 1.75rem;
+  margin-bottom: 0.6rem;
+}
+
+.prose :global(h4) {
+  font-size: 1rem;
+  line-height: 1.5;
+  margin-top: 1.5rem;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+}
+
+/* ---- Paragraphs ---- */
+.prose :global(p) {
+  margin-top: 0;
+  margin-bottom: 1.2rem;
+  color: var(--prose-body);
+}
+
+/* ---- Strong / Em ---- */
+.prose :global(strong) {
+  color: var(--prose-bold);
+  font-weight: 600;
+}
+
+.prose :global(em) {
+  font-style: italic;
+}
+
+/* ---- Links ---- */
+.prose :global(a) {
+  color: var(--prose-links);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  transition: opacity 0.15s;
+}
+
+.prose :global(a:hover) {
+  opacity: 0.75;
+}
+
+/* ---- Inline Code ---- */
+.prose :global(code):not(:global(pre) *) {
+  color: var(--prose-code);
+  background: var(--prose-code-bg);
+  border-radius: 4px;
+  padding: 0.15em 0.4em;
+  font-size: 0.875em;
+  font-weight: 500;
+  font-family: "JetBrains Mono", "Fira Code", "Cascadia Code", monospace;
+}
+
+/* ---- Code Blocks (rehype-pretty-code dual-theme) ---- */
+
+/*
+ * rehype-pretty-code with dual themes outputs tokens with CSS vars:
+ * --shiki-light: light mode color
+ * --shiki-dark:  dark mode color
+ * We apply them via :root and .dark selectors.
+ */
+.prose :global([data-rehype-pretty-code-figure]) {
+  margin: 1.5rem 0;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid var(--prose-hr);
+}
+
+.prose :global([data-rehype-pretty-code-figure] figcaption) {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.45rem 1rem;
+  font-size: 11px;
+  font-family: "JetBrains Mono", monospace;
+  color: hsl(0 0% 55%);
+  background: hsl(0 0% 13%);
+  border-bottom: 1px solid hsl(0 0% 20%);
+}
+
+.prose :global([data-rehype-pretty-code-figure] figcaption)::before {
+  content: "";
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: hsl(0 70% 60%);
+  box-shadow: 14px 0 0 hsl(38 90% 55%), 28px 0 0 hsl(120 50% 45%);
+  flex-shrink: 0;
+}
+
+/* pre element inside rehype-pretty-code figure */
+.prose :global([data-rehype-pretty-code-figure] pre) {
+  margin: 0;
+  padding: 1.25rem 1.5rem;
+  overflow-x: auto;
+  border-radius: 0;
+  border: none;
+  scrollbar-width: thin;
+  scrollbar-color: hsl(0 0% 30%) transparent;
+}
+
+/* pre element standalone (not in figure) */
+.prose :global(pre:not([data-rehype-pretty-code-figure] pre)) {
+  margin: 1.5rem 0;
+  padding: 1.25rem 1.5rem;
+  border-radius: 10px;
+  border: 1px solid var(--prose-hr);
+  overflow-x: auto;
+  scrollbar-width: thin;
+  scrollbar-color: hsl(0 0% 30%) transparent;
+}
+
+.prose :global(pre::-webkit-scrollbar) {
+  height: 4px;
+}
+
+.prose :global(pre::-webkit-scrollbar-track) {
+  background: transparent;
+}
+
+.prose :global(pre::-webkit-scrollbar-thumb) {
+  background: hsl(0 0% 30%);
+  border-radius: 99px;
+}
+
+/* Code inside pre: font only — colors handled by globals.css (shiki CSS vars) */
+.prose :global(pre code) {
+  font-family: "JetBrains Mono", "Fira Code", "Cascadia Code", ui-monospace, monospace;
+  font-size: 0.85rem;
+  line-height: 1.7;
+  background: transparent !important;
+  padding: 0;
+  border-radius: 0;
+}
+
+/* Highlighted lines */
+.prose :global([data-highlighted-line]) {
+  background: hsl(195.8 100% 50% / 0.08) !important;
+  border-left: 2px solid hsl(195.8 100% 50%);
+  margin-left: -1.5rem;
+  padding-left: calc(1.5rem - 2px);
+  margin-right: -1.5rem;
+  padding-right: 1.5rem;
+}
+
+/* Line numbers */
+.prose :global(code) {
+  counter-reset: line;
+}
+
+.prose :global(code > [data-line])::before {
+  counter-increment: line;
+  content: counter(line);
+  display: inline-block;
+  width: 1.5rem;
+  margin-right: 1.5rem;
+  text-align: right;
+  color: hsl(0 0% 40%);
+  font-size: 0.75rem;
+  user-select: none;
+}
+
+/* ---- Blockquote ---- */
+.prose :global(blockquote) {
+  border-left: 3px solid var(--prose-quote-borders);
+  margin: 1.75rem 0;
+  padding: 0.75rem 1.25rem;
+  background: hsl(195.8 100% 50% / 0.04);
+  border-radius: 0 8px 8px 0;
+  color: var(--prose-quotes);
+  font-style: italic;
+}
+
+.prose :global(blockquote p) {
+  margin: 0;
+}
+
+.prose :global(blockquote strong) {
+  color: var(--prose-quotes);
+}
+
+/* ---- Lists ---- */
+.prose :global(ul),
+.prose :global(ol) {
+  margin: 0.75rem 0 1.25rem 0;
+  padding-left: 1.5rem;
+}
+
+.prose :global(ul) {
+  list-style: none;
+  padding-left: 1.25rem;
+}
+
+.prose :global(ul > li) {
+  position: relative;
+  padding-left: 0.5rem;
+  margin-bottom: 0.35rem;
+}
+
+.prose :global(ul > li)::before {
+  content: "";
+  position: absolute;
+  left: -0.75rem;
+  top: 0.65em;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--prose-bullets);
+}
+
+.prose :global(ol) {
+  list-style: decimal;
+}
+
+.prose :global(ol > li) {
+  padding-left: 0.25rem;
+  margin-bottom: 0.35rem;
+}
+
+.prose :global(li > p) {
+  margin: 0;
+}
+
+/* ---- Tables ---- */
+.prose :global(table) {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+  margin: 1.5rem 0;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid var(--prose-th-borders);
+}
+
+.prose :global(thead) {
+  background: var(--prose-table-header-bg);
+}
+
+.prose :global(th) {
+  padding: 0.6rem 0.875rem;
+  text-align: left;
+  font-weight: 600;
+  font-size: 0.8rem;
+  letter-spacing: 0.02em;
+  color: var(--prose-headings);
+  border-bottom: 1px solid var(--prose-th-borders);
+}
+
+.prose :global(td) {
+  padding: 0.6rem 0.875rem;
+  border-bottom: 1px solid var(--prose-td-borders);
+  color: var(--prose-body);
+  vertical-align: top;
+}
+
+.prose :global(tr:last-child td) {
+  border-bottom: none;
+}
+
+.prose :global(tr:hover td) {
+  background: hsl(0 0% 50% / 0.04);
+}
+
+/* ---- HR ---- */
+.prose :global(hr) {
+  border: none;
+  border-top: 1px solid var(--prose-hr);
+  margin: 2rem 0;
+}
+
+/* ---- Images ---- */
+.prose :global(img) {
+  max-width: 100%;
+  border-radius: 8px;
+  margin: 1.25rem auto;
+  display: block;
+  border: 1px solid var(--prose-hr);
+}
+
+/* ---- kbd ---- */
+.prose :global(kbd) {
+  display: inline-block;
+  padding: 0.1em 0.35em;
+  font-size: 0.8em;
+  font-family: monospace;
+  background: var(--prose-code-bg);
+  border: 1px solid var(--prose-th-borders);
+  border-bottom-width: 2px;
+  border-radius: 4px;
+  color: var(--prose-kbd);
+}
+
+/* ---- Plaintext / pre (no language) ---- */
+.prose :global(pre[data-language="plaintext"]),
+.prose :global(pre[data-language="txt"]),
+.prose :global(pre:not([data-language])) {
+  font-family: "JetBrains Mono", "Fira Code", monospace;
+  font-size: 0.82rem;
+  line-height: 1.6;
+}

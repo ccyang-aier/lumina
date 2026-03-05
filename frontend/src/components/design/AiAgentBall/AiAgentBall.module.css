@@ -1,0 +1,225 @@
+/* ─── Reference Implementation Styles ──────────────────────────────────────── */
+
+.container-ai-input {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+}
+
+.container-wrap {
+  display: flex;
+  align-items: center;
+  justify-items: center;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translateX(-50%) translateY(-50%);
+  z-index: 9;
+  transform-style: preserve-3d;
+  cursor: pointer;
+  padding: 4px;
+  transition: all 0.3s ease;
+}
+
+.container-wrap:hover {
+  padding: 0;
+}
+
+.container-wrap:active {
+  transform: translateX(-50%) translateY(-50%) scale(0.95);
+}
+
+.container-wrap:after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translateX(-50%) translateY(-55%);
+  width: 12rem;
+  height: 11rem;
+  background-color: #dedfe0;
+  border-radius: 3.2rem;
+  transition: all 0.3s ease;
+  opacity: 0;
+}
+
+.container-wrap:hover:after {
+  transform: translateX(-50%) translateY(-50%);
+  height: 12rem;
+}
+
+.card {
+  width: 12rem;
+  height: 12rem;
+  transform-style: preserve-3d;
+  will-change: transform;
+  border-radius: 3rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.card:hover {
+  box-shadow:
+    0 10px 40px rgba(0, 0, 60, 0.25),
+    inset 0 0 10px rgba(255, 255, 255, 0.5);
+}
+
+:global(.dark) .card {
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+}
+
+:global(.dark) .card:hover {
+  box-shadow:
+    0 10px 50px rgba(0, 0, 0, 0.6),
+    0 0 30px rgba(255, 255, 255, 0.15),
+    inset 0 0 20px rgba(255, 255, 255, 0.3);
+}
+
+.background-blur-balls {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translateX(-50%) translateY(-50%);
+  width: 100%;
+  height: 100%;
+  z-index: -10;
+  border-radius: 3rem;
+  transition: all 0.3s ease;
+  background-color: rgba(255, 255, 255, 0.8);
+  overflow: hidden;
+}
+
+:global(.dark) .background-blur-balls {
+  background-color: rgba(255, 255, 255, 0.8);
+}
+
+.balls {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translateX(-50%) translateY(-50%);
+  animation: rotate-background-balls 10s linear infinite;
+}
+
+.container-wrap:hover .balls {
+  animation-play-state: paused;
+}
+
+.ball {
+  width: 6rem;
+  height: 6rem;
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(30px);
+}
+
+.ball.rosa {
+  background: #ec4899;
+  top: 50%;
+  left: 0;
+  transform: translateY(-50%);
+}
+
+.ball.violet {
+  background: #9147ff;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.ball.green {
+  background: #34d399;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.ball.cyan {
+  background: #05e0f5;
+  top: 50%;
+  right: 0;
+  transform: translateY(-50%);
+}
+
+.content-card {
+  width: 12rem;
+  height: 12rem;
+  display: flex;
+  border-radius: 3rem;
+  transition: all 0.3s ease;
+  overflow: hidden;
+}
+
+.background-blur-card {
+  width: 100%;
+  height: 100%;
+  backdrop-filter: blur(50px);
+}
+
+:global(.dark) .background-blur-card {
+  backdrop-filter: blur(35px);
+}
+
+.eyes {
+  position: absolute;
+  left: 50%;
+  bottom: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 52px;
+  gap: 2rem;
+  transition: all 0.3s ease;
+}
+
+.eye {
+  width: 26px;
+  height: 52px;
+  background-color: #fff;
+  border-radius: 16px;
+  animation: animate-eyes 10s infinite linear;
+  /* Only transition height (for blink); transform is driven by JS mouse tracking */
+  transition: height 0.3s ease;
+}
+
+.eyes.happy {
+  display: none;
+  color: #fff;
+  gap: 0;
+}
+
+.eyes.happy svg {
+  width: 60px;
+}
+
+.container-wrap:hover .eyes .eye {
+  display: none;
+}
+
+.container-wrap:hover .eyes.happy {
+  display: flex;
+}
+
+/* ─── Keyframes ────────────────────────────────────────────────────────────── */
+
+@keyframes rotate-background-balls {
+  from {
+    transform: translateX(-50%) translateY(-50%) rotate(360deg);
+  }
+  to {
+    transform: translateX(-50%) translateY(-50%) rotate(0);
+  }
+}
+
+@keyframes animate-eyes {
+  46% { height: 52px; }
+  48% { height: 20px; }
+  50% { height: 52px; }
+  96% { height: 52px; }
+  98% { height: 20px; }
+  100% { height: 52px; }
+}

@@ -1,0 +1,386 @@
+.scene {
+  --duck-body: #f4f4f5;
+  --duck-wing: #e4e4e7;
+  --duck-beak: #ff3b30;
+  --duck-feet: #ff9f0a;
+  --duck-eye: #18181b;
+
+  --error-code-color: rgba(0, 0, 0, 0.05);
+  --error-code-hover-color: rgba(0, 0, 0, 0.09);
+
+  --orb-color: rgba(0, 0, 0, 0.05);
+  --orb-hover-color: rgba(0, 0, 0, 0.15);
+
+  --base-speed: 1s;
+  --turbo-speed: 0.3s;
+
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.scene::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: transparent;
+}
+
+:global(.dark) .scene::before {
+  background: transparent;
+}
+
+:global(.dark) .scene {
+  --error-code-color: rgba(255, 255, 255, 0.05);
+  --error-code-hover-color: rgba(255, 255, 255, 0.1);
+
+  --orb-color: rgba(255, 255, 255, 0.05);
+  --orb-hover-color: rgba(255, 255, 255, 0.2);
+}
+
+.scene .duck * {
+  border: none !important;
+}
+
+.scene .duck__body::after {
+  border-bottom: 1rem solid var(--duck-wing) !important;
+}
+
+:global(.dark) .scene .duck__body::after {
+  border-bottom: 0.9rem solid rgba(0, 0, 0, 0.08) !important;
+}
+
+.scene:hover {
+  --base-speed: var(--turbo-speed);
+}
+
+.scene:hover .error-code {
+  color: var(--error-code-hover-color);
+}
+
+.content {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  position: relative;
+  z-index: 2;
+}
+
+.scene .error-container {
+  text-align: center;
+  margin-bottom: 2rem;
+  pointer-events: auto;
+}
+
+.scene .error-code {
+  font-size: 10rem;
+  font-weight: 800;
+  color: var(--error-code-color);
+  line-height: 0.8;
+  transition: color 0.3s ease;
+  letter-spacing: -5px;
+}
+
+.scene .duck__wrapper {
+  display: grid;
+  place-content: center;
+  z-index: 5;
+  transform: scale(0.85);
+
+  transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.scene:hover .duck__wrapper {
+  transform: scale(0.85) rotate(5deg) translateX(20px);
+}
+
+.scene .duck {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.scene .duck__inner {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+
+  animation: bird-up-down calc(var(--base-speed) / 2) linear infinite;
+}
+
+.scene .duck__head {
+  align-self: flex-end;
+  width: 6rem;
+  height: 4rem;
+  border-radius: 8rem 8rem 0 0;
+  background-color: var(--duck-body);
+  position: relative;
+  z-index: 1;
+}
+
+.scene .duck__head::after,
+.scene .duck__head::before {
+  content: "";
+  position: absolute;
+  border-radius: 1rem;
+  background-color: var(--duck-body);
+  width: 0.4rem;
+  height: 2rem;
+  top: 0;
+}
+.scene .duck__head::after {
+  left: 44%;
+  transform: translate(-50%, -50%) rotate(-30deg);
+}
+.scene .duck__head::before {
+  left: 45%;
+  transform: translate(-50%, -50%) rotate(10deg);
+}
+
+.scene .duck__white {
+  position: absolute;
+  top: 0.8rem;
+  left: 0.8rem;
+  width: 0.6rem;
+  height: 1.3rem;
+  transform: rotate(40deg);
+  border-radius: 50%;
+  border-left: 0.2rem solid rgba(255, 255, 255, 0.8);
+}
+
+.scene .duck__eye {
+  position: absolute;
+  bottom: 0.2rem;
+  right: 1rem;
+  width: 0.8rem;
+  height: 0.8rem;
+  border-radius: 50%;
+  background-color: var(--duck-eye);
+  animation: eye-animation 2s infinite linear;
+}
+
+.scene .duck__mouth {
+  position: absolute;
+  right: 0;
+  top: 40%;
+  width: 1rem;
+  height: 1.2rem;
+  transform: translate(90%, -50%);
+  clip-path: polygon(0 0, 100% 40%, 100% 60%, 0% 100%);
+  border-radius: 0 1rem 1rem 0;
+  background-color: var(--duck-beak);
+}
+
+.scene .duck__body {
+  width: 9.5rem;
+  height: 5rem;
+  border-radius: 1rem 0 16rem 16rem;
+  background-color: var(--duck-body);
+  position: relative;
+  overflow: hidden;
+  margin-top: -0.2rem;
+}
+
+.scene .duck__body::after {
+  content: "";
+  position: absolute;
+  width: 105%;
+  height: 200%;
+  left: 50%;
+  top: -95%;
+  transform: translate(-50%, 0.02rem) rotate(-6deg);
+  border-radius: 50%;
+  border-bottom: 1rem solid #e4e4e7;
+}
+
+.scene .duck__wing {
+  position: absolute;
+  left: 0.6rem;
+  top: 55%;
+  width: 4rem;
+  height: 2.4rem;
+  border-radius: 1rem 1rem 4rem 4rem;
+  background-color: var(--duck-wing);
+  transform: translate(0, -50%);
+  transform-origin: right;
+  animation: wing-animation var(--base-speed) linear infinite;
+  z-index: 1;
+}
+
+.scene .duck__foot {
+  position: absolute;
+  width: 0.6rem;
+  height: 2rem;
+  background-color: var(--duck-feet);
+  z-index: -1;
+}
+
+.scene .duck__foot::after {
+  content: "";
+  position: absolute;
+  width: 2rem;
+  height: 0.6rem;
+  bottom: 0rem;
+  left: -0.5rem;
+  background-color: var(--duck-feet);
+  border-radius: 1rem;
+}
+
+.scene .duck__foot--1,
+.scene .duck__foot--2 {
+  left: 40%;
+  bottom: 0;
+  transform: translate(-50%, 80%);
+}
+
+.scene .duck__foot--1 {
+  animation: foot-ans var(--base-speed) linear infinite;
+}
+.scene .duck__foot--2 {
+  animation: foot-ans var(--base-speed) calc(var(--base-speed) / 2) linear
+    infinite;
+}
+
+.scene .surface {
+  position: absolute;
+  bottom: -1.9rem;
+  left: 55%;
+  transform: translateX(-50%);
+  background-color: rgba(0, 0, 0, 0.2);
+  width: 8rem;
+  height: 0.5rem;
+  border-radius: 1rem;
+  animation: surface-animation calc(var(--base-speed) / 2) linear infinite;
+  filter: blur(2px);
+  pointer-events: none;
+}
+
+.scene .orb {
+  position: absolute;
+  border-radius: 50%;
+  background-color: var(--orb-color);
+  backdrop-filter: blur(5px);
+  animation: orb-animation 8s linear infinite;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.scene:hover .orb {
+  width: 150px !important;
+  height: 2px !important;
+  border-radius: 2px;
+  background-color: var(--orb-hover-color);
+  animation-duration: 0.5s;
+}
+
+.scene .orb--1 {
+  top: 10%;
+  width: 40px;
+  height: 40px;
+  animation-delay: 0s;
+}
+.scene .orb--2 {
+  top: 30%;
+  width: 20px;
+  height: 20px;
+  animation-delay: -2s;
+}
+.scene .orb--3 {
+  top: 60%;
+  width: 60px;
+  height: 60px;
+  animation-delay: -4s;
+}
+.scene .orb--4 {
+  top: 80%;
+  width: 30px;
+  height: 30px;
+  animation-delay: -6s;
+}
+
+@keyframes surface-animation {
+  0%,
+  100% {
+    transform: translateX(-50%) scaleX(0.9);
+  }
+  50% {
+    transform: translateX(-50%) scaleX(1);
+  }
+}
+
+@keyframes foot-ans {
+  0% {
+    transform: translate(-50%, 80%) rotate(0deg);
+  }
+  10% {
+    transform: translate(-150%, 80%) rotate(10deg);
+  }
+  20% {
+    transform: translate(-150%, 10%) rotate(10deg);
+  }
+  40% {
+    transform: translate(400%, 10%) rotate(-20deg);
+  }
+  60% {
+    transform: translate(600%, 60%) rotate(-20deg);
+  }
+  70% {
+    transform: translate(500%, 60%) rotate(0deg);
+  }
+}
+
+@keyframes bird-up-down {
+  0%,
+  100% {
+    transform: translateY(0.4rem);
+  }
+  50% {
+    transform: translateY(0rem);
+  }
+}
+
+@keyframes wing-animation {
+  0%,
+  100% {
+    transform: translate(0, -50%) rotate(16deg);
+  }
+  50% {
+    transform: translate(0, -50%) rotate(-2deg);
+  }
+}
+
+@keyframes eye-animation {
+  0%,
+  20% {
+    transform: scaleY(1);
+  }
+  10% {
+    transform: scaleY(0);
+  }
+}
+
+@keyframes orb-animation {
+  0% {
+    transform: translateX(120vw);
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(-30vw);
+    opacity: 0;
+  }
+}
