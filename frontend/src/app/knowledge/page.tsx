@@ -126,7 +126,7 @@ export default function KnowledgePage() {
           <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-background" />
         </div>
         
-        <div className="relative z-10 max-w-7xl mx-auto px-4 py-16 sm:px-6 lg:px-8 flex flex-col items-start gap-4">
+        <div className="relative z-10 max-w-[1440px] mx-auto px-4 py-16 sm:px-6 lg:px-8 flex flex-col items-start gap-4">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -144,11 +144,11 @@ export default function KnowledgePage() {
       </div>
 
       {/* Main Content Area */}
-      <main className="flex-1 max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8 w-full">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+      <main className="flex-1 max-w-[1440px] mx-auto px-4 py-8 sm:px-6 lg:px-8 w-full">
+        <div className="grid grid-cols-1 lg:grid-cols-24 gap-8">
           
-          {/* Left Column: Filters & Cards (span 8) */}
-          <div className="lg:col-span-8 flex flex-col gap-6">
+          {/* Left Column: Filters & Cards (span 9) */}
+          <div className="lg:col-span-17 flex flex-col gap-6">
             
             {/* Filters Section */}
             <div className="flex flex-col gap-4">
@@ -285,8 +285,8 @@ export default function KnowledgePage() {
             )}
           </div>
 
-          {/* Right Column: Sidebar (span 4) */}
-          <div className="lg:col-span-4 space-y-8">
+          {/* Right Column: Sidebar (span 3) */}
+          <div className="lg:col-span-7 space-y-8">
             
             {/* Series Recommendations */}
             <div className="rounded-xl border border-border bg-card p-5 space-y-4">

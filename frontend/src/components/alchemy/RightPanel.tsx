@@ -19,6 +19,7 @@ import {
   PanelRightOpen,
   AlertTriangle,
   CheckCircle2,
+  GraduationCap,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import type { AIMode } from "@/lib/alchemy-data"
@@ -227,7 +228,7 @@ export function RightPanel({
 
   return (
     <motion.aside
-      animate={{ width: collapsed ? 48 : 280 }}
+      animate={{ width: collapsed ? 48 : 360 }}
       transition={{ duration: 0.25, ease: "easeInOut" }}
       className="relative flex flex-col border-l border-border/60 bg-card/40 backdrop-blur-sm overflow-hidden shrink-0"
     >

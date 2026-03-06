@@ -117,7 +117,7 @@ export default function MarketPage() {
     <div className="min-h-screen bg-background">
       {/* ── Page Header ── */}
       <div className="sticky top-16 z-30 border-b border-border bg-card/80 backdrop-blur-md">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between py-5">
             {/* Title */}
             <div>
@@ -184,7 +184,7 @@ export default function MarketPage() {
       </div>
 
       {/* ── Content ── */}
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <AnimatePresence mode="wait">
           {mainTab === "market" ? (
             <motion.div

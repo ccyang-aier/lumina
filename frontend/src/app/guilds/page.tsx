@@ -206,7 +206,7 @@ function RecommendCard({ guild, index }: { guild: Guild; index: number }) {
 export default function GuildsPage() {
   return (
     <div className="min-h-screen bg-background">
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+      <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 py-10">
 
         {/* Page Header */}
         <motion.div

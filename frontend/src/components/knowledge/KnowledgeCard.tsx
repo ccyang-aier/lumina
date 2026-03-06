@@ -73,7 +73,7 @@ export function KnowledgeCard({
   const gradient = getGradient(id);
 
   return (
-    <Link href={`/knowledge/${id}`} className={cn("w-full h-[180px] group cursor-pointer block", className)}>
+    <Link href={`/knowledge/${id}`} className={cn("w-full h-[200px] group cursor-pointer block", className)}>
       <div className="relative flex flex-row h-full w-full overflow-hidden rounded-xl border border-border bg-card hover:shadow-lg hover:border-primary/20 transition-all duration-300">
         
         {/* Left: Image Container */}

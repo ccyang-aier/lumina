@@ -30,7 +30,7 @@ export default function ExchangePage() {
     <div className="min-h-screen bg-background">
       {/* ── Page Header ── */}
       <div className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-16 z-30">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
           {/* Hero row */}
           <div className="flex items-center justify-between py-5">
             <div>
@@ -94,7 +94,7 @@ export default function ExchangePage() {
       </div>
 
       {/* ── Content ── */}
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Tab description */}
         <motion.p
           key={active}

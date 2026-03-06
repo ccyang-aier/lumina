@@ -17,10 +17,31 @@ import {
   XCircle,
   HelpCircle,
   Sparkles,
+  RefreshCw,
+  Copy,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import type { ChatMessage, Confidence } from "@/lib/alchemy-data"
 import { INITIAL_CHAT } from "@/lib/alchemy-data"
+import { AiChatInput } from "@/components/design/AiChatInput"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
+import {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from "@/components/ui/hover-card"
+import { KnowledgeCard, type KnowledgeCardProps } from "@/components/knowledge/KnowledgeCard"
 
 // ─── Suggested Questions ──────────────────────────────────────────────────────
 
@@ -29,6 +50,33 @@ const SUGGEST_QUESTIONS = [
   "useCallback 在什么情况下真正有优化效果？",
   "Kafka 消息重复消费怎么避免？",
 ]
+
+// ─── Mock Knowledge Cards ─────────────────────────────────────────────────────
+
+const MOCK_CARDS: Record<string, KnowledgeCardProps> = {
+  "kc-001": {
+    id: "kc-001",
+    title: "React Server Components 详解",
+    description: "深入解析 RSC 的渲染机制与性能优势，对比 CSR 与 SSR 的区别。",
+    tags: ["React", "Performance", "Architecture"],
+    type: "document",
+    author: { name: "Dan A.", avatar: "", guild: "React Core" },
+    publishDate: "2024-02-20",
+    stats: { views: 5432, likes: 230, comments: 45 },
+    location: { series: "React 进阶", chapter: "核心概念" }
+  },
+  "kc-005": {
+    id: "kc-005",
+    title: "前端工程化最佳实践",
+    description: "从 Monorepo 到微前端，构建现代化前端架构的完整指南。",
+    tags: ["Engineering", "Infrastructure"],
+    type: "tutorial",
+    author: { name: "Engineering Team" },
+    publishDate: "2024-01-15",
+    stats: { views: 3200, likes: 150, comments: 28 },
+    location: { series: "架构设计", chapter: "工程化" }
+  }
+}
 
 // ─── Confidence Config ────────────────────────────────────────────────────────
 
@@ -93,19 +141,35 @@ function MessageContent({
         if (match && citationIds) {
           const idx = parseInt(match[1]) - 1
           const cardId = citationIds[idx]
+          const cardData = MOCK_CARDS[cardId]
+
           return (
-            <button
-              key={i}
-              onClick={() => cardId && onCitationClick?.(cardId)}
-              className={cn(
-                "inline-flex items-center justify-center text-[10px] font-bold rounded px-1 py-0 mx-0.5 transition-colors",
-                highlightedCitation === cardId
-                  ? "bg-blue-500 text-white"
-                  : "bg-blue-100 text-blue-600 dark:bg-blue-900/40 dark:text-blue-400 hover:bg-blue-200 dark:hover:bg-blue-800/60"
-              )}
-            >
-              {part}
-            </button>
+            <HoverCard key={i} openDelay={200} closeDelay={100}>
+              <HoverCardTrigger asChild>
+                <button
+                  onClick={() => cardId && onCitationClick?.(cardId)}
+                  className={cn(
+                    "inline-flex items-center justify-center text-[10px] font-bold rounded px-1 py-0 mx-0.5 transition-colors cursor-pointer",
+                    highlightedCitation === cardId
+                      ? "bg-blue-500 text-white"
+                      : "bg-blue-100 text-blue-600 dark:bg-blue-900/40 dark:text-blue-400 hover:bg-blue-200 dark:hover:bg-blue-800/60"
+                  )}
+                >
+                  {part}
+                </button>
+              </HoverCardTrigger>
+              <HoverCardContent className="w-[320px] p-0 border-none bg-transparent shadow-none" side="top" align="start">
+                {cardData ? (
+                  <div className="bg-background rounded-xl shadow-xl border border-border overflow-hidden">
+                    <KnowledgeCard {...cardData} className="h-auto scale-90 origin-top-left w-[110%]" />
+                  </div>
+                ) : (
+                  <div className="bg-popover text-popover-foreground px-3 py-2 rounded-md text-xs shadow-md border border-border">
+                    知识卡片 ID: {cardId} (暂无预览)
+                  </div>
+                )}
+              </HoverCardContent>
+            </HoverCard>
           )
         }
         // Handle bold
@@ -182,10 +246,8 @@ function StreamingMessage({
   return (
     <div
       className={cn(
-        "border-l-2 pl-4 transition-all",
-        streaming
-          ? `${cfg?.pulseColor ?? "border-l-gray-300"} animate-pulse`
-          : cfg?.borderColor ?? "border-l-gray-300"
+        "transition-all",
+        streaming && "animate-pulse"
       )}
     >
       <div className="text-sm leading-relaxed whitespace-pre-wrap">
@@ -235,7 +297,7 @@ function GapBanner({ onClaim }: { onClaim: () => void }) {
             "relative flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg font-medium transition-all",
             claimed
               ? "bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 cursor-default"
-              : "bg-amber-500 text-white hover:bg-amber-600 active:scale-95"
+              : "bg-amber-500 text-white hover:bg-amber-600 active:scale-95 cursor-pointer"
           )}
         >
           {claimed ? (
@@ -294,8 +356,8 @@ function Message({
         animate={{ opacity: 1, y: 0 }}
         className="flex justify-end"
       >
-        <div className="max-w-[78%] bg-primary text-primary-foreground rounded-2xl rounded-tr-sm px-4 py-2.5">
-          <p className="text-sm leading-relaxed">{msg.content}</p>
+        <div className="max-w-[78%] bg-primary text-primary-foreground rounded-2xl rounded-tr-sm px-4 py-2.5 shadow-sm">
+          <p className="text-sm leading-relaxed whitespace-pre-wrap">{msg.content}</p>
         </div>
       </motion.div>
     )
@@ -305,31 +367,16 @@ function Message({
     <motion.div
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
-      className="flex gap-3"
+      className="flex gap-4 group"
     >
       {/* Avatar */}
-      <div className="shrink-0 h-8 w-8 rounded-full bg-gradient-to-br from-blue-500 to-violet-600 flex items-center justify-center mt-0.5">
+      <div className="shrink-0 h-8 w-8 rounded-full bg-gradient-to-br from-blue-500 to-violet-600 flex items-center justify-center mt-1 shadow-sm">
         <Sparkles className="h-4 w-4 text-white" />
       </div>
 
-      <div className="flex-1 min-w-0">
-        {/* Confidence label */}
-        {cfg && (
-          <div className="flex items-center gap-1.5 mb-1.5">
-            {cfg.icon}
-            <span className={cn("text-[11px] font-medium", cfg.labelColor)}>
-              {cfg.label}
-            </span>
-            {msg.confidenceScore && msg.confidenceScore > 0 && (
-              <span className="text-[11px] text-muted-foreground">
-                · {Math.round(msg.confidenceScore * 100)}%
-              </span>
-            )}
-          </div>
-        )}
-
+      <div className="flex-1 min-w-0 space-y-2">
         {/* Message body */}
-        <div className="bg-card/60 rounded-2xl rounded-tl-sm border border-border/50 px-4 py-3">
+        <div className="text-sm leading-relaxed text-foreground/90">
           {isStreaming ? (
             <StreamingMessage
               fullContent={msg.content}
@@ -337,68 +384,85 @@ function Message({
               onComplete={onStreamComplete ?? (() => {})}
             />
           ) : (
-            <div
-              className={cn(
-                "border-l-2 pl-4",
-                cfg?.borderColor ?? "border-l-transparent"
-              )}
-            >
-              <MessageContent
+             <MessageContent
                 content={msg.content}
                 onCitationClick={onCitationClick}
                 highlightedCitation={highlightedCitation}
                 citationIds={msg.citations}
               />
-            </div>
-          )}
-
-          {/* Medium confidence warning */}
-          {msg.confidence === "medium" && !isStreaming && (
-            <div className="mt-3 flex items-center gap-2 text-xs text-amber-600 dark:text-amber-400 bg-amber-500/8 rounded-lg px-3 py-2">
-              <AlertTriangle className="h-3.5 w-3.5 shrink-0" />
-              建议核实：部分内容基于通用知识推断，可能与贵公司内部规范有差异
-            </div>
-          )}
-
-          {/* Low confidence warning */}
-          {msg.confidence === "low" && !isStreaming && (
-            <div className="mt-3 flex items-center gap-2 text-xs text-red-600 dark:text-red-400 bg-red-500/8 rounded-lg px-3 py-2">
-              <XCircle className="h-3.5 w-3.5 shrink-0" />
-              ⚠️ 我对此不太确定，建议参考原文或咨询领域专家
-            </div>
-          )}
-
-          {/* None confidence */}
-          {msg.confidence === "none" && !isStreaming && (
-            <div className="mt-3 flex items-center gap-2 text-xs text-muted-foreground bg-muted/30 rounded-lg px-3 py-2">
-              <HelpCircle className="h-3.5 w-3.5 shrink-0" />
-              ⚠️ 未找到知识库支撑来源，内容来自通用知识，不建议直接用于正式文档
-            </div>
           )}
         </div>
+
+        {/* Warnings */}
+        {msg.confidence === "medium" && !isStreaming && (
+          <div className="flex items-center gap-2 text-xs text-amber-600 dark:text-amber-400 bg-amber-500/10 rounded-lg px-3 py-2 w-fit">
+            <AlertTriangle className="h-3.5 w-3.5 shrink-0" />
+            <span>建议核实：部分内容基于通用知识推断</span>
+          </div>
+        )}
+
+        {msg.confidence === "low" && !isStreaming && (
+          <div className="flex items-center gap-2 text-xs text-red-600 dark:text-red-400 bg-red-500/10 rounded-lg px-3 py-2 w-fit">
+            <XCircle className="h-3.5 w-3.5 shrink-0" />
+            <span>我对此不太确定，建议参考原文</span>
+          </div>
+        )}
+
+        {msg.confidence === "none" && !isStreaming && (
+          <div className="flex items-center gap-2 text-xs text-muted-foreground bg-muted/50 rounded-lg px-3 py-2 w-fit">
+            <HelpCircle className="h-3.5 w-3.5 shrink-0" />
+            <span>内容来自通用知识</span>
+          </div>
+        )}
 
         {/* Gap result special UI */}
         {msg.isGapResult && !isStreaming && (
           <GapBanner onClaim={onGapClaim ?? (() => {})} />
         )}
 
-        {/* Action bar */}
+        {/* Bottom Metadata & Actions */}
         {!isStreaming && (
-          <div className="flex items-center gap-1 mt-1.5 px-1">
-            {[
-              { icon: <ThumbsUp className="h-3.5 w-3.5" />, label: "有帮助" },
-              { icon: <ThumbsDown className="h-3.5 w-3.5" />, label: "不准确" },
-              { icon: <ExternalLink className="h-3.5 w-3.5" />, label: "查看原文" },
-              { icon: <BookmarkPlus className="h-3.5 w-3.5" />, label: "保存为卡片" },
-            ].map((action) => (
-              <button
-                key={action.label}
-                className="flex items-center gap-1 text-[11px] text-muted-foreground hover:text-foreground px-2 py-1 rounded-md hover:bg-accent/40 transition-colors"
-              >
-                {action.icon}
-                <span className="hidden sm:inline">{action.label}</span>
-              </button>
-            ))}
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-2 pt-1">
+             {/* Confidence Label - Only if valid */}
+             {cfg && msg.confidence !== 'none' && (
+              <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-accent/30 text-xs">
+                {cfg.icon}
+                <span className={cn("font-medium", cfg.labelColor)}>
+                  {cfg.label}
+                </span>
+                {msg.confidenceScore && msg.confidenceScore > 0 && (
+                  <span className="text-muted-foreground">
+                    {Math.round(msg.confidenceScore * 100)}%
+                  </span>
+                )}
+              </div>
+            )}
+
+            {/* Actions */}
+            <TooltipProvider>
+              <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                {[
+                  { icon: Copy, label: "复制" },
+                  { icon: RefreshCw, label: "重新生成" },
+                  { icon: ThumbsUp, label: "有帮助" },
+                  { icon: ThumbsDown, label: "不准确" },
+                ].map((action, idx) => (
+                  <Tooltip key={idx}>
+                    <TooltipTrigger asChild>
+                      <motion.button
+                        whileTap={{ scale: 0.9 }}
+                        className="p-1.5 text-muted-foreground hover:text-foreground hover:bg-accent rounded-md transition-colors cursor-pointer"
+                      >
+                        <action.icon className="h-3.5 w-3.5" />
+                      </motion.button>
+                    </TooltipTrigger>
+                    <TooltipContent side="bottom" className="text-xs">
+                      <p>{action.label}</p>
+                    </TooltipContent>
+                  </Tooltip>
+                ))}
+              </div>
+            </TooltipProvider>
           </div>
         )}
       </div>
@@ -442,13 +506,14 @@ export function QAMode({
     bottomRef.current?.scrollIntoView({ behavior: "smooth" })
   }, [messages])
 
-  const handleSend = useCallback(() => {
-    if (!input.trim() || isStreaming) return
+  const handleSend = useCallback((msgContent?: string) => {
+    const content = typeof msgContent === 'string' ? msgContent : input
+    if (!content.trim() || isStreaming) return
 
     const userMsg: ChatMessage = {
       id: `u-${Date.now()}`,
       role: "user",
-      content: input.trim(),
+      content: content.trim(),
       timestamp: new Date(),
     }
 
@@ -457,7 +522,7 @@ export function QAMode({
       {
         id: `ai-${Date.now()}`,
         role: "ai",
-        content: `这是一个很好的问题。根据知识库中的相关资料，${input.trim()} 涉及到以下几个核心要点：\n\n**1. 核心原理**\n在实际项目中，需要理解底层机制才能做出正确决策。相关文档[1]有详细阐述。\n\n**2. 最佳实践**\n团队已有成熟的实践积累，建议参考 \`内部规范文档\` 中的标准方案[2]。\n\n**3. 注意事项**\n需要特别关注边界情况和错误处理，避免在生产环境中出现不可预期的问题。`,
+        content: `这是一个很好的问题。根据知识库中的相关资料，${content.trim()} 涉及到以下几个核心要点：\n\n**1. 核心原理**\n在实际项目中，需要理解底层机制才能做出正确决策。相关文档[1]有详细阐述。\n\n**2. 最佳实践**\n团队已有成熟的实践积累，建议参考 \`内部规范文档\` 中的标准方案[2]。\n\n**3. 注意事项**\n需要特别关注边界情况和错误处理，避免在生产环境中出现不可预期的问题。`,
         confidence: "high",
         confidenceScore: 0.88,
         citations: ["kc-001", "kc-005"],
@@ -487,12 +552,7 @@ export function QAMode({
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [streamingMsgId, onConfidenceChange])
 
-  function handleKeyDown(e: React.KeyboardEvent<HTMLTextAreaElement>) {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault()
-      handleSend()
-    }
-  }
+
 
   const scopes = ["全局知识库", "我的公会", "我的卡片"]
 
@@ -501,23 +561,27 @@ export function QAMode({
       {/* Top bar */}
       <div className="flex items-center justify-between px-5 py-3 border-b border-border/40 shrink-0">
         <div className="flex items-center gap-2">
-          <span className="text-sm font-semibold">Lumina AI · 问答模式</span>
+          <span className="text-sm font-semibold">AI Agent · 问答模式</span>
           <span className="text-muted-foreground/40">·</span>
-          <select
-            value={knowledgeScope}
-            onChange={(e) => setKnowledgeScope(e.target.value)}
-            className="text-xs text-muted-foreground bg-transparent border-0 outline-none cursor-pointer hover:text-foreground transition-colors"
-          >
-            {scopes.map((s) => (
-              <option key={s} value={s}>
-                {s}
-              </option>
-            ))}
-          </select>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors outline-none cursor-pointer">
+                {knowledgeScope}
+                <ChevronDown className="h-3 w-3 opacity-50" />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start">
+              {scopes.map((s) => (
+                <DropdownMenuItem key={s} onClick={() => setKnowledgeScope(s)} className="cursor-pointer">
+                  {s}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
         <button
           onClick={() => setMessages([])}
-          className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1 px-2 py-1 rounded hover:bg-accent/40 transition-colors"
+          className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1 px-2 py-1 rounded hover:bg-accent/40 transition-colors cursor-pointer"
         >
           <RotateCcw className="h-3.5 w-3.5" />
           新对话
@@ -535,7 +599,7 @@ export function QAMode({
             <div className="h-14 w-14 rounded-2xl bg-gradient-to-br from-blue-500 to-violet-600 flex items-center justify-center mb-4">
               <Sparkles className="h-7 w-7 text-white" />
             </div>
-            <h3 className="text-lg font-semibold mb-1">Lumina AI 问答</h3>
+            <h3 className="text-lg font-semibold mb-1">AI Agent · 问答</h3>
             <p className="text-sm text-muted-foreground max-w-xs">
               基于知识库的深度问答，每个回答都有可溯源的知识依据
             </p>
@@ -544,7 +608,7 @@ export function QAMode({
                 <button
                   key={q}
                   onClick={() => setInput(q)}
-                  className="text-xs px-3 py-1.5 rounded-full border border-border/60 hover:border-foreground/30 hover:bg-accent/40 transition-all text-muted-foreground hover:text-foreground"
+                  className="text-xs px-3 py-1.5 rounded-full border border-border/60 hover:border-foreground/30 hover:bg-accent/40 transition-all text-muted-foreground hover:text-foreground cursor-pointer"
                 >
                   {q}
                 </button>
@@ -568,88 +632,52 @@ export function QAMode({
 
       {/* Input area */}
       <div className="px-5 py-4 border-t border-border/40 shrink-0">
-        {/* Suggestions dropdown */}
-        <AnimatePresence>
-          {showSuggest && (
-            <motion.div
-              initial={{ opacity: 0, y: 4 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 4 }}
-              className="mb-2 bg-card border border-border rounded-xl overflow-hidden shadow-lg"
-            >
-              {SUGGEST_QUESTIONS.map((q) => (
-                <button
-                  key={q}
-                  onClick={() => {
-                    setInput(q)
-                    setShowSuggest(false)
-                  }}
-                  className="w-full text-left text-sm px-4 py-2.5 hover:bg-accent/40 transition-colors border-b border-border/40 last:border-0"
-                >
-                  {q}
-                </button>
-              ))}
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        <div className="flex flex-col gap-2">
-          {/* Text input */}
-          <div className="relative flex rounded-xl border border-border/60 bg-card/60 focus-within:border-foreground/20 transition-colors">
-            <textarea
-              ref={textareaRef}
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyDown={handleKeyDown}
-              placeholder="输入你的问题... (Enter 发送，Shift+Enter 换行)"
-              rows={2}
-              className="flex-1 resize-none bg-transparent px-4 py-3 text-sm outline-none placeholder:text-muted-foreground/50 min-h-[72px] max-h-[200px]"
-            />
+        <div className="w-full mx-auto">
+          {/* Suggestion Toggle - Moved to top left */}
+          <div className="flex items-center justify-between mb-2 px-1">
+             <button
+               onClick={() => setShowSuggest(!showSuggest)}
+               className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1 px-2 py-1.5 rounded-lg hover:bg-accent/40 transition-colors cursor-pointer"
+             >
+               <Sparkles className="h-3.5 w-3.5" />
+               追问建议
+               <ChevronDown className={cn("h-3 w-3 transition-transform", showSuggest ? "rotate-180" : "")} />
+             </button>
           </div>
 
-          {/* Bottom actions */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-1">
-              <button
-                onClick={() => setShowSuggest(!showSuggest)}
-                className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1 px-2 py-1.5 rounded-lg hover:bg-accent/40 transition-colors"
+          {/* Suggestions dropdown */}
+          <AnimatePresence>
+            {showSuggest && (
+              <motion.div
+                initial={{ opacity: 0, y: 4 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 4 }}
+                className="mb-2 bg-card border border-border rounded-xl overflow-hidden shadow-lg"
               >
-                <Sparkles className="h-3.5 w-3.5" />
-                追问建议
-                <ChevronDown className="h-3 w-3" />
-              </button>
-              <button className="p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-accent/40 transition-colors">
-                <Paperclip className="h-4 w-4" />
-              </button>
-            </div>
+                {SUGGEST_QUESTIONS.map((q) => (
+                  <button
+                    key={q}
+                    onClick={() => {
+                      setInput(q)
+                      setShowSuggest(false)
+                    }}
+                    className="w-full text-left text-sm px-4 py-2.5 hover:bg-accent/40 transition-colors border-b border-border/40 last:border-0 cursor-pointer"
+                  >
+                    {q}
+                  </button>
+                ))}
+              </motion.div>
+            )}
+          </AnimatePresence>
 
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => setIsVoice(!isVoice)}
-                className={cn(
-                  "p-2 rounded-lg transition-all",
-                  isVoice
-                    ? "bg-red-500/20 text-red-500 animate-pulse"
-                    : "text-muted-foreground hover:text-foreground hover:bg-accent/40"
-                )}
-              >
-                <Mic className="h-4 w-4" />
-              </button>
-              <button
-                onClick={handleSend}
-                disabled={!input.trim() || isStreaming}
-                className={cn(
-                  "flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all",
-                  input.trim() && !isStreaming
-                    ? "bg-foreground text-background hover:opacity-90 active:scale-95"
-                    : "bg-muted text-muted-foreground cursor-not-allowed"
-                )}
-              >
-                <Send className="h-4 w-4" />
-                发送
-              </button>
-            </div>
-          </div>
+          <AiChatInput
+            value={input}
+            onChange={setInput}
+            onSend={(msg) => handleSend(msg)}
+            placeholder="输入你的问题... (Enter 发送)"
+            className="w-full"
+          />
+          
         </div>
       </div>
     </div>

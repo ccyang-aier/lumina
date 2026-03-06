@@ -263,7 +263,7 @@ function FeedCard({ item, index }: { item: FeedItem; index: number }) {
 export function GuildFeedTab() {
   return (
     <div className="pt-4">
-      <div className="max-w-2xl">
+      <div className="max-w-[1440px] mx-auto">
         {FEED_ITEMS.map((item, i) => (
           <FeedCard key={item.id} item={item} index={i} />
         ))}

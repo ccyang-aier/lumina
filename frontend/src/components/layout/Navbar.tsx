@@ -24,7 +24,7 @@ import { NotificationButton } from "@/components/design/NotificationButton"
 import { cn } from "@/lib/utils"
 
 const navItems = [
-  { href: "/knowledge", label: "图鉴" },
+  { href: "/knowledge", label: "知识库" },
   { href: "/guild", label: "炼金" },
   { href: "/expedition", label: "远征" },
   { href: "/guilds", label: "公会" },
@@ -50,6 +50,11 @@ export function Navbar() {
     return () => window.removeEventListener("scroll", handleScroll)
   }, [])
 
+  // Hide Navbar on Alchemy module
+  if (pathname.startsWith("/guild")) {
+    return null
+  }
+
 
 
   return (
@@ -61,7 +66,7 @@ export function Navbar() {
           : "bg-background/60 backdrop-blur-sm border-transparent"
       )}
     >
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between gap-4">
           {/* Left: Logo & Online Users */}
           <div className="flex items-center gap-4 shrink-0">

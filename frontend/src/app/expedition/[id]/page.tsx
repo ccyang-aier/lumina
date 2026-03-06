@@ -323,7 +323,7 @@ export default function ExpeditionDetailPage({ params }: PageProps) {
         style={{ background: cfg.gradient, boxShadow: `0 0 20px ${cfg.color}60` }}
       />
 
-      <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="relative z-10 max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
         {/* 返回按钮 */}
         <motion.div initial={{ opacity: 0, x: -12 }} animate={{ opacity: 1, x: 0 }}>

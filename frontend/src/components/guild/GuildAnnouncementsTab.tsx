@@ -87,7 +87,7 @@ function AnnouncementCard({ item, index }: { item: Announcement; index: number }
 
 export function GuildAnnouncementsTab() {
   return (
-    <div className="pt-4 max-w-2xl flex flex-col gap-3">
+    <div className="pt-4 max-w-[1440px] mx-auto flex flex-col gap-3">
       {ANNOUNCEMENTS.map((ann, i) => (
         <AnnouncementCard key={ann.id} item={ann} index={i} />
       ))}

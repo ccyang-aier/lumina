@@ -9,8 +9,7 @@ export const metadata: Metadata = {
 export default function AlchemyPage() {
   return (
     <div
-      className="h-[calc(100vh-4rem)] flex flex-col overflow-hidden"
-      style={{ height: "calc(100svh - 64px)" }}
+      className="h-screen flex flex-col overflow-hidden"
     >
       <AlchemyWorkbench />
     </div>

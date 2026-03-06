@@ -166,7 +166,7 @@ function PathNode({ node, index, isLast }: { node: LearningPathNode; index: numb
 
 export function GuildLearningPathTab() {
   return (
-    <div className="pt-4 max-w-2xl">
+    <div className="pt-4 max-w-[1440px] mx-auto">
       <div className="flex items-center gap-2 mb-6">
         <div className="text-lg">🗺️</div>
         <div>

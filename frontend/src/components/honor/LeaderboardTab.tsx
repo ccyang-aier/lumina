@@ -365,7 +365,7 @@ export function LeaderboardTab() {
   const rest = entries.slice(3)
 
   return (
-    <div className="max-w-3xl mx-auto">
+    <div className="max-w-[1440px] mx-auto">
       {/* Filters */}
       <motion.div
         className="rounded-2xl border border-border bg-card p-4 mb-6"

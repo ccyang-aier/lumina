@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState, useEffect } from "react";
+import { usePathname } from "next/navigation";
 import {
   motion,
   AnimatePresence,
@@ -12,6 +13,7 @@ const BUTTON_SIZE = 80;
 const EDGE_MARGIN = 10;
 
 export function SidePanelTrigger() {
+  const pathname = usePathname();
   const { isOpen, toggle } = useSidePanel();
 
   // Position stored as CSS bottom/right offsets
@@ -27,7 +29,7 @@ export function SidePanelTrigger() {
   });
   const hasDraggedRef = useRef(false);
 
-  // ── Drag logic ──────────────────────────────────────────────────────────────
+  // ─── Drag logic ──────────────────────────────────────────────────────────────
   useEffect(() => {
     const clamp = () => {
       setPos((prev) => ({
@@ -77,6 +79,11 @@ export function SidePanelTrigger() {
   const handleClick = () => {
     if (!hasDraggedRef.current) toggle();
   };
+
+  // Hide on Alchemy module
+  if (pathname?.startsWith("/guild")) {
+    return null;
+  }
 
   return (
     <AnimatePresence>

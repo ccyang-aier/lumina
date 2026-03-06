@@ -77,7 +77,7 @@ function GuildHero({ guild }: { guild: Guild }) {
       </div>
 
       {/* Parallax content */}
-      <motion.div style={{ y, opacity }} className="relative z-10 px-6 py-10 sm:px-10 sm:py-14">
+      <motion.div style={{ y, opacity }} className="relative z-10 px-6 py-10 sm:px-10 sm:py-14 mx-auto max-w-[1440px]">
         
         {/* Top row: admin buttons */}
         <div className="flex items-center justify-end gap-2 mb-8">
@@ -165,7 +165,7 @@ function TabNav({ active, onChange }: { active: TabKey; onChange: (k: TabKey) =>
 
   return (
     <div className="sticky top-[65px] z-30 bg-background/90 backdrop-blur-md border-b border-border">
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
         <div ref={navRef} className="relative flex gap-0 overflow-x-auto scrollbar-none">
           {TABS.map((tab, i) => (
             <button
@@ -219,7 +219,7 @@ export default function GuildDetailPage() {
     <div className="min-h-screen bg-background">
 
       {/* Breadcrumb */}
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 pb-0">
+      <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 pt-4 pb-0">
         <nav className="flex items-center gap-1.5 text-sm text-muted-foreground mb-4">
           <Link href="/guilds" className="hover:text-foreground transition-colors">公会列表</Link>
           <ChevronRight className="w-3.5 h-3.5" />
@@ -234,7 +234,7 @@ export default function GuildDetailPage() {
       <TabNav active={activeTab} onChange={setActiveTab} />
 
       {/* Tab content */}
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pb-16">
+      <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 pb-16">
         <AnimatePresence mode="wait">
           <motion.div
             key={activeTab}

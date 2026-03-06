@@ -1,12 +1,22 @@
+"use client"
+
 import Link from "next/link"
+import { usePathname } from "next/navigation"
 import { Github, Twitter, Linkedin, Facebook, Instagram } from "lucide-react"
 
 import { LuminaIcon } from "@/components/ui/lumina-icon"
 
 export function Footer() {
+  const pathname = usePathname()
+  
+  // Hide Footer on Alchemy module
+  if (pathname?.startsWith("/guild")) {
+    return null
+  }
+
   return (
     <footer className="w-full border-t bg-background pt-16 pb-8">
-      <div className="container mx-auto px-4 md:px-6">
+      <div className="mx-auto max-w-[1440px] px-4 md:px-6">
         <div className="flex flex-col items-center space-y-8">
           
           {/* Logo and Brand */}
@@ -27,10 +37,10 @@ export function Footer() {
           </nav>
 
           {/* Divider */}
-          <div className="w-full h-px bg-border/50 max-w-4xl border-t border-dashed my-8"></div>
+          <div className="w-full h-px bg-border/50 border-t border-dashed my-8"></div>
 
           {/* Bottom Section */}
-          <div className="flex flex-col sm:flex-row w-full max-w-4xl items-center justify-between gap-4">
+          <div className="flex flex-col sm:flex-row w-full items-center justify-between gap-4">
             <p className="text-sm text-muted-foreground">
               © 2026 Lumina. All rights reserved.
             </p>

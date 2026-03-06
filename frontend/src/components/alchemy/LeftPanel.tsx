@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 import { motion, AnimatePresence } from "framer-motion"
 import {
   Bot,
@@ -18,6 +19,7 @@ import {
   ClipboardList,
   PanelLeftClose,
   PanelLeftOpen,
+  ArrowLeft,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import type { AIMode, HistorySession } from "@/lib/alchemy-data"
@@ -113,6 +115,7 @@ export function LeftPanel({
   onToggleCollapse,
 }: LeftPanelProps) {
   const [historyOpen, setHistoryOpen] = useState(false)
+  const router = useRouter()
 
   return (
     <motion.aside
@@ -132,8 +135,15 @@ export function LeftPanel({
               transition={{ duration: 0.15 }}
               className="flex items-center gap-2 overflow-hidden"
             >
+              <button 
+                onClick={() => router.push("/")}
+                className="p-1 hover:bg-accent/50 rounded-md transition-colors mr-1"
+                title="返回主页"
+              >
+                <ArrowLeft className="h-4 w-4 text-muted-foreground" />
+              </button>
               <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider whitespace-nowrap">
-                AI 能力
+                AI Agents
               </span>
             </motion.div>
           )}
