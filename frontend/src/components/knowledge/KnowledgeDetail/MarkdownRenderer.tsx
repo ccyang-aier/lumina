@@ -2,6 +2,7 @@
 
 import parse, { domToReact, Element, DOMNode } from "html-react-parser";
 import { CodeBlock } from "./CodeBlock";
+import { ClickableImage } from "./CommentSection";
 import styles from "./KnowledgeDetail.module.css";
 import { useEffect } from "react";
 import { Info, Lightbulb, AlertTriangle, OctagonX, CheckCircle, Flame } from "lucide-react";
@@ -90,6 +91,21 @@ export function MarkdownRenderer({ content }: MarkdownRendererProps) {
                {domToReact(domNode.children as DOMNode[], options)}
              </CodeBlock>
            );
+      }
+      
+      // 3. Handle Images - Make them clickable to zoom
+      if (domNode instanceof Element && domNode.name === "img") {
+        const src = domNode.attribs["src"];
+        const alt = domNode.attribs["alt"] || "";
+        if (src) {
+          return (
+            <ClickableImage 
+              src={src} 
+              alt={alt} 
+              className="rounded-lg border border-border max-w-full h-auto"
+            />
+          );
+        }
       }
     },
   };

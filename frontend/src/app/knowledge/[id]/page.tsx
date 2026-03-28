@@ -17,7 +17,7 @@ import { TableOfContents } from "@/components/knowledge/KnowledgeDetail/TableOfC
 import { ChapterNav } from "@/components/knowledge/KnowledgeDetail/ChapterNav"
 import { ActionButtons } from "@/components/knowledge/KnowledgeDetail/ActionButtons"
 import { PageActions } from "@/components/knowledge/KnowledgeDetail/PageActions"
-import { CommentSection } from "@/components/knowledge/KnowledgeDetail/CommentSection"
+import { CommentSection, ClickableImage } from "@/components/knowledge/KnowledgeDetail/CommentSection"
 import styles from "@/components/knowledge/KnowledgeDetail/KnowledgeDetail.module.css"
 import { MarkdownRenderer } from "@/components/knowledge/KnowledgeDetail/MarkdownRenderer"
 
@@ -231,8 +231,7 @@ export default async function KnowledgeDetailPage({ params }: PageProps) {
             {/* Cover Image */}
             {card.image && (
               <div className="mb-8 rounded-xl overflow-hidden border border-border aspect-[16/7]">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
+                <ClickableImage
                   src={card.image}
                   alt={card.title}
                   className="w-full h-full object-cover"
@@ -261,7 +260,7 @@ export default async function KnowledgeDetailPage({ params }: PageProps) {
             })()}
 
             {/* Comment Section */}
-            <CommentSection />
+            <CommentSection articleId={card.id} />
           </main>
 
           {/* ===== RIGHT COLUMN: Table of Contents ===== */}
