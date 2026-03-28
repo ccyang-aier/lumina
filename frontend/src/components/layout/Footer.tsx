@@ -1,19 +1,11 @@
 "use client"
 
 import Link from "next/link"
-import { usePathname } from "next/navigation"
 import { Github, Twitter, Linkedin, Facebook, Instagram } from "lucide-react"
 
 import { LuminaIcon } from "@/components/ui/lumina-icon"
 
 export function Footer() {
-  const pathname = usePathname()
-  
-  // Hide Footer on Alchemy module
-  if (pathname?.startsWith("/guild")) {
-    return null
-  }
-
   return (
     <footer className="w-full border-t bg-background pt-16 pb-8">
       <div className="mx-auto max-w-[1440px] px-4 md:px-6">
@@ -29,11 +21,9 @@ export function Footer() {
 
           {/* Navigation Links */}
           <nav className="flex flex-wrap items-center justify-center gap-x-8 gap-y-4 text-sm font-medium text-muted-foreground">
-            <Link href="/knowledge" className="hover:text-foreground transition-colors">大世界</Link>
-            <Link href="/guild" className="hover:text-foreground transition-colors">炼金</Link>
-            <Link href="/world-boss" className="hover:text-foreground transition-colors">远征</Link>
-            <Link href="/hall-of-fame" className="hover:text-foreground transition-colors">公会</Link>
+            <Link href="/knowledge" className="hover:text-foreground transition-colors">知识库</Link>
             <Link href="/exchange" className="hover:text-foreground transition-colors">荣誉</Link>
+            <Link href="/market" className="hover:text-foreground transition-colors">集市</Link>
           </nav>
 
           {/* Divider */}

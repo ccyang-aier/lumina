@@ -1,7 +1,6 @@
 "use client";
 
 import { useRef, useState, useEffect } from "react";
-import { usePathname } from "next/navigation";
 import {
   motion,
   AnimatePresence,
@@ -13,13 +12,11 @@ const BUTTON_SIZE = 80;
 const EDGE_MARGIN = 10;
 
 export function SidePanelTrigger() {
-  const pathname = usePathname();
   const { isOpen, toggle } = useSidePanel();
 
   // Position stored as CSS bottom/right offsets
   const [pos, setPos] = useState({ bottom: 60, right: 84 });
   const [isDragging, setIsDragging] = useState(false);
-  const [isHovered, setIsHovered] = useState(false);
 
   const dragOriginRef = useRef({
     mouseX: 0,
@@ -80,11 +77,6 @@ export function SidePanelTrigger() {
     if (!hasDraggedRef.current) toggle();
   };
 
-  // Hide on Alchemy module
-  if (pathname?.startsWith("/guild")) {
-    return null;
-  }
-
   return (
     <AnimatePresence>
       {!isOpen && (
@@ -101,11 +93,8 @@ export function SidePanelTrigger() {
           <div
             onMouseDown={handleMouseDown}
             onClick={handleClick}
-            onMouseEnter={() => setIsHovered(true)}
-            onMouseLeave={() => setIsHovered(false)}
             style={{
               cursor: isDragging ? "grabbing" : "pointer",
-              // Remove perspective here as AiAgentBall handles it internally
             }}
           >
              <AiAgentBall size={BUTTON_SIZE} />

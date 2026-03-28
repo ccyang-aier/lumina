@@ -8,8 +8,6 @@ import {
   Star,
   CircleDashed,
   FileText,
-  Users,
-  User,
   Sparkles,
   ArrowRight,
   ChevronDown,
@@ -19,7 +17,6 @@ import {
   BookOpen,
   Hash,
   ChevronRight,
-  ShieldCheck,
   UserCircle2,
   Heart,
 } from "lucide-react"
@@ -91,17 +88,6 @@ function getMockResults(query: string): SearchResultGroup[] {
         { id: "1", title: `${query}：核心概念与实践指南`, type: "文档", matchScore: 98, tags: ["入门", "实践"] },
         { id: "2", title: `深入理解${query}的底层原理`, type: "研究", matchScore: 91, tags: ["进阶"] },
         { id: "3", title: `${query}在实际项目中的应用案例`, type: "案例", matchScore: 84 },
-      ],
-    },
-    {
-      key: "guilds",
-      label: "公会",
-      icon: <ShieldCheck className="h-3.5 w-3.5" />,
-      itemIcon: <ShieldCheck className="h-3.5 w-3.5" />,
-      count: 3,
-      items: [
-        { id: "g1", title: `${query}爱好者公会`, type: "公会", matchScore: 95 },
-        { id: "g2", title: `技术探索者联盟`, type: "公会", matchScore: 72 },
       ],
     },
     {

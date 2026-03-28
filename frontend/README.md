@@ -33,3 +33,4 @@ frontend/
 目录结构划分约定：
 - 路由入口统一放在 src/app：每个页面对应一个路由段目录（如 src/app/xxx/page.tsx），布局与边界文件（layout/loading/error/not-found/route）按路由段就近放置，保持最佳实践；
 - 可复用 UI 组件放在 src/components；若仅服务某一个路由且不考虑复用，可选择放在对应路由段下的私有目录（例如 src/app/(group)/_components）；
+

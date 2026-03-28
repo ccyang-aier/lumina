@@ -29,14 +29,9 @@ const SearchModal = dynamic(() => import("./SearchModal").then((mod) => mod.Sear
 
 const navItems = [
   { href: "/knowledge", label: "知识库" },
-  { href: "/guild", label: "炼金" },
-  { href: "/expedition", label: "远征" },
-  { href: "/guilds", label: "公会" },
   { href: "/exchange", label: "荣誉" },
   { href: "/market", label: "集市" },
 ]
-
-
 
 export function Navbar() {
   const pathname = usePathname() ?? ""
@@ -53,13 +48,6 @@ export function Navbar() {
     window.addEventListener("scroll", handleScroll)
     return () => window.removeEventListener("scroll", handleScroll)
   }, [])
-
-  // Hide Navbar on Alchemy module
-  if (pathname === "/guild" || pathname.startsWith("/guild/")) {
-    return null
-  }
-
-
 
   return (
     <header
