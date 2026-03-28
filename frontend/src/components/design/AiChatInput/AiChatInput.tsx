@@ -7,13 +7,13 @@ import styles from "./AiChatInput.module.css";
 import { CodeReference } from "@/components/layout/SidePanelContext";
 
 interface AiChatInputProps {
-  onSend?: (message: string, attachments?: File[], codeRef?: CodeReference) => void;
+  onSend?: (message: string, attachments?: File[], codeRefs?: CodeReference[]) => void;
   placeholder?: string;
   className?: string;
   value?: string;
   onChange?: (value: string) => void;
-  codeRef?: CodeReference | null;
-  onClearCodeRef?: () => void;
+  codeRefs?: CodeReference[];
+  onRemoveCodeRef?: (id: string) => void;
 }
 
 interface Attachment {
@@ -28,8 +28,8 @@ export function AiChatInput({
   className,
   value: propValue,
   onChange: propOnChange,
-  codeRef,
-  onClearCodeRef,
+  codeRefs = [],
+  onRemoveCodeRef,
 }: AiChatInputProps) {
   const [internalValue, setInternalValue] = useState("");
   const isControlled = propValue !== undefined;
@@ -55,12 +55,12 @@ export function AiChatInput({
 
   const handleSend = () => {
     const trimmed = value.trim();
-    if (!trimmed && files.length === 0 && !codeRef) return;
+    if (!trimmed && files.length === 0 && codeRefs.length === 0) return;
     
     const validFiles = files.filter(f => f.status === 'done').map(f => f.file);
     
     // Pass files along with the message if the parent component supports it
-    onSend?.(trimmed, validFiles, codeRef || undefined);
+    onSend?.(trimmed, validFiles, codeRefs.length > 0 ? codeRefs : undefined);
     handleChange("");
     setFiles([]);
     if (textareaRef.current) textareaRef.current.style.height = "auto";
@@ -154,40 +154,47 @@ export function AiChatInput({
 
   return (
     <div className={`${styles.container} ${className || ""}`}>
-      {/* Code Reference Pill (Above input) */}
-      <AnimatePresence>
-        {codeRef && (
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 10 }}
-            className="px-4 pt-3 pb-1"
-          >
-            <div className="flex items-center gap-2 max-w-full w-fit bg-muted/50 border border-border/50 rounded-full pl-3 pr-2 py-1.5 text-xs text-muted-foreground group relative overflow-hidden">
-              <Code className="w-3.5 h-3.5 shrink-0 text-primary/70" />
-              <span className="truncate max-w-[200px] font-mono">
-                {codeRef.preview || "Code Snippet"}
-              </span>
-              <button
-                onClick={onClearCodeRef}
-                className="ml-1 p-0.5 rounded-full hover:bg-background/80 hover:text-foreground transition-colors cursor-pointer"
-              >
-                <X className="w-3 h-3" />
-              </button>
+      {/* 统一的附件区域：代码块 + 文件块，共享一个滚动条 */}
+      {(codeRefs.length > 0 || files.length > 0) && (
+        <div className={styles.attachmentsWrapper}>
+          {codeRefs.length > 0 && (
+            <div className={styles.codeRefList}>
+              <AnimatePresence>
+                {codeRefs.map((ref) => (
+                  <motion.div
+                    key={ref.id}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 10 }}
+                    className={styles.codeRefPill}
+                  >
+                    <Code className="w-3.5 h-3.5 shrink-0 text-primary/70" />
+                    <span className={styles.codeRefText}>
+                      {ref.preview || "Code Snippet"}
+                    </span>
+                    <button
+                      onClick={() => onRemoveCodeRef?.(ref.id)}
+                      className={styles.codeRefCloseBtn}
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  </motion.div>
+                ))}
+              </AnimatePresence>
             </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+          )}
 
-      {files.length > 0 && (
-        <div className={styles.filePreviewList}>
-          {files.map((attachment) => (
-            <FilePreviewItem 
-              key={attachment.id} 
-              attachment={attachment} 
-              onRemove={() => handleRemoveFile(attachment.id)} 
-            />
-          ))}
+          {files.length > 0 && (
+            <div className={`${styles.filePreviewList} ${codeRefs.length > 0 ? styles.hasCodeRefsAbove : ""}`}>
+              {files.map((attachment) => (
+                <FilePreviewItem 
+                  key={attachment.id} 
+                  attachment={attachment} 
+                  onRemove={() => handleRemoveFile(attachment.id)} 
+                />
+              ))}
+            </div>
+          )}
         </div>
       )}
 
@@ -195,7 +202,7 @@ export function AiChatInput({
         ref={textareaRef}
         rows={1}
         className={styles.input}
-        placeholder={codeRef ? "Ask about this code..." : placeholder}
+        placeholder={codeRefs.length > 0 ? "Ask about this code..." : placeholder}
         value={value}
         onChange={(e) => handleChange(e.target.value)}
         onKeyDown={handleKeyDown}

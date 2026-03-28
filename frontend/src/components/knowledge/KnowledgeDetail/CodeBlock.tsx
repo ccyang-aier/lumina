@@ -103,7 +103,7 @@ export function CodeBlock({ children, rawCode, language = "plaintext", className
   const [isLoadingTheme, setIsLoadingTheme] = useState(false);
 
   const themePanelRef = useRef<HTMLDivElement>(null);
-  const { open, setActiveCodeRef } = useSidePanel();
+  const { open, addCodeRef } = useSidePanel();
   const { globalThemeId, setGlobalThemeId } = useCodeTheme();
 
   // Re-render this block whenever the global theme changes
@@ -151,7 +151,7 @@ export function CodeBlock({ children, rawCode, language = "plaintext", className
 
   const handleStar = () => {
     open();
-    setActiveCodeRef({
+    addCodeRef({
       id: Math.random().toString(36).substring(7),
       content: rawCode,
       language,

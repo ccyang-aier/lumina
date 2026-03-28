@@ -37,7 +37,7 @@ interface Message {
   role: "user" | "assistant";
   content: string;
   time: string;
-  codeRef?: CodeReference;
+  codeRefs?: CodeReference[];
 }
 
 const INITIAL_MESSAGES: Message[] = [
@@ -142,14 +142,16 @@ function DesktopPanel() {
           animate={{ x: 0 }}
           exit={{ x: "100%" }}
           transition={SPRING}
-          className="fixed right-0 top-0 z-40 hidden h-screen flex-col md:flex"
+          className="fixed right-0 top-0 z-50 hidden h-screen flex-col shadow-2xl md:flex"
           style={{ width: panelWidth }}
         >
+          {/* 拖拽调整宽度区域 - 只保留拖拽功能，无多余视觉元素 */}
           <div
             onMouseDown={handleResizeStart}
-            className="group absolute inset-y-0 left-0 z-10 w-3 cursor-col-resize"
+            className="absolute inset-y-0 left-0 z-10 w-1.5 cursor-col-resize group"
           >
-            <div className="absolute inset-y-0 left-1 w-px bg-border/50 transition-all duration-150 group-hover:left-0.5 group-hover:w-[3px] group-hover:bg-primary/60" />
+            {/* hover时显示拖拽指示线 */}
+            <div className="absolute inset-y-0 left-0 w-0.5 bg-transparent group-hover:bg-primary/40 transition-colors duration-150" />
           </div>
           <PanelInner
             onClose={close}
@@ -208,13 +210,13 @@ function PanelInner({
   onToggleFullscreen: () => void;
   isFullscreen: boolean;
 }) {
-  const { inputValue, setInputValue, activeCodeRef, setActiveCodeRef } = useSidePanel();
+  const { inputValue, setInputValue, activeCodeRefs, clearCodeRefs, removeCodeRef } = useSidePanel();
   const [messages, setMessages] = useState<Message[]>(INITIAL_MESSAGES);
 
-  const handleSend = (text: string, attachments?: File[], codeRef?: CodeReference) => {
+  const handleSend = (text: string, attachments?: File[], codeRefs?: CodeReference[]) => {
     // Clear input value in context when sent
     setInputValue("");
-    setActiveCodeRef(null);
+    clearCodeRefs();
 
     const now = new Date();
     const time = `${now.getHours().toString().padStart(2, "0")}:${now
@@ -224,7 +226,7 @@ function PanelInner({
       
     setMessages((prev) => [
       ...prev,
-      { id: Date.now().toString(), role: "user", content: text, time, codeRef },
+      { id: Date.now().toString(), role: "user", content: text, time, codeRefs },
     ]);
     setTimeout(() => {
       setMessages((prev) => [
@@ -236,7 +238,6 @@ function PanelInner({
 
   return (
     <div className="relative flex h-full w-full flex-col overflow-hidden bg-background">
-      <div className="pointer-events-none absolute inset-y-0 left-[3px] w-px bg-gradient-to-b from-transparent via-primary/25 to-transparent" />
       <div
         aria-hidden
         className="pointer-events-none absolute inset-0 opacity-[0.018] dark:opacity-[0.032]"
@@ -251,8 +252,8 @@ function PanelInner({
           onSend={handleSend} 
           value={inputValue}
           onChange={setInputValue}
-          codeRef={activeCodeRef}
-          onClearCodeRef={() => setActiveCodeRef(null)}
+          codeRefs={activeCodeRefs}
+          onRemoveCodeRef={removeCodeRef}
         />
       </div>
     </div>
@@ -339,13 +340,20 @@ function ChatMessages({ messages }: { messages: Message[] }) {
 function UserBubble({ message }: { message: Message }) {
   return (
     <div className="flex flex-col items-end gap-1">
-      {/* Code Reference Pill (In Chat History) */}
-      {message.codeRef && (
-        <div className="flex items-center gap-2 max-w-[80%] w-fit bg-muted/40 border border-border/40 rounded-full pl-3 pr-4 py-1.5 text-xs text-muted-foreground mb-1 mr-1">
-          <Code className="w-3.5 h-3.5 shrink-0 text-primary/70" />
-          <span className="truncate font-mono">
-            {message.codeRef.preview || "Code Snippet"}
-          </span>
+      {/* Code Reference Pills (In Chat History) */}
+      {message.codeRefs && message.codeRefs.length > 0 && (
+        <div className="flex flex-wrap justify-end gap-1.5 max-w-[80%] mb-1">
+          {message.codeRefs.map((ref) => (
+            <div
+              key={ref.id}
+              className="flex items-center gap-2 w-fit bg-muted/40 border border-border/40 rounded-full pl-3 pr-3 py-1.5 text-xs text-muted-foreground"
+            >
+              <Code className="w-3.5 h-3.5 shrink-0 text-primary/70" />
+              <span className="truncate max-w-[150px] font-mono">
+                {ref.preview || "Code Snippet"}
+              </span>
+            </div>
+          ))}
         </div>
       )}
 

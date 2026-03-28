@@ -10,7 +10,7 @@ import {
 } from "react";
 
 export const DEFAULT_PANEL_WIDTH = 486;
-export const MIN_PANEL_WIDTH = 280;
+export const MIN_PANEL_WIDTH = 380;
 export const MAX_PANEL_WIDTH = 800;
 
 export interface CodeReference {
@@ -33,8 +33,10 @@ interface SidePanelContextType {
   setIsResizing: (v: boolean) => void;
   inputValue: string;
   setInputValue: (v: string) => void;
-  activeCodeRef: CodeReference | null;
-  setActiveCodeRef: (ref: CodeReference | null) => void;
+  activeCodeRefs: CodeReference[];
+  addCodeRef: (ref: CodeReference) => void;
+  removeCodeRef: (id: string) => void;
+  clearCodeRefs: () => void;
 }
 
 const SidePanelContext = createContext<SidePanelContextType | null>(null);
@@ -45,7 +47,7 @@ export function SidePanelProvider({ children }: { children: ReactNode }) {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isResizing, setIsResizing] = useState(false);
   const [inputValue, setInputValue] = useState("");
-  const [activeCodeRef, setActiveCodeRef] = useState<CodeReference | null>(null);
+  const [activeCodeRefs, setActiveCodeRefs] = useState<CodeReference[]>([]);
 
   const panelWidthRef = useRef(DEFAULT_PANEL_WIDTH);
   // Sync ref for isOpen so toggle() can read current value without stale closure
@@ -101,6 +103,24 @@ export function SidePanelProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
+  /** Add a code reference (append, avoid duplicates by id) */
+  const addCodeRef = useCallback((ref: CodeReference) => {
+    setActiveCodeRefs((prev) => {
+      if (prev.some((r) => r.id === ref.id)) return prev;
+      return [...prev, ref];
+    });
+  }, []);
+
+  /** Remove a code reference by id */
+  const removeCodeRef = useCallback((id: string) => {
+    setActiveCodeRefs((prev) => prev.filter((r) => r.id !== id));
+  }, []);
+
+  /** Clear all code references */
+  const clearCodeRefs = useCallback(() => {
+    setActiveCodeRefs([]);
+  }, []);
+
   return (
     <SidePanelContext.Provider
       value={{
@@ -116,8 +136,10 @@ export function SidePanelProvider({ children }: { children: ReactNode }) {
         setIsResizing,
         inputValue,
         setInputValue,
-        activeCodeRef,
-        setActiveCodeRef,
+        activeCodeRefs,
+        addCodeRef,
+        removeCodeRef,
+        clearCodeRefs,
       }}
     >
       {children}

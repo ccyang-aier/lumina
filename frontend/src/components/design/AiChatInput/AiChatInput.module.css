@@ -9,6 +9,8 @@
   box-shadow:
     0 2px 12px rgba(0, 0, 0, 0.08),
     0 0 0 1px rgba(0, 0, 0, 0.05);
+  max-height: 320px;
+  overflow: hidden;
 }
 
 :global(.dark) .container {
@@ -18,13 +20,89 @@
     0 0 0 1px rgba(255, 255, 255, 0.06);
 }
 
+/* ─── Code Reference Wrapper & Pill ─────────────────────────────────────────── */
+/* 统一的附件区域：代码块 + 文件块，共享一个滚动条 */
+.attachmentsWrapper {
+  max-height: 150px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 0 4px;
+}
+
+.attachmentsWrapper::-webkit-scrollbar { width: 4px; }
+.attachmentsWrapper::-webkit-scrollbar-track { background: transparent; }
+.attachmentsWrapper::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.1); border-radius: 4px; }
+:global(.dark) .attachmentsWrapper::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); }
+
+/* 代码块列表 */
+.codeRefList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.codeRefPill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  max-width: 100%;
+  width: fit-content;
+  background: rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 10px;
+  padding: 8px 10px;
+  font-size: 13px;
+  color: #555;
+  position: relative;
+  overflow: hidden;
+}
+
+:global(.dark) .codeRefPill {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.1);
+  color: #aaa;
+}
+
+.codeRefText {
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 12px;
+}
+
+.codeRefCloseBtn {
+  margin-left: 4px;
+  padding: 2px;
+  border-radius: 50%;
+  background: transparent;
+  border: none;
+  color: #999;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.codeRefCloseBtn:hover {
+  background: rgba(0, 0, 0, 0.08);
+  color: #333;
+}
+
+:global(.dark) .codeRefCloseBtn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #ddd;
+}
+
 /* ─── File Preview ───────────────────────────────────────────────────────────── */
 .filePreviewList {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
-  margin-bottom: 8px;
-  padding: 0 4px;
+}
+
+/* 当上方有代码块时，添加上边距 */
+.hasCodeRefsAbove {
+  margin-top: 8px;
 }
 
 .filePreviewCard {
