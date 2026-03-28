@@ -73,7 +73,7 @@ export function ActionButtons() {
                animate={{ 
                   scale: favorited ? [1, 0.7, 1.2, 1] : 1,
                }}
-               transition={{ duration: 0.4, type: "spring" }}
+               transition={{ duration: 0.35, ease: [0.34, 1.56, 0.64, 1] }}
             >
               <Bookmark className={cn("w-5 h-5", favorited ? "fill-current" : "")} />
             </motion.div>

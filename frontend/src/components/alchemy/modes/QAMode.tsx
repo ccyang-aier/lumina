@@ -11,7 +11,6 @@ import {
   BookmarkPlus,
   ChevronDown,
   Paperclip,
-  RotateCcw,
   CheckCircle2,
   AlertTriangle,
   XCircle,
@@ -19,6 +18,11 @@ import {
   Sparkles,
   RefreshCw,
   Copy,
+  Eye,
+  FileText,
+  Loader2,
+  Check,
+  RotateCcw,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import type { ChatMessage, Confidence } from "@/lib/alchemy-data"
@@ -42,6 +46,87 @@ import {
   HoverCardTrigger,
 } from "@/components/ui/hover-card"
 import { KnowledgeCard, type KnowledgeCardProps } from "@/components/knowledge/KnowledgeCard"
+import ReactMarkdown from "react-markdown"
+import remarkGfm from "remark-gfm"
+import { CodeBlock } from "@/components/knowledge/KnowledgeDetail/CodeBlock"
+
+// ─── Colors & Helpers ──────────────────────────────────────────────────────────
+
+const CARD_TYPE_COLORS: Record<string, { iconBg: string; badgeBg: string }> = {
+  document: {
+    iconBg: "bg-blue-500/10 text-blue-500",
+    badgeBg: "bg-blue-500/10 text-blue-600 dark:text-blue-400",
+  },
+  tutorial: {
+    iconBg: "bg-emerald-500/10 text-emerald-500",
+    badgeBg: "bg-emerald-500/10 text-emerald-600 dark dark:text-violet-400",
+  },
+  default: {
+    iconBg: "bg-primary/10 text-primary",
+    badgeBg: "bg-muted text-muted-foreground",
+  },
+}
+
+function Tip({ children, label }: { children: React.ReactNode; label: string }) {
+  const [show, setShow] = useState(false)
+  return (
+    <div
+      className="relative"
+      onMouseEnter={() => setShow(true)}
+      onMouseLeave={() => setShow(false)}
+    >
+      {children}
+      <AnimatePresence>
+        {show && (
+          <motion.div
+            key="tip"
+            initial={{ opacity: 0, y: 3, scale: 0.88 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 3, scale: 0.88 }}
+            transition={{ duration: 0.12 }}
+            className="pointer-events-none absolute bottom-full left-1/2 mb-1.5 -translate-x-1/2 whitespace-nowrap rounded-md bg-foreground/90 px-2 py-0.5 text-[10px] font-medium text-background shadow-md z-50"
+          >
+            {label}
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  )
+}
+
+function ActionBtn({
+  children,
+  onClick,
+  active,
+  activeColor,
+}: {
+  children: React.ReactNode
+  onClick?: () => void
+  active?: boolean
+  activeColor?: string
+}) {
+  return (
+    <motion.button
+      onClick={onClick}
+      whileTap={{ scale: 0.72 }}
+      className={cn(
+        "flex h-[28px] w-[28px] cursor-pointer items-center justify-center rounded-lg transition-colors duration-150 hover:bg-accent",
+        active
+          ? activeColor ?? "text-foreground"
+          : "text-muted-foreground/50 hover:text-foreground/80"
+      )}
+    >
+      {children}
+    </motion.button>
+  )
+}
+
+function formatTime(date: Date) {
+  return `${date.getHours().toString().padStart(2, "0")}:${date
+    .getMinutes()
+    .toString()
+    .padStart(2, "0")}`
+}
 
 // ─── Suggested Questions ──────────────────────────────────────────────────────
 
@@ -119,9 +204,94 @@ function getConfidenceConfig(confidence?: Confidence) {
   }
 }
 
-// ─── Message Content (with inline citations) ──────────────────────────────────
+// ─── Citation Hover Card ──────────────────────────────────────────────────────
 
-function MessageContent({
+function CitationHoverCard({
+  cardId,
+  children,
+  highlightedCitation,
+  onCitationClick
+}: {
+  cardId: string
+  children: React.ReactNode
+  highlightedCitation?: string
+  onCitationClick?: (id: string) => void
+}) {
+  const cardData = MOCK_CARDS[cardId]
+  const colors = cardData ? (CARD_TYPE_COLORS[cardData.type] || CARD_TYPE_COLORS.default) : CARD_TYPE_COLORS.default
+
+  return (
+    <HoverCard openDelay={200} closeDelay={100}>
+      <HoverCardTrigger asChild>
+        <button
+          onClick={() => cardId && onCitationClick?.(cardId)}
+          className={cn(
+            "inline-flex items-center justify-center text-[10px] font-bold rounded px-1 py-0 mx-0.5 transition-colors cursor-pointer align-super",
+            highlightedCitation === cardId
+              ? "bg-blue-500 text-white"
+              : "bg-blue-100 text-blue-600 dark:bg-blue-900/40 dark:text-blue-400 hover:bg-blue-200 dark:hover:bg-blue-800/60"
+          )}
+        >
+          {children}
+        </button>
+      </HoverCardTrigger>
+      <HoverCardContent className="w-[280px] p-0 border border-border/60 bg-card/90 backdrop-blur-md rounded-xl shadow-xl overflow-hidden" side="top" align="start" sideOffset={8}>
+        {cardData ? (
+          <div className="p-3">
+            {/* Header */}
+            <div className="flex items-start gap-3 mb-2">
+              <div className={cn("shrink-0 h-8 w-8 rounded-lg flex items-center justify-center", colors.iconBg)}>
+                <FileText className="h-4 w-4" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <h4 className="text-sm font-semibold leading-tight line-clamp-2 mb-1">{cardData.title}</h4>
+                <div className="flex items-center gap-2">
+                  <span className={cn("text-[10px] px-1.5 py-0.5 rounded uppercase font-medium", colors.badgeBg)}>
+                    {cardData.type}
+                  </span>
+                  <span className="text-[10px] text-muted-foreground">
+                    {cardData.publishDate}
+                  </span>
+                </div>
+              </div>
+            </div>
+            
+            {/* Description */}
+            <p className="text-xs text-muted-foreground/80 line-clamp-2 mb-3 leading-relaxed">
+              {cardData.description}
+            </p>
+            
+            {/* Footer Stats */}
+            <div className="flex items-center justify-between pt-2 border-t border-border/40">
+              <div className="flex items-center gap-3 text-[10px] text-muted-foreground">
+                <span className="flex items-center gap-1 hover:text-foreground transition-colors">
+                  <Eye className="h-3 w-3" /> {cardData.stats.views}
+                </span>
+                <span className="flex items-center gap-1 hover:text-foreground transition-colors">
+                  <ThumbsUp className="h-3 w-3" /> {cardData.stats.likes}
+                </span>
+              </div>
+              <div className="flex items-center gap-1.5 opacity-80 hover:opacity-100 transition-opacity cursor-pointer">
+                <div className="h-4 w-4 rounded-full bg-gradient-to-br from-blue-400 to-violet-500 shrink-0" />
+                <span className="text-[10px] font-medium text-foreground/80 truncate max-w-[80px]">
+                  {cardData.author.name}
+                </span>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className="p-3 text-xs text-muted-foreground text-center italic">
+            找不到知识卡片数据 (ID: {cardId})
+          </div>
+        )}
+      </HoverCardContent>
+    </HoverCard>
+  )
+}
+
+// ─── Markdown Message Component ────────────────────────────────────────────────
+
+function MarkdownMessage({
   content,
   onCitationClick,
   highlightedCitation,
@@ -132,77 +302,102 @@ function MessageContent({
   highlightedCitation?: string
   citationIds?: string[]
 }) {
-  // Replace [1], [2] with clickable spans
-  const parts = content.split(/(\[\d+\])/g)
-  return (
-    <div className="text-sm leading-relaxed whitespace-pre-wrap">
-      {parts.map((part, i) => {
-        const match = part.match(/^\[(\d+)\]$/)
-        if (match && citationIds) {
-          const idx = parseInt(match[1]) - 1
-          const cardId = citationIds[idx]
-          const cardData = MOCK_CARDS[cardId]
+  // Pre-process citations: [1] -> [1](citation:0)
+  const processedContent = content.replace(/\[(\d+)\]/g, (match, num) => {
+    const idx = parseInt(num) - 1;
+    // Check if valid index
+    if (citationIds && idx >= 0 && idx < citationIds.length) {
+      return `[${match}](citation:${idx})`
+    }
+    return match
+  });
 
-          return (
-            <HoverCard key={i} openDelay={200} closeDelay={100}>
-              <HoverCardTrigger asChild>
-                <button
-                  onClick={() => cardId && onCitationClick?.(cardId)}
-                  className={cn(
-                    "inline-flex items-center justify-center text-[10px] font-bold rounded px-1 py-0 mx-0.5 transition-colors cursor-pointer",
-                    highlightedCitation === cardId
-                      ? "bg-blue-500 text-white"
-                      : "bg-blue-100 text-blue-600 dark:bg-blue-900/40 dark:text-blue-400 hover:bg-blue-200 dark:hover:bg-blue-800/60"
-                  )}
-                >
-                  {part}
-                </button>
-              </HoverCardTrigger>
-              <HoverCardContent className="w-[320px] p-0 border-none bg-transparent shadow-none" side="top" align="start">
-                {cardData ? (
-                  <div className="bg-background rounded-xl shadow-xl border border-border overflow-hidden">
-                    <KnowledgeCard {...cardData} className="h-auto scale-90 origin-top-left w-[110%]" />
-                  </div>
-                ) : (
-                  <div className="bg-popover text-popover-foreground px-3 py-2 rounded-md text-xs shadow-md border border-border">
-                    知识卡片 ID: {cardId} (暂无预览)
-                  </div>
-                )}
-              </HoverCardContent>
-            </HoverCard>
-          )
-        }
-        // Handle bold
-        const boldParts = part.split(/(\*\*[^*]+\*\*)/g)
-        return (
-          <span key={i}>
-            {boldParts.map((bp, j) => {
-              if (bp.startsWith("**") && bp.endsWith("**")) {
-                return <strong key={j}>{bp.slice(2, -2)}</strong>
-              }
-              // Handle code
-              const codeParts = bp.split(/(`[^`]+`)/g)
+  return (
+    <div className="prose dark:prose-invert max-w-none text-sm leading-relaxed
+        prose-p:mb-3 prose-p:last:mb-0
+        prose-headings:font-bold prose-headings:mt-4 prose-headings:mb-2
+        prose-ul:list-disc prose-ul:pl-5 prose-ul:my-2
+        prose-ol:list-decimal prose-ol:pl-5 prose-ol:my-2
+        prose-pre:p-0 prose-pre:bg-transparent prose-pre:m-0
+        prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-code:font-mono prose-code:bg-muted/60 prose-code:text-foreground/90 prose-code:text-[12px]
+        prose-code:before:content-none prose-code:after:content-none">
+    <ReactMarkdown
+      remarkPlugins={[remarkGfm]}
+      components={{
+        code({ node, inline, className, children, ...props }) {
+           const match = /language-(\w+)/.exec(className || "")
+           const isInline = inline || !match
+           if (isInline) {
+             return (
+               <code className={className} {...props}>
+                 {children}
+               </code>
+             )
+           }
+           return (
+             <CodeBlock
+               rawCode={String(children).replace(/\n$/, "")}
+               language={match?.[1] || 'text'}
+               className="my-4 rounded-lg overflow-hidden border border-border/50 shadow-sm"
+             >
+               <div className="p-4 bg-zinc-950/90 text-zinc-100 overflow-x-auto text-xs font-mono">
+                 <code className={className} {...props}>
+                   {children}
+                 </code>
+               </div>
+             </CodeBlock>
+           )
+        },
+        a({ node, href, children, ...props }) {
+          if (href?.startsWith("citation:")) {
+            const idx = parseInt(href.split(":")[1])
+            const cardId = citationIds?.[idx]
+            
+            if (cardId) {
               return (
-                <span key={j}>
-                  {codeParts.map((cp, k) => {
-                    if (cp.startsWith("`") && cp.endsWith("`")) {
-                      return (
-                        <code
-                          key={k}
-                          className="px-1 py-0.5 rounded text-[12px] font-mono bg-muted/60 text-foreground/90"
-                        >
-                          {cp.slice(1, -1)}
-                        </code>
-                      )
-                    }
-                    return <span key={k}>{cp}</span>
-                  })}
-                </span>
+                <CitationHoverCard 
+                  cardId={cardId} 
+                  highlightedCitation={highlightedCitation}
+                  onCitationClick={onCitationClick}
+                >
+                  {/* Remove brackets from children if needed, but [1] is fine */}
+                  {/* Actually children will be [1] */}
+                  {String(children).replace(/^\[(\d+)\]$/, '$1')}
+                </CitationHoverCard>
               )
-            })}
-          </span>
-        )
-      })}
+            }
+          }
+          return (
+            <a 
+              href={href} 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              className="text-primary underline underline-offset-4 hover:text-primary/80" 
+              {...props}
+            >
+              {children}
+            </a>
+          )
+        },
+        ul: ({ node, ...props }) => (
+          <ul className="list-disc pl-5 my-2 space-y-1 marker:text-muted-foreground" {...props} />
+        ),
+        ol: ({ node, ...props }) => (
+          <ol className="list-decimal pl-5 my-2 space-y-1 marker:text-muted-foreground" {...props} />
+        ),
+        li: ({ node, ...props }) => (
+          <li className="pl-1" {...props} />
+        ),
+        h1: ({ node, ...props }) => <h1 className="text-xl font-bold mt-6 mb-3 text-foreground" {...props} />,
+        h2: ({ node, ...props }) => <h2 className="text-lg font-bold mt-5 mb-2 text-foreground" {...props} />,
+        h3: ({ node, ...props }) => <h3 className="text-base font-bold mt-4 mb-2 text-foreground" {...props} />,
+        blockquote: ({ node, ...props }) => (
+          <blockquote className="border-l-4 border-primary/30 pl-4 my-4 italic text-muted-foreground" {...props} />
+        ),
+      }}
+    >
+      {processedContent}
+    </ReactMarkdown>
     </div>
   )
 }
@@ -212,17 +407,18 @@ function MessageContent({
 function StreamingMessage({
   fullContent,
   confidence,
+  citationIds,
   onComplete,
 }: {
   fullContent: string
   confidence?: Confidence
+  citationIds?: string[]
   onComplete: () => void
 }) {
   const [displayed, setDisplayed] = useState("")
   const [streaming, setStreaming] = useState(true)
   const idxRef = useRef(0)
-  const cfg = getConfidenceConfig(confidence)
-
+  
   useEffect(() => {
     idxRef.current = 0
     setDisplayed("")
@@ -250,12 +446,13 @@ function StreamingMessage({
         streaming && "animate-pulse"
       )}
     >
-      <div className="text-sm leading-relaxed whitespace-pre-wrap">
-        {displayed}
-        {streaming && (
-          <span className="inline-block w-0.5 h-4 bg-foreground/60 ml-0.5 animate-[blink-cursor_1s_step-end_infinite]" />
-        )}
-      </div>
+      <MarkdownMessage 
+        content={displayed} 
+        citationIds={citationIds}
+      />
+      {streaming && (
+        <span className="inline-block w-0.5 h-4 bg-foreground/60 ml-0.5 animate-[blink-cursor_1s_step-end_infinite]" />
+      )}
     </div>
   )
 }
@@ -339,6 +536,7 @@ function Message({
   onCitationClick,
   highlightedCitation,
   onGapClaim,
+  isLast,
 }: {
   msg: ChatMessage
   isStreaming?: boolean
@@ -346,18 +544,43 @@ function Message({
   onCitationClick?: (id: string) => void
   highlightedCitation?: string
   onGapClaim?: () => void
+  isLast?: boolean
 }) {
   const cfg = getConfidenceConfig(msg.confidence)
+  const [copied, setCopied] = useState(false)
+  const [vote, setVote] = useState<"up" | "down" | null>(null)
+  const [regenerating, setRegenerating] = useState(false)
+
+  const handleCopy = () => {
+    navigator.clipboard?.writeText(msg.content).catch(() => {})
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
+  }
+
+  const handleRegenerate = () => {
+    if (regenerating) return
+    setRegenerating(true)
+    setTimeout(() => setRegenerating(false), 900)
+  }
+
+  const handleVote = (dir: "up" | "down") => {
+    setVote((v) => (v === dir ? null : dir))
+  }
 
   if (msg.role === "user") {
     return (
       <motion.div
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
-        className="flex justify-end"
+        className="flex justify-end w-full"
       >
-        <div className="max-w-[78%] bg-primary text-primary-foreground rounded-2xl rounded-tr-sm px-4 py-2.5 shadow-sm">
-          <p className="text-sm leading-relaxed whitespace-pre-wrap">{msg.content}</p>
+        <div className="group relative max-w-[78%]">
+          <div className="bg-muted/60 text-foreground border border-border/50 rounded-2xl rounded-tr-sm px-4 py-2.5 shadow-sm">
+            <p className="text-sm leading-relaxed whitespace-pre-wrap">{msg.content}</p>
+          </div>
+          <span className="mt-1 block text-right text-[10px] text-muted-foreground/40 opacity-0 transition-opacity duration-150 group-hover:opacity-100">
+            {formatTime(msg.timestamp)}
+          </span>
         </div>
       </motion.div>
     )
@@ -381,10 +604,11 @@ function Message({
             <StreamingMessage
               fullContent={msg.content}
               confidence={msg.confidence}
+              citationIds={msg.citations}
               onComplete={onStreamComplete ?? (() => {})}
             />
           ) : (
-             <MessageContent
+             <MarkdownMessage
                 content={msg.content}
                 onCitationClick={onCitationClick}
                 highlightedCitation={highlightedCitation}
@@ -439,30 +663,98 @@ function Message({
             )}
 
             {/* Actions */}
-            <TooltipProvider>
-              <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                {[
-                  { icon: Copy, label: "复制" },
-                  { icon: RefreshCw, label: "重新生成" },
-                  { icon: ThumbsUp, label: "有帮助" },
-                  { icon: ThumbsDown, label: "不准确" },
-                ].map((action, idx) => (
-                  <Tooltip key={idx}>
-                    <TooltipTrigger asChild>
-                      <motion.button
-                        whileTap={{ scale: 0.9 }}
-                        className="p-1.5 text-muted-foreground hover:text-foreground hover:bg-accent rounded-md transition-colors cursor-pointer"
+            <div className={cn(
+              "flex items-center gap-0.5 transition-opacity duration-200",
+              isLast ? "opacity-100" : "opacity-0 group-hover:opacity-100"
+            )}>
+              {/* Copy */}
+              <Tip label={copied ? "已复制" : "复制"}>
+                <ActionBtn onClick={handleCopy} active={copied} activeColor="text-emerald-500">
+                  <AnimatePresence mode="wait" initial={false}>
+                    {copied ? (
+                      <motion.span
+                        key="check"
+                        initial={{ scale: 0.4, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        exit={{ scale: 0.4, opacity: 0 }}
+                        transition={{ duration: 0.15 }}
                       >
-                        <action.icon className="h-3.5 w-3.5" />
-                      </motion.button>
-                    </TooltipTrigger>
-                    <TooltipContent side="bottom" className="text-xs">
-                      <p>{action.label}</p>
-                    </TooltipContent>
-                  </Tooltip>
-                ))}
-              </div>
-            </TooltipProvider>
+                        <Check size={14} strokeWidth={2.2} />
+                      </motion.span>
+                    ) : (
+                      <motion.span
+                        key="copy"
+                        initial={{ scale: 0.4, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        exit={{ scale: 0.4, opacity: 0 }}
+                        transition={{ duration: 0.15 }}
+                      >
+                        <Copy size={14} strokeWidth={1.8} />
+                      </motion.span>
+                    )}
+                  </AnimatePresence>
+                </ActionBtn>
+              </Tip>
+
+              {/* Regenerate */}
+              <Tip label="重新生成">
+                <ActionBtn onClick={handleRegenerate} active={regenerating} activeColor="text-sky-500">
+                  <motion.span
+                    animate={{ rotate: regenerating ? 360 : 0 }}
+                    transition={regenerating ? { duration: 0.7, ease: "linear" } : { duration: 0 }}
+                  >
+                    {regenerating
+                      ? <Loader2 size={14} strokeWidth={1.8} />
+                      : <RotateCcw size={14} strokeWidth={1.8} />
+                    }
+                  </motion.span>
+                </ActionBtn>
+              </Tip>
+
+              {/* Thumbs Up */}
+              <Tip label={vote === "up" ? "取消赞" : "赞"}>
+                <ActionBtn
+                  onClick={() => handleVote("up")}
+                  active={vote === "up"}
+                  activeColor="text-emerald-500"
+                >
+                  <motion.span
+                    animate={vote === "up" ? { scale: [1, 1.45, 1] } : {}}
+                    transition={{ duration: 0.3 }}
+                  >
+                    <ThumbsUp
+                      size={14}
+                      strokeWidth={1.8}
+                      fill={vote === "up" ? "currentColor" : "none"}
+                    />
+                  </motion.span>
+                </ActionBtn>
+              </Tip>
+
+              {/* Thumbs Down */}
+              <Tip label={vote === "down" ? "取消踩" : "踩"}>
+                <ActionBtn
+                  onClick={() => handleVote("down")}
+                  active={vote === "down"}
+                  activeColor="text-rose-400"
+                >
+                  <motion.span
+                    animate={vote === "down" ? { scale: [1, 1.45, 1] } : {}}
+                    transition={{ duration: 0.3 }}
+                  >
+                    <ThumbsDown
+                      size={14}
+                      strokeWidth={1.8}
+                      fill={vote === "down" ? "currentColor" : "none"}
+                    />
+                  </motion.span>
+                </ActionBtn>
+              </Tip>
+
+              <span className="ml-2 text-[10px] text-muted-foreground/40">
+                {formatTime(msg.timestamp)}
+              </span>
+            </div>
           </div>
         )}
       </div>
@@ -583,101 +875,115 @@ export function QAMode({
           onClick={() => setMessages([])}
           className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1 px-2 py-1 rounded hover:bg-accent/40 transition-colors cursor-pointer"
         >
-          <RotateCcw className="h-3.5 w-3.5" />
-          新对话
+          <RefreshCw className="h-3 w-3" />
+          清除对话
         </button>
       </div>
 
-      {/* Messages */}
-      <div className="flex-1 overflow-y-auto px-5 py-4 space-y-5">
-        {messages.length === 0 && (
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="flex flex-col items-center justify-center h-full text-center py-16"
-          >
-            <div className="h-14 w-14 rounded-2xl bg-gradient-to-br from-blue-500 to-violet-600 flex items-center justify-center mb-4">
-              <Sparkles className="h-7 w-7 text-white" />
-            </div>
-            <h3 className="text-lg font-semibold mb-1">AI Agent · 问答</h3>
-            <p className="text-sm text-muted-foreground max-w-xs">
-              基于知识库的深度问答，每个回答都有可溯源的知识依据
-            </p>
-            <div className="flex flex-wrap gap-2 mt-6 justify-center">
+      {/* Chat Area */}
+      <div className="flex-1 overflow-y-auto px-5 py-6 space-y-6 scrollbar-thin scrollbar-thumb-muted-foreground/20 hover:scrollbar-thumb-muted-foreground/40">
+        <AnimatePresence initial={false}>
+          {messages.map((msg, i) => (
+            <Message
+              key={msg.id}
+              msg={msg}
+              isStreaming={isStreaming && msg.id === streamingMsgId}
+              onStreamComplete={handleStreamComplete}
+              onCitationClick={onCitationClick}
+              highlightedCitation={highlightedCitation}
+              isLast={i === messages.length - 1}
+            />
+          ))}
+        </AnimatePresence>
+        <div ref={bottomRef} className="h-4" />
+      </div>
+
+      {/* Input Area */}
+      <div className="p-5 pt-0 shrink-0">
+        {/* Suggestions */}
+        <AnimatePresence>
+          {messages.length < 2 && (
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 10 }}
+              className="mb-4 flex flex-wrap gap-2"
+            >
               {SUGGEST_QUESTIONS.map((q) => (
                 <button
                   key={q}
-                  onClick={() => setInput(q)}
-                  className="text-xs px-3 py-1.5 rounded-full border border-border/60 hover:border-foreground/30 hover:bg-accent/40 transition-all text-muted-foreground hover:text-foreground cursor-pointer"
+                  onClick={() => handleSend(q)}
+                  className="text-xs px-3 py-1.5 rounded-full bg-accent/40 text-foreground/80 hover:bg-accent hover:text-foreground transition-colors border border-border/40"
                 >
                   {q}
                 </button>
               ))}
-            </div>
-          </motion.div>
-        )}
-        {messages.map((msg) => (
-          <Message
-            key={msg.id}
-            msg={msg}
-            isStreaming={msg.id === streamingMsgId}
-            onStreamComplete={msg.id === streamingMsgId ? handleStreamComplete : undefined}
-            onCitationClick={onCitationClick}
-            highlightedCitation={highlightedCitation}
-            onGapClaim={() => {}}
-          />
-        ))}
-        <div ref={bottomRef} />
-      </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
-      {/* Input area */}
-      <div className="px-5 py-4 border-t border-border/40 shrink-0">
-        <div className="w-full mx-auto">
-          {/* Suggestion Toggle - Moved to top left */}
-          <div className="flex items-center justify-between mb-2 px-1">
-             <button
-               onClick={() => setShowSuggest(!showSuggest)}
-               className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1 px-2 py-1.5 rounded-lg hover:bg-accent/40 transition-colors cursor-pointer"
-             >
-               <Sparkles className="h-3.5 w-3.5" />
-               追问建议
-               <ChevronDown className={cn("h-3 w-3 transition-transform", showSuggest ? "rotate-180" : "")} />
-             </button>
-          </div>
-
-          {/* Suggestions dropdown */}
-          <AnimatePresence>
-            {showSuggest && (
-              <motion.div
-                initial={{ opacity: 0, y: 4 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: 4 }}
-                className="mb-2 bg-card border border-border rounded-xl overflow-hidden shadow-lg"
-              >
-                {SUGGEST_QUESTIONS.map((q) => (
-                  <button
-                    key={q}
-                    onClick={() => {
-                      setInput(q)
-                      setShowSuggest(false)
-                    }}
-                    className="w-full text-left text-sm px-4 py-2.5 hover:bg-accent/40 transition-colors border-b border-border/40 last:border-0 cursor-pointer"
-                  >
-                    {q}
-                  </button>
-                ))}
-              </motion.div>
-            )}
-          </AnimatePresence>
-
+        <div className="relative">
           <AiChatInput
+            ref={textareaRef}
             value={input}
-            onChange={setInput}
-            onSend={(msg) => handleSend(msg)}
-            placeholder="输入你的问题... (Enter 发送)"
-            className="w-full"
+            onChange={(e) => setInput(e.target.value)}
+            onSubmit={() => handleSend()}
+            placeholder="问点什么... (支持 Shift + Enter 换行)"
+            minHeight={52}
+            maxHeight={200}
+            disabled={isStreaming}
+            rightElement={
+              <div className="flex items-center gap-1.5 pr-2">
+                 <TooltipProvider delayDuration={0}>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button
+                        className="p-2 rounded-full hover:bg-muted/60 text-muted-foreground hover:text-foreground transition-colors"
+                        onClick={() => setIsVoice(!isVoice)}
+                      >
+                        <Mic className={cn("h-4 w-4", isVoice && "text-red-500 animate-pulse")} />
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent side="top">
+                      <p>语音输入</p>
+                    </TooltipContent>
+                  </Tooltip>
+
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button className="p-2 rounded-full hover:bg-muted/60 text-muted-foreground hover:text-foreground transition-colors">
+                        <Paperclip className="h-4 w-4" />
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent side="top">
+                      <p>上传附件</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+
+                <button
+                  onClick={() => handleSend()}
+                  disabled={!input.trim() || isStreaming}
+                  className={cn(
+                    "ml-1 p-2 rounded-xl transition-all duration-200 flex items-center justify-center",
+                    input.trim() && !isStreaming
+                      ? "bg-primary text-primary-foreground shadow-md hover:shadow-lg hover:scale-105 active:scale-95"
+                      : "bg-muted text-muted-foreground cursor-not-allowed opacity-50"
+                  )}
+                >
+                  {isStreaming ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Send className="h-4 w-4" />
+                  )}
+                </button>
+              </div>
+            }
           />
           
+          <div className="absolute -bottom-5 right-1 text-[10px] text-muted-foreground/40">
+             Lumina AI Generate v2.4
+          </div>
         </div>
       </div>
     </div>

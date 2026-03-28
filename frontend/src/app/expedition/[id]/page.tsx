@@ -17,6 +17,7 @@ import {
 import { RarityBadge } from '@/components/expedition/RarityBadge'
 import { BossHealthBar } from '@/components/expedition/BossHealthBar'
 import { ProgressBar } from '@/components/expedition/ProgressBar'
+import { SpiderverseButton } from '@/components/ui/SpiderverseButton'
 import styles from '@/components/expedition/expedition.module.css'
 import { cn } from '@/lib/utils'
 
@@ -317,11 +318,7 @@ export default function ExpeditionDetailPage({ params }: PageProps) {
         )}
       </AnimatePresence>
 
-      {/* 稀有度顶部渐变光晕 */}
-      <div
-        className="fixed top-0 left-0 right-0 h-1 z-30 pointer-events-none"
-        style={{ background: cfg.gradient, boxShadow: `0 0 20px ${cfg.color}60` }}
-      />
+
 
       <div className="relative z-10 max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
@@ -336,132 +333,258 @@ export default function ExpeditionDetailPage({ params }: PageProps) {
           </Link>
         </motion.div>
 
-        <div className="space-y-4">
+        <div className="flex flex-col lg:flex-row gap-6 items-start">
 
-          {/* ══ 1. 远征标头 ══ */}
-          <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            className={cn(cardClass, 'relative')}
-          >
-            {/* 稀有度顶条 */}
-            <div className="h-1" style={{ background: cfg.gradient, boxShadow: `0 0 10px ${cfg.color}50` }} />
+          {/* ══ 左侧主列 (自适应堆叠) ══ */}
+          <div className="w-full lg:w-2/3 space-y-6">
+            {/* 1. 远征标头 */}
+            <motion.div
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              className={cn(cardClass, 'relative')}
+            >
+              {/* 稀有度顶条 */}
+              <div className="h-1" style={{ background: cfg.gradient, boxShadow: `0 0 10px ${cfg.color}50` }} />
 
-            {/* 角落装饰 */}
-            {(['topLeft', 'topRight', 'bottomLeft', 'bottomRight'] as const).map(pos => (
-              <div key={pos} className={cn(styles.cornerAccent, styles[pos])} style={{ borderColor: `${cfg.color}35` }} />
-            ))}
-            <div className={styles.dataLine} style={{ top: '45%', width: '35%' }} />
+              {/* 角落装饰 */}
+              {(['topLeft', 'topRight', 'bottomLeft', 'bottomRight'] as const).map(pos => (
+                <div key={pos} className={cn(styles.cornerAccent, styles[pos])} style={{ borderColor: `${cfg.color}35` }} />
+              ))}
+              <div className={styles.dataLine} style={{ top: '45%', width: '35%' }} />
 
-            <div className="p-6">
-              {/* 徽章行 */}
-              <div className="flex items-center gap-2 mb-4 flex-wrap">
-                <RarityBadge rarity={expedition.rarity} />
-                <span className="text-[11px] font-semibold px-2 py-0.5 rounded" style={{ color: typeCfg.color, background: typeCfg.bg }}>
-                  {typeCfg.label}
-                </span>
-                {expedition.medal && (
-                  <span className="text-[10px] px-2 py-0.5 rounded bg-amber-500/10 text-amber-500 border border-amber-500/20">
-                    🏅 含专属勋章
+              <div className="p-6">
+                {/* 徽章行 */}
+                <div className="flex items-center gap-2 mb-4 flex-wrap">
+                  <RarityBadge rarity={expedition.rarity} />
+                  <span className="text-[11px] font-semibold px-2 py-0.5 rounded" style={{ color: typeCfg.color, background: typeCfg.bg }}>
+                    {typeCfg.label}
                   </span>
-                )}
-                {isCompleted && (
-                  <span className="flex items-center gap-1 text-[11px] text-emerald-400 font-bold bg-emerald-400/10 px-2 py-0.5 rounded border border-emerald-400/20 ml-auto">
-                    <CheckCircle2 className="w-3 h-3" /> Boss 已击败
-                  </span>
-                )}
-                {isActive && (
-                  <span className="flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded border ml-auto"
-                    style={{ color: cfg.color, borderColor: `${cfg.color}30`, background: `${cfg.color}08` }}>
-                    <span className="relative flex h-1.5 w-1.5">
-                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75" style={{ background: cfg.color }} />
-                      <span className="relative inline-flex rounded-full h-1.5 w-1.5" style={{ background: cfg.color }} />
+                  {expedition.medal && (
+                    <span className="text-[10px] px-2 py-0.5 rounded bg-amber-500/10 text-amber-500 border border-amber-500/20">
+                      🏅 含专属勋章
                     </span>
-                    战斗进行中
-                  </span>
+                  )}
+                  {isCompleted && (
+                    <span className="flex items-center gap-1 text-[11px] text-emerald-400 font-bold bg-emerald-400/10 px-2 py-0.5 rounded border border-emerald-400/20 ml-auto">
+                      <CheckCircle2 className="w-3 h-3" /> Boss 已击败
+                    </span>
+                  )}
+                  {isActive && (
+                    <span className="flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded border ml-auto"
+                      style={{ color: cfg.color, borderColor: `${cfg.color}30`, background: `${cfg.color}08` }}>
+                      <span className="relative flex h-1.5 w-1.5">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75" style={{ background: cfg.color }} />
+                        <span className="relative inline-flex rounded-full h-1.5 w-1.5" style={{ background: cfg.color }} />
+                      </span>
+                      战斗进行中
+                    </span>
+                  )}
+                </div>
+
+                {/* 标题 */}
+                <h1 className={cn(styles.heroTitle, 'text-2xl sm:text-3xl font-black text-slate-900 dark:text-white mb-2')}>
+                  {expedition.title}
+                </h1>
+                <p className="text-slate-500 dark:text-slate-400 text-sm leading-relaxed mb-5">
+                  {expedition.description}
+                </p>
+
+                {/* 情报分析 */}
+                <div className="rounded-xl border border-amber-200/50 dark:border-amber-500/15 bg-amber-50/50 dark:bg-amber-500/5 p-4">
+                  <div className="flex items-center justify-between mb-2.5">
+                    <div className="flex items-center gap-1.5">
+                      <AlertCircle className="w-3.5 h-3.5 text-amber-500" />
+                      <span className="text-[11px] font-bold text-amber-600 dark:text-amber-400 uppercase tracking-wider">情报分析</span>
+                    </div>
+                    <span className="text-[10px] text-slate-400">由 {expedition.initiator}</span>
+                  </div>
+                  <ul className="space-y-1.5">
+                    {expedition.reason.map((r, i) => (
+                      <li key={i} className="flex items-start gap-2 text-[12px] text-slate-600 dark:text-slate-400">
+                        <span className="text-amber-500 mt-0.5 shrink-0">·</span>
+                        {r}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            </motion.div>
+
+            {/* 4. 子任务清单 */}
+            <motion.div
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.18 }}
+              className={cardClass}
+            >
+              <div className="p-6">
+                <SectionHeading
+                  icon={<Swords className="w-4 h-4" style={{ color: cfg.color }} />}
+                  title="子任务清单"
+                  extra={
+                    <div className="flex gap-3 text-[11px]">
+                      <span className="text-emerald-500">{expedition.completedSubtasks} 完成</span>
+                      <span className="text-sky-400">{expedition.inProgressSubtasks} 进行中</span>
+                      <span className="text-slate-400">{expedition.availableSubtasks} 待认领</span>
+                    </div>
+                  }
+                />
+                <div className="space-y-2.5">
+                  {expedition.subtasks.map((st, i) => (
+                    <SubtaskItem key={st.id} subtask={st} index={i} rarityColor={cfg.color} />
+                  ))}
+                </div>
+              </div>
+            </motion.div>
+
+            {/* 5. 贡献者看板 & 活动动态 */}
+            {(expedition.participants.length > 0 || true) && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* 贡献者看板 */}
+                <motion.div
+                  initial={{ opacity: 0, y: 16 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.22 }}
+                  className={cn(cardClass, 'h-full')}
+                >
+                  <div className="p-6 h-full">
+                    <SectionHeading icon={<Star className="w-4 h-4 text-amber-400" />} title="贡献者看板" />
+                    {expedition.participants.length > 0 ? (
+                      <div className="space-y-2.5">
+                        {expedition.participants.map((p, i) => (
+                          <ContributorCard key={p.id} participant={p} index={i} rarityColor={cfg.color} />
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="text-center py-8 text-slate-400 dark:text-slate-500">
+                        <Users className="w-8 h-8 mx-auto mb-2 opacity-40" />
+                        <p className="text-[12px]">尚无勇士加入</p>
+                      </div>
+                    )}
+                  </div>
+                </motion.div>
+
+                {/* 活动动态 */}
+                <motion.div
+                  initial={{ opacity: 0, y: 16 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.25 }}
+                  className={cn(cardClass, 'h-full')}
+                >
+                  <div className="p-6 h-full">
+                    <SectionHeading icon={<Activity className="w-4 h-4 text-sky-400" />} title="活动动态" />
+                    <div className="relative pl-1">
+                      {MOCK_ACTIVITY.map((item, i) => (
+                        <ActivityItem key={item.id} item={item} index={i} isLast={i === MOCK_ACTIVITY.length - 1} />
+                      ))}
+                    </div>
+                  </div>
+                </motion.div>
+              </div>
+            )}
+
+            {/* 6. 已完成庆典 */}
+            {isCompleted && (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.6, type: 'spring' }}
+                className={cn(cardClass, 'border-emerald-200/50 dark:border-emerald-500/20 text-center relative overflow-hidden')}
+              >
+                <div className="h-0.5 bg-gradient-to-r from-transparent via-emerald-400 to-transparent" />
+                <div className="p-8 relative">
+                  <VictoryParticles />
+                  <Sparkles className="w-10 h-10 mx-auto mb-3 text-emerald-400" style={{ filter: 'drop-shadow(0 0 8px rgba(52,211,153,0.5))' }} />
+                  <div className="text-xl font-black text-emerald-500 dark:text-emerald-400 mb-1">远征胜利！</div>
+                  <div className="text-[13px] text-slate-400">Boss 已击败 · 所有参与者已获得奖励积分</div>
+                </div>
+              </motion.div>
+            )}
+          </div>
+
+          {/* ══ 右侧侧边栏 (自适应堆叠) ══ */}
+          <div className="w-full lg:w-1/3 space-y-6">
+            {/* 2. Boss 战区 */}
+            <motion.div
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.08 }}
+              className={cn(cardClass)}
+            >
+              <div className="p-6">
+                <SectionHeading
+                  icon={<Skull className="w-4 h-4 text-red-400" />}
+                  title="Boss 战区"
+                  extra={
+                    <span className="text-[10px] font-mono text-slate-400 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded">
+                      HP -{100 / expedition.subtasks.length}% / Task
+                    </span>
+                  }
+                />
+                <div className={cn(styles.bossArena, 'border border-red-200/40 dark:border-red-500/10 bg-red-50/30 dark:bg-red-500/3 p-4 rounded-xl')}>
+                  <BossHealthBar bossName={expedition.bossName} hp={expedition.bossHp} isCompleted={isCompleted} size="lg" />
+                </div>
+                <div className="mt-4">
+                  <ProgressBar progress={expedition.progress} rarity={expedition.rarity} height={10} />
+                </div>
+                {/* 子任务进度摘要 */}
+                <div className="flex items-center gap-4 mt-4 pt-4 border-t border-slate-100 dark:border-slate-800/60">
+                  <div className="flex items-center gap-1.5">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                    <span className="text-[12px] text-emerald-600 dark:text-emerald-400 font-medium">{expedition.completedSubtasks}</span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <Loader2 className="w-3.5 h-3.5 text-sky-400 animate-spin" />
+                    <span className="text-[12px] text-sky-600 dark:text-sky-400 font-medium">{expedition.inProgressSubtasks}</span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <Circle className="w-3.5 h-3.5 text-slate-300 dark:text-slate-600" />
+                    <span className="text-[12px] text-slate-500 font-medium">{expedition.availableSubtasks}</span>
+                  </div>
+                  <span className="ml-auto text-[11px] text-slate-400 font-mono">Total {expedition.subtasks.length}</span>
+                </div>
+              </div>
+            </motion.div>
+
+            {/* 3. 战役信息 */}
+            <motion.div
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.13 }}
+              className={cn(cardClass)}
+            >
+              <div className="p-5">
+                <SectionHeading icon={<BookOpen className="w-4 h-4" />} title="战役信息" />
+                <div className="space-y-0.5">
+                  <InfoRow icon={Clock} label="截止时间" value={`${expedition.deadline}`} />
+                  <InfoRow icon={Activity} label="剩余时间" value={daysLeft} />
+                  <InfoRow icon={Users} label="参与人数" value={`${expedition.participants.length} / ${expedition.maxParticipants}`} valueColor="#38bdf8" />
+                  <InfoRow icon={Hash} label="子任务数" value={`${expedition.subtasks.length} 个`} />
+                  <InfoRow icon={Award} label="难度" value={RARITY_CONFIG[expedition.rarity].label} valueColor={cfg.color} />
+                </div>
+
+                {/* 行动按钮 */}
+                {!isCompleted && (
+                  <div className="mt-5 w-full">
+                    <SpiderverseButton
+                      onClick={() => console.log('Join battle!')}
+                      className="w-full"
+                      style={{ width: '100%', fontSize: '18px', padding: '12px 0' }}
+                    >
+                      {isActive ? '参与贡献，去战斗！' : '加入远征'}
+                    </SpiderverseButton>
+                  </div>
                 )}
               </div>
+            </motion.div>
 
-              {/* 标题 */}
-              <h1 className={cn(styles.heroTitle, 'text-2xl sm:text-3xl font-black text-slate-900 dark:text-white mb-2')}>
-                {expedition.title}
-              </h1>
-              <p className="text-slate-500 dark:text-slate-400 text-sm leading-relaxed mb-5">
-                {expedition.description}
-              </p>
-
-              {/* 情报分析 */}
-              <div className="rounded-xl border border-amber-200/50 dark:border-amber-500/15 bg-amber-50/50 dark:bg-amber-500/5 p-4">
-                <div className="flex items-center justify-between mb-2.5">
-                  <div className="flex items-center gap-1.5">
-                    <AlertCircle className="w-3.5 h-3.5 text-amber-500" />
-                    <span className="text-[11px] font-bold text-amber-600 dark:text-amber-400 uppercase tracking-wider">情报分析</span>
-                  </div>
-                  <span className="text-[10px] text-slate-400">由 {expedition.initiator}</span>
-                </div>
-                <ul className="space-y-1.5">
-                  {expedition.reason.map((r, i) => (
-                    <li key={i} className="flex items-start gap-2 text-[12px] text-slate-600 dark:text-slate-400">
-                      <span className="text-amber-500 mt-0.5 shrink-0">·</span>
-                      {r}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-          </motion.div>
-
-          {/* ══ 2. Boss 战区 ══ */}
-          <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.08 }}
-            className={cn(cardClass)}
-          >
-            <div className="p-6">
-              <SectionHeading
-                icon={<Skull className="w-4 h-4 text-red-400" />}
-                title="Boss 战区"
-                extra={
-                  <span className="text-[10px] font-mono text-slate-400 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded">
-                    每完成一个子任务削减血量
-                  </span>
-                }
-              />
-              <div className={cn(styles.bossArena, 'border border-red-200/40 dark:border-red-500/10 bg-red-50/30 dark:bg-red-500/3 p-4 rounded-xl')}>
-                <BossHealthBar bossName={expedition.bossName} hp={expedition.bossHp} isCompleted={isCompleted} size="lg" />
-              </div>
-              <div className="mt-4">
-                <ProgressBar progress={expedition.progress} rarity={expedition.rarity} height={10} />
-              </div>
-              {/* 子任务进度摘要 */}
-              <div className="flex items-center gap-4 mt-4 pt-4 border-t border-slate-100 dark:border-slate-800/60">
-                <div className="flex items-center gap-1.5">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
-                  <span className="text-[12px] text-emerald-600 dark:text-emerald-400 font-medium">{expedition.completedSubtasks} 已完成</span>
-                </div>
-                <div className="flex items-center gap-1.5">
-                  <Loader2 className="w-3.5 h-3.5 text-sky-400 animate-spin" />
-                  <span className="text-[12px] text-sky-600 dark:text-sky-400 font-medium">{expedition.inProgressSubtasks} 进行中</span>
-                </div>
-                <div className="flex items-center gap-1.5">
-                  <Circle className="w-3.5 h-3.5 text-slate-300 dark:text-slate-600" />
-                  <span className="text-[12px] text-slate-500 font-medium">{expedition.availableSubtasks} 待认领</span>
-                </div>
-                <span className="ml-auto text-[11px] text-slate-400 font-mono">共 {expedition.subtasks.length} 个子任务</span>
-              </div>
-            </div>
-          </motion.div>
-
-          {/* ══ 3. 奖励 + 战役信息 (两等列) ══ */}
-          <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.13 }}
-            className="grid grid-cols-1 sm:grid-cols-2 gap-4"
-          >
             {/* 奖励面板 */}
-            <div className={cn(cardClass)}>
+            <motion.div
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.15 }}
+              className={cn(cardClass)}
+            >
               <div className="h-0.5" style={{ background: cfg.gradient }} />
               <div className="p-5">
                 <SectionHeading
@@ -494,117 +617,10 @@ export default function ExpeditionDetailPage({ params }: PageProps) {
                   </div>
                 </div>
               </div>
-            </div>
-
-            {/* 战役信息 */}
-            <div className={cn(cardClass)}>
-              <div className="p-5">
-                <SectionHeading icon={<BookOpen className="w-4 h-4" />} title="战役信息" />
-                <div className="space-y-0.5">
-                  <InfoRow icon={Clock} label="截止时间" value={`${expedition.deadline}`} />
-                  <InfoRow icon={Activity} label="剩余时间" value={daysLeft} />
-                  <InfoRow icon={Users} label="参与人数" value={`${expedition.participants.length} / ${expedition.maxParticipants}`} valueColor="#38bdf8" />
-                  <InfoRow icon={Hash} label="子任务数" value={`${expedition.subtasks.length} 个`} />
-                  <InfoRow icon={Award} label="难度" value={RARITY_CONFIG[expedition.rarity].label} valueColor={cfg.color} />
-                </div>
-
-                {/* 行动按钮 */}
-                {!isCompleted && (
-                  <div className="mt-5 relative">
-                    <button className={styles.btnAction}>
-                      {isActive ? '⚡ 参与贡献' : '⚔ 加入远征'}
-                    </button>
-                  </div>
-                )}
-              </div>
-            </div>
-          </motion.div>
-
-          {/* ══ 4. 子任务清单 ══ */}
-          <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.18 }}
-            className={cardClass}
-          >
-            <div className="p-6">
-              <SectionHeading
-                icon={<Swords className="w-4 h-4" style={{ color: cfg.color }} />}
-                title="子任务清单"
-                extra={
-                  <div className="flex gap-3 text-[11px]">
-                    <span className="text-emerald-500">{expedition.completedSubtasks} 完成</span>
-                    <span className="text-sky-400">{expedition.inProgressSubtasks} 进行中</span>
-                    <span className="text-slate-400">{expedition.availableSubtasks} 待认领</span>
-                  </div>
-                }
-              />
-              <div className="space-y-2.5">
-                {expedition.subtasks.map((st, i) => (
-                  <SubtaskItem key={st.id} subtask={st} index={i} rarityColor={cfg.color} />
-                ))}
-              </div>
-            </div>
-          </motion.div>
-
-          {/* ══ 5. 贡献者看板 + 活动动态 (两等列) ══ */}
-          {(expedition.participants.length > 0 || true) && (
-            <motion.div
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.22 }}
-              className="grid grid-cols-1 sm:grid-cols-2 gap-4"
-            >
-              {/* 贡献者看板 */}
-              <div className={cardClass}>
-                <div className="p-5">
-                  <SectionHeading icon={<Star className="w-4 h-4 text-amber-400" />} title="贡献者看板" />
-                  {expedition.participants.length > 0 ? (
-                    <div className="space-y-2.5">
-                      {expedition.participants.map((p, i) => (
-                        <ContributorCard key={p.id} participant={p} index={i} rarityColor={cfg.color} />
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="text-center py-8 text-slate-400 dark:text-slate-500">
-                      <Users className="w-8 h-8 mx-auto mb-2 opacity-40" />
-                      <p className="text-[12px]">尚无勇士加入</p>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {/* 活动动态 */}
-              <div className={cardClass}>
-                <div className="p-5">
-                  <SectionHeading icon={<Activity className="w-4 h-4 text-sky-400" />} title="活动动态" />
-                  <div className="relative pl-1">
-                    {MOCK_ACTIVITY.map((item, i) => (
-                      <ActivityItem key={item.id} item={item} index={i} isLast={i === MOCK_ACTIVITY.length - 1} />
-                    ))}
-                  </div>
-                </div>
-              </div>
             </motion.div>
-          )}
 
-          {/* ══ 6. 已完成庆典 ══ */}
-          {isCompleted && (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.6, type: 'spring' }}
-              className={cn(cardClass, 'border-emerald-200/50 dark:border-emerald-500/20 text-center relative overflow-hidden')}
-            >
-              <div className="h-0.5 bg-gradient-to-r from-transparent via-emerald-400 to-transparent" />
-              <div className="p-8 relative">
-                <VictoryParticles />
-                <Sparkles className="w-10 h-10 mx-auto mb-3 text-emerald-400" style={{ filter: 'drop-shadow(0 0 8px rgba(52,211,153,0.5))' }} />
-                <div className="text-xl font-black text-emerald-500 dark:text-emerald-400 mb-1">远征胜利！</div>
-                <div className="text-[13px] text-slate-400">Boss 已击败 · 所有参与者已获得奖励积分</div>
-              </div>
-            </motion.div>
-          )}
+
+          </div>
         </div>
       </div>
     </div>

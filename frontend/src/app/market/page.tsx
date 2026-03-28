@@ -3,6 +3,7 @@
 import { useState, useCallback, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { Store, ScrollText } from "lucide-react"
+import dynamic from "next/dynamic"
 import { cn } from "@/lib/utils"
 import {
   MARKET_USER,
@@ -10,12 +11,30 @@ import {
   Product,
   getProductStatus,
 } from "@/lib/market-data"
-import { AccountOverview } from "@/components/market/AccountOverview"
-import { ExchangePanel } from "@/components/market/ExchangePanel"
-import { ProductGrid } from "@/components/market/ProductGrid"
-import { RedeemModal } from "@/components/market/RedeemModal"
-import { FairnessCard } from "@/components/market/FairnessCard"
-import { MyRecords } from "@/components/market/MyRecords"
+import { Skeleton } from "@/components/ui/skeleton"
+
+// ─── Dynamic Imports ──────────────────────────────────────────────────────────
+
+const AccountOverview = dynamic(() => import("@/components/market/AccountOverview").then(mod => mod.AccountOverview), {
+  loading: () => <Skeleton className="h-40 w-full rounded-xl" />,
+})
+const ExchangePanel = dynamic(() => import("@/components/market/ExchangePanel").then(mod => mod.ExchangePanel), {
+  loading: () => <Skeleton className="h-64 w-full rounded-xl" />,
+})
+const ProductGrid = dynamic(() => import("@/components/market/ProductGrid").then(mod => mod.ProductGrid), {
+  loading: () => (
+    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+      {Array.from({ length: 8 }).map((_, i) => (
+        <Skeleton key={i} className="h-60 w-full rounded-xl" />
+      ))}
+    </div>
+  ),
+})
+const RedeemModal = dynamic(() => import("@/components/market/RedeemModal").then(mod => mod.RedeemModal))
+const FairnessCard = dynamic(() => import("@/components/market/FairnessCard").then(mod => mod.FairnessCard))
+const MyRecords = dynamic(() => import("@/components/market/MyRecords").then(mod => mod.MyRecords), {
+  loading: () => <Skeleton className="h-[500px] w-full rounded-xl" />,
+})
 
 // ─── Types ─────────────────────────────────────────────────────────────────────
 

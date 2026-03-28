@@ -1,6 +1,10 @@
 import { Hero } from "@/components/home/Hero";
-import { Showcase } from "@/components/home/Showcase";
-import { KnowledgeSection } from "@/components/home/KnowledgeSection";
+import dynamic from "next/dynamic";
+
+const Showcase = dynamic(() => import("@/components/home/Showcase").then((mod) => mod.Showcase));
+const KnowledgeSection = dynamic(() =>
+  import("@/components/home/KnowledgeSection").then((mod) => mod.KnowledgeSection)
+);
 
 export default function Home() {
   return (

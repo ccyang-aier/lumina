@@ -19,6 +19,8 @@
   --prose-kbd-shadows: hsl(240 5.9% 10% / 0.15);
   --prose-code: hsl(340 80% 55%);
   --prose-code-bg: hsl(240 5% 96%);
+  --prose-code-border: hsl(240 8% 84%);
+  --prose-code-shadow: hsl(240 12% 20% / 0.06);
   --prose-pre-code: hsl(240 5% 88%);
   --prose-pre-bg: hsl(240 10% 10%);
   --prose-th-borders: hsl(240 5.9% 82%);
@@ -46,10 +48,15 @@
   --prose-quote-borders: hsl(195.8 100% 50%);
   --prose-code: hsl(340 70% 68%);
   --prose-code-bg: hsl(0 0% 18%);
+  --prose-code-border: hsl(0 0% 30%);
+  --prose-code-shadow: hsl(0 0% 0% / 0.2);
   --prose-pre-bg: hsl(0 0% 11%);
   --prose-th-borders: hsl(0 0% 25%);
   --prose-td-borders: hsl(0 0% 20%);
   --prose-table-header-bg: hsl(0 0% 16%);
+  --prose-captions: hsl(0 0% 55%);
+  --prose-kbd: hsl(0 0% 85%);
+  --prose-kbd-shadows: hsl(240 5.9% 10% / 0.15);
 }
 
 /* ---- Headings ---- */
@@ -125,15 +132,85 @@
   opacity: 0.75;
 }
 
+/* Footnotes */
+.prose :global(sup > a),
+.prose :global(a[data-footnote-ref]) {
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.25em;
+  height: 1.25em;
+  padding: 0 0.2em;
+  margin-left: 2px;
+  background-color: var(--prose-links);
+  color: white;
+  border-radius: 99px;
+  font-size: 0.7em;
+  line-height: 1;
+  font-weight: 600;
+  transition: all 0.2s;
+  opacity: 1;
+  vertical-align: super;
+  transform: translateY(-1px);
+}
+
+.prose :global(sup > a:hover),
+.prose :global(a[data-footnote-ref]:hover) {
+  opacity: 0.9;
+  text-decoration: none;
+}
+
+/* Footnote Backlinks (Return Icon) */
+.prose :global(a[data-footnote-backref]) {
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.25em;
+  height: 1.25em;
+  margin-left: 0.25em;
+  border-radius: 4px;
+  color: var(--prose-bullets);
+  transition: all 0.2s;
+  font-family: system-ui, -apple-system, sans-serif; /* Reset font for clean arrow */
+}
+
+.prose :global(a[data-footnote-backref]:hover) {
+  background-color: hsl(0 0% 50% / 0.1);
+  color: var(--prose-headings);
+}
+
+/* Clean up the default colorful emoji if present */
+.prose :global(a[data-footnote-backref] > span) {
+  /* Attempt to target if wrapped */
+}
+
 /* ---- Inline Code ---- */
 .prose :global(code):not(:global(pre) *) {
   color: var(--prose-code);
   background: var(--prose-code-bg);
-  border-radius: 4px;
-  padding: 0.15em 0.4em;
+  border-radius: 0.5em;
+  padding: 0.16em 0.52em;
   font-size: 0.875em;
-  font-weight: 500;
+  font-weight: 600;
   font-family: "JetBrains Mono", "Fira Code", "Cascadia Code", monospace;
+  border: 1px solid var(--prose-code-border);
+  /* 优化行内代码视觉 */
+  display: inline-block;
+  vertical-align: baseline;
+  transform: translateY(-1px);
+  /* 移除可能导致双线视觉的属性 */
+  box-shadow: none;
+  outline: none;
+  line-height: 1.2;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+}
+
+.prose :global(code):not(:global(pre) *)::before,
+.prose :global(code):not(:global(pre) *)::after {
+  content: none !important;
 }
 
 /* ---- Code Blocks (rehype-pretty-code dual-theme) ---- */
@@ -229,12 +306,12 @@
   padding-right: 1.5rem;
 }
 
-/* Line numbers */
-.prose :global(code) {
+/* Line numbers - Only for code blocks (pre > code) */
+.prose :global(pre code) {
   counter-reset: line;
 }
 
-.prose :global(code > [data-line])::before {
+.prose :global(pre code > [data-line])::before {
   counter-increment: line;
   content: counter(line);
   display: inline-block;
@@ -294,6 +371,21 @@
   background: var(--prose-bullets);
 }
 
+/* Remove default bullet for task list items */
+.prose :global(ul > li.task-list-item)::before {
+  content: none;
+}
+
+.prose :global(ul > li.task-list-item) {
+  padding-left: 0;
+  list-style-type: none;
+}
+
+.prose :global(ul > li.task-list-item input[type="checkbox"]) {
+  margin-right: 0.5rem;
+  margin-top: 0.3rem;
+}
+
 .prose :global(ol) {
   list-style: decimal;
 }
@@ -316,27 +408,31 @@
   border-radius: 8px;
   overflow: hidden;
   border: 1px solid var(--prose-th-borders);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
 .prose :global(thead) {
   background: var(--prose-table-header-bg);
-}
-
-.prose :global(th) {
-  padding: 0.6rem 0.875rem;
-  text-align: left;
-  font-weight: 600;
-  font-size: 0.8rem;
-  letter-spacing: 0.02em;
-  color: var(--prose-headings);
   border-bottom: 1px solid var(--prose-th-borders);
 }
 
+.prose :global(th) {
+  padding: 0.75rem 1rem;
+  text-align: left;
+  vertical-align: middle;
+  font-weight: 600;
+  font-size: 0.85rem;
+  letter-spacing: 0.02em;
+  color: var(--prose-headings);
+  border-bottom: none;
+}
+
 .prose :global(td) {
-  padding: 0.6rem 0.875rem;
+  padding: 0.75rem 1rem;
   border-bottom: 1px solid var(--prose-td-borders);
   color: var(--prose-body);
-  vertical-align: top;
+  vertical-align: middle;
+  text-align: left;
 }
 
 .prose :global(tr:last-child td) {
@@ -345,6 +441,10 @@
 
 .prose :global(tr:hover td) {
   background: hsl(0 0% 50% / 0.04);
+}
+
+.prose :global(tbody tr:nth-child(even)) {
+  background-color: hsl(0 0% 50% / 0.02);
 }
 
 /* ---- HR ---- */
@@ -383,4 +483,113 @@
   font-family: "JetBrains Mono", "Fira Code", monospace;
   font-size: 0.82rem;
   line-height: 1.6;
+}
+
+/* ---- Alerts (Admonitions) ---- */
+.prose :global(.alert) {
+  margin: 1.5rem 0;
+  border-radius: 12px;
+  border: 1px solid var(--alert-border);
+  padding: 0.85rem 1.1rem;
+  background-color: var(--alert-bg);
+  color: var(--alert-text);
+  font-size: 0.9em;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  line-height: 1.65;
+}
+
+.prose :global(.alert-icon) {
+  width: 1.3em;
+  height: 1.3em;
+  flex-shrink: 0;
+  margin-top: 0.12em;
+  color: var(--alert-icon-color);
+  opacity: 0.9;
+}
+
+.prose :global(.alert-content) {
+  flex: 1;
+  min-width: 0;
+}
+
+.prose :global(.alert-content) > :first-child {
+  margin-top: 0;
+}
+
+.prose :global(.alert-content) > :last-child {
+  margin-bottom: 0;
+}
+
+/* Inline strong inside alerts inherits alert text color */
+.prose :global(.alert-content strong) {
+  color: var(--alert-text);
+  font-weight: 700;
+}
+
+/* Alert Variants */
+
+/* Info / Note — Blue */
+.prose :global(.alert-note),
+.prose :global(.alert-info) {
+  --alert-bg: hsl(214 90% 97%);
+  --alert-border: hsl(214 70% 88%);
+  --alert-icon-color: hsl(214 80% 48%);
+  --alert-text: hsl(214 40% 26%);
+}
+:global(.dark) .prose :global(.alert-note),
+:global(.dark) .prose :global(.alert-info) {
+  --alert-bg: hsl(214 35% 15%);
+  --alert-border: hsl(214 35% 28%);
+  --alert-icon-color: hsl(214 80% 65%);
+  --alert-text: hsl(214 25% 80%);
+}
+
+/* Tip / Success — Green */
+.prose :global(.alert-tip),
+.prose :global(.alert-success) {
+  --alert-bg: hsl(145 65% 96%);
+  --alert-border: hsl(145 55% 82%);
+  --alert-icon-color: hsl(145 65% 38%);
+  --alert-text: hsl(145 38% 22%);
+}
+:global(.dark) .prose :global(.alert-tip),
+:global(.dark) .prose :global(.alert-success) {
+  --alert-bg: hsl(145 30% 14%);
+  --alert-border: hsl(145 35% 26%);
+  --alert-icon-color: hsl(145 65% 55%);
+  --alert-text: hsl(145 20% 78%);
+}
+
+/* Important / Warning — Amber */
+.prose :global(.alert-important),
+.prose :global(.alert-warning) {
+  --alert-bg: hsl(38 95% 96%);
+  --alert-border: hsl(38 85% 82%);
+  --alert-icon-color: hsl(38 90% 42%);
+  --alert-text: hsl(38 45% 24%);
+}
+:global(.dark) .prose :global(.alert-important),
+:global(.dark) .prose :global(.alert-warning) {
+  --alert-bg: hsl(38 35% 13%);
+  --alert-border: hsl(38 45% 26%);
+  --alert-icon-color: hsl(38 90% 62%);
+  --alert-text: hsl(38 25% 80%);
+}
+
+/* Caution / Error — Red */
+.prose :global(.alert-caution),
+.prose :global(.alert-error) {
+  --alert-bg: hsl(0 80% 97%);
+  --alert-border: hsl(0 65% 87%);
+  --alert-icon-color: hsl(0 78% 50%);
+  --alert-text: hsl(0 38% 24%);
+}
+:global(.dark) .prose :global(.alert-caution),
+:global(.dark) .prose :global(.alert-error) {
+  --alert-bg: hsl(0 35% 13%);
+  --alert-border: hsl(0 40% 26%);
+  --alert-icon-color: hsl(0 78% 63%);
+  --alert-text: hsl(0 20% 80%);
 }

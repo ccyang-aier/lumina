@@ -54,8 +54,15 @@
   --animate-shiny-text: shiny-text 8s infinite;
   --animate-logo-shimmer: logo-shimmer 5s infinite;
   --animate-aurora: aurora 8s ease-in-out infinite alternate;
+  --animate-shimmer: shimmer 2s infinite;
   --animate-marquee-scroll: marquee-scroll var(--duration, 40s) linear infinite;
   --animate-marquee-vertical-scroll: marquee-vertical-scroll var(--duration, 40s) linear infinite;
+
+  @keyframes shimmer {
+    100% {
+      transform: translateX(100%);
+    }
+  }
 
   @keyframes marquee-scroll {
     from {
@@ -327,26 +334,80 @@
    on each <span>; we activate the correct one here.
    ============================================================ */
 
-/* Light mode: show light-theme colors */
-html pre[data-theme] {
+/* Light mode: show light-theme colors — only for server-rendered dual-theme blocks */
+html :not(.themed-code-block) > pre[data-theme] {
   background-color: var(--shiki-light-bg);
   color: var(--shiki-light);
 }
 
-html pre[data-theme] code span {
+html :not(.themed-code-block) > pre[data-theme] code span {
   color: var(--shiki-light);
   font-style: var(--shiki-light-font-style, normal);
   font-weight: var(--shiki-light-font-weight, normal);
 }
 
-/* Dark mode: show dark-theme colors */
-html.dark pre[data-theme] {
+/* Dark mode: show dark-theme colors — only for server-rendered dual-theme blocks */
+html.dark :not(.themed-code-block) > pre[data-theme] {
   background-color: var(--shiki-dark-bg);
   color: var(--shiki-dark);
 }
 
-html.dark pre[data-theme] code span {
+html.dark :not(.themed-code-block) > pre[data-theme] code span {
   color: var(--shiki-dark);
   font-style: var(--shiki-dark-font-style, normal);
   font-weight: var(--shiki-dark-font-weight, normal);
+}
+
+/* ============================================================
+   themed-code-block — client-side shiki theme override
+   Use !important to beat the prose module CSS specificity:
+   .prose :global(pre:not([data-rehype-pretty-code-figure] pre))
+   ============================================================ */
+.themed-code-block pre {
+  margin: 0 !important;
+  border: none !important;
+  border-radius: 0 !important;
+  padding: 1.25rem 1.5rem;
+  overflow-x: auto;
+  font-family: "JetBrains Mono", "Fira Code", "Cascadia Code", ui-monospace, monospace;
+  font-size: 0.85rem;
+  line-height: 1.7;
+  scrollbar-width: thin;
+  scrollbar-color: hsl(0 0% 30%) transparent;
+  /* background-color comes from shiki inline style — do NOT override */
+}
+
+.themed-code-block pre::-webkit-scrollbar {
+  height: 4px;
+}
+
+.themed-code-block pre::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.themed-code-block pre::-webkit-scrollbar-thumb {
+  background: hsl(0 0% 30%);
+  border-radius: 99px;
+}
+
+.themed-code-block pre code {
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+  background: transparent !important;
+  padding: 0;
+  border-radius: 0;
+}
+
+/* Line numbers for themed blocks via data-line-number attr (set by shiki transformer) */
+.themed-code-block pre code .line[data-line-number]::before {
+  content: attr(data-line-number);
+  display: inline-block;
+  width: 1.5rem;
+  margin-right: 1.5rem;
+  text-align: right;
+  color: hsl(0 0% 40%);
+  font-size: 0.75rem;
+  user-select: none;
+  flex-shrink: 0;
 }

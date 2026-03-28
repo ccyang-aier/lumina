@@ -170,7 +170,7 @@ function FeedCard({ item, index }: { item: FeedItem; index: number }) {
                       key="idle"
                       initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
                       onClick={handleGapClaim}
-                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-white transition-all duration-200 hover:scale-105 active:scale-95"
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-white transition-all duration-200 hover:scale-105 active:scale-95 cursor-pointer"
                       style={{ background: 'linear-gradient(135deg, #f59e0b, #ef4444)' }}
                     >
                       接取缺口 +50积分
@@ -184,11 +184,11 @@ function FeedCard({ item, index }: { item: FeedItem; index: number }) {
                     >
                       <span className="text-amber-700 dark:text-amber-300">确认接取？将消耗专注时间</span>
                       <button onClick={handleConfirm}
-                        className="px-2 py-0.5 bg-amber-500 text-white rounded font-medium hover:bg-amber-600 transition-colors">
+                        className="px-2 py-0.5 bg-amber-500 text-white rounded font-medium hover:bg-amber-600 transition-colors cursor-pointer">
                         确认
                       </button>
                       <button onClick={() => setGapStatus('idle')}
-                        className="px-2 py-0.5 border border-amber-300/50 rounded text-amber-600 hover:bg-amber-100 dark:hover:bg-amber-900/30 transition-colors">
+                        className="px-2 py-0.5 border border-amber-300/50 rounded text-amber-600 hover:bg-amber-100 dark:hover:bg-amber-900/30 transition-colors cursor-pointer">
                         取消
                       </button>
                     </motion.div>
@@ -237,17 +237,17 @@ function FeedCard({ item, index }: { item: FeedItem; index: number }) {
             <div className="flex items-center gap-4 mt-3 pt-3 border-t border-border/50">
               <button
                 onClick={() => setLiked(v => !v)}
-                className={cn('flex items-center gap-1 text-xs transition-colors',
+                className={cn('flex items-center gap-1 text-xs transition-colors cursor-pointer',
                   liked ? 'text-rose-500' : 'text-muted-foreground hover:text-rose-500')}
               >
                 <Heart className={cn('w-3.5 h-3.5', liked && 'fill-rose-500')} />
                 {item.likes + (liked ? 1 : 0)}
               </button>
-              <button className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors">
+              <button className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors cursor-pointer">
                 <MessageCircle className="w-3.5 h-3.5" />
                 {item.comments}
               </button>
-              <button className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors ml-auto">
+              <button className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors ml-auto cursor-pointer">
                 <ThumbsUp className="w-3.5 h-3.5" /> 有用
               </button>
             </div>

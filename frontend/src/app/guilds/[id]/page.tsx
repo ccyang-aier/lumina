@@ -16,6 +16,19 @@ import { GuildExpeditionsTab } from '@/components/guild/GuildExpeditionsTab'
 import { GuildLibraryTab } from '@/components/guild/GuildLibraryTab'
 import { GuildLearningPathTab } from '@/components/guild/GuildLearningPathTab'
 import { cn } from '@/lib/utils'
+import { GridPattern } from '@/components/magicui/grid-pattern'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogFooter,
+} from "@/components/ui/dialog"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 // ─── Tab definitions ─────────────────────────────────────────────────────────
 
@@ -44,25 +57,35 @@ function ActivityStars({ level }: { level: number }) {
 
 // ─── Hero section ─────────────────────────────────────────────────────────────
 
-function GuildHero({ guild }: { guild: Guild }) {
+function GuildHero({ guild, onAnnouncementClick }: { guild: Guild; onAnnouncementClick: () => void }) {
   const heroRef = useRef<HTMLDivElement>(null)
   const { scrollY } = useScroll()
   const y = useTransform(scrollY, [0, 300], [0, 60])
   const opacity = useTransform(scrollY, [0, 200], [1, 0.7])
+  const [isSaving, setIsSaving] = useState(false)
+  const [open, setOpen] = useState(false)
+
+  const handleSave = () => {
+    setIsSaving(true)
+    setTimeout(() => {
+      setIsSaving(false)
+      setOpen(false)
+    }, 1000)
+  }
 
   return (
     <div ref={heroRef} className="relative overflow-hidden" style={{ minHeight: 280 }}>
       {/* Background: geometric texture */}
       <div className="absolute inset-0 bg-zinc-900 dark:bg-zinc-950">
-        {/* Geometric pattern overlay */}
-        <svg className="absolute inset-0 w-full h-full opacity-10" xmlns="http://www.w3.org/2000/svg">
-          <defs>
-            <pattern id="geo" x="0" y="0" width="60" height="60" patternUnits="userSpaceOnUse">
-              <path d="M30 0 L60 15 L60 45 L30 60 L0 45 L0 15 Z" fill="none" stroke="white" strokeWidth="0.5"/>
-            </pattern>
-          </defs>
-          <rect width="100%" height="100%" fill="url(#geo)" />
-        </svg>
+        <GridPattern
+          width={40}
+          height={40}
+          x={-1}
+          y={-1}
+          className={cn(
+            "[mask-image:linear-gradient(to_bottom_right,white,transparent,transparent)] opacity-20",
+          )}
+        />
         {/* Color accent glow */}
         <div
           className="absolute inset-0 opacity-20"
@@ -81,37 +104,112 @@ function GuildHero({ guild }: { guild: Guild }) {
         
         {/* Top row: admin buttons */}
         <div className="flex items-center justify-end gap-2 mb-8">
-          <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-white/90 text-xs font-medium transition-all backdrop-blur-sm border border-white/10">
+          <button
+            onClick={onAnnouncementClick}
+            className="cursor-pointer flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 hover:scale-105 active:scale-95 text-white/90 text-xs font-medium transition-all backdrop-blur-sm border border-white/10 shadow-sm hover:shadow-md"
+          >
             <Bell className="w-3.5 h-3.5" /> 公告
           </button>
-          <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-white/90 text-xs font-medium transition-all backdrop-blur-sm border border-white/10">
-            <Settings className="w-3.5 h-3.5" /> 管理
-          </button>
+
+          <Dialog open={open} onOpenChange={setOpen}>
+            <DialogTrigger asChild>
+              <button className="cursor-pointer flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 hover:scale-105 active:scale-95 text-white/90 text-xs font-medium transition-all backdrop-blur-sm border border-white/10 shadow-sm hover:shadow-md">
+                <Settings className="w-3.5 h-3.5" /> 管理
+              </button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[600px] bg-background text-foreground border-border">
+              <DialogHeader>
+                <DialogTitle>公会管理</DialogTitle>
+                <DialogDescription>
+                  管理公会基本信息、成员权限及高级设置。
+                </DialogDescription>
+              </DialogHeader>
+
+              <Tabs defaultValue="general" className="w-full mt-4">
+                <TabsList className="grid w-full grid-cols-3 bg-muted text-muted-foreground">
+                  <TabsTrigger value="general">基本信息</TabsTrigger>
+                  <TabsTrigger value="members">成员权限</TabsTrigger>
+                  <TabsTrigger value="danger">高级设置</TabsTrigger>
+                </TabsList>
+
+                <TabsContent value="general" className="space-y-4 py-4">
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                      公会名称
+                    </label>
+                    <Input defaultValue={guild.name} className="bg-background border-border" />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                      Slogan
+                    </label>
+                    <Input defaultValue={guild.slogan} className="bg-background border-border" />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                      公会公告
+                    </label>
+                    <Input defaultValue="欢迎来到我们的公会！请遵守公会规则，积极分享知识。" className="bg-background border-border" />
+                  </div>
+                </TabsContent>
+
+                <TabsContent value="members" className="py-12 text-center">
+                  <div className="flex flex-col items-center justify-center gap-2 text-muted-foreground">
+                    <Users className="w-8 h-8 opacity-20" />
+                    <p className="text-sm">成员管理功能正在开发中...</p>
+                  </div>
+                </TabsContent>
+
+                <TabsContent value="danger" className="py-4 space-y-4">
+                  <div className="rounded-lg border border-destructive/20 bg-destructive/5 p-4">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Zap className="w-4 h-4 text-destructive" />
+                      <h4 className="text-sm font-bold text-destructive">危险区域</h4>
+                    </div>
+                    <p className="text-xs text-muted-foreground mb-4 leading-relaxed">
+                      解散公会将删除所有数据，包括所有知识卡片、讨论记录和成员贡献值，此操作不可恢复。
+                    </p>
+                    <Button variant="destructive" size="sm" className="w-full sm:w-auto">
+                      解散公会
+                    </Button>
+                  </div>
+                </TabsContent>
+              </Tabs>
+
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setOpen(false)} className="border-border hover:bg-accent hover:text-accent-foreground">
+                  取消
+                </Button>
+                <Button onClick={handleSave} disabled={isSaving}>
+                  {isSaving ? (
+                    <>
+                      <span className="w-4 h-4 mr-2 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                      保存中...
+                    </>
+                  ) : '保存更改'}
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
         </div>
 
         {/* Guild identity */}
-        <div className="flex items-start gap-4 mb-6">
-          <div className="w-16 h-16 rounded-2xl flex items-center justify-center text-3xl shrink-0 shadow-lg"
-            style={{ background: `${guild.primaryColor}30`, border: `1.5px solid ${guild.primaryColor}50` }}>
-            {guild.icon}
-          </div>
-          <div>
-            <h1 className="text-2xl sm:text-3xl font-black text-white mb-1 leading-tight">{guild.name}</h1>
-            <p className="text-white/60 text-sm italic">「{guild.slogan}」</p>
-          </div>
+        <div className="mb-6">
+          <h1 className="text-3xl sm:text-4xl font-black text-white mb-2 leading-tight tracking-tight">{guild.name}</h1>
+          <p className="text-white/60 text-sm sm:text-base italic">「{guild.slogan}」</p>
         </div>
 
         {/* Stats row */}
-        <div className="flex flex-wrap items-center gap-4 sm:gap-6 mb-6">
+        <div className="flex flex-wrap items-center gap-6 sm:gap-8 mb-8">
           {[
             { icon: Users,     value: guild.stats.members,     label: '成员' },
             { icon: BookOpen,  value: guild.stats.knowledgeCards, label: '知识卡' },
             { icon: TrendingUp,value: `+${guild.stats.weeklyNew}`, label: '本周新增' },
           ].map(({ icon: Icon, value, label }) => (
-            <div key={label} className="flex items-center gap-2">
-              <Icon className="w-4 h-4 text-white/50" />
-              <span className="text-white font-bold">{value}</span>
-              <span className="text-white/50 text-sm">{label}</span>
+            <div key={label} className="flex items-center gap-2 group cursor-default">
+              <Icon className="w-4 h-4 text-white/50 group-hover:text-white/80 transition-colors" />
+              <span className="text-white font-bold text-lg">{value}</span>
+              <span className="text-white/50 text-sm group-hover:text-white/70 transition-colors">{label}</span>
             </div>
           ))}
           <div className="flex items-center gap-2">
@@ -121,7 +219,7 @@ function GuildHero({ guild }: { guild: Guild }) {
         </div>
 
         {/* Active expeditions pulse bar */}
-        <div className="inline-flex items-center gap-2.5 px-3.5 py-2 rounded-lg bg-orange-500/15 border border-orange-500/25 text-orange-300 text-xs font-medium">
+        <div className="inline-flex items-center gap-2.5 px-3.5 py-2 rounded-lg bg-orange-500/15 border border-orange-500/25 text-orange-300 text-xs font-medium backdrop-blur-sm">
           <span className="relative flex h-2 w-2">
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75" />
             <span className="relative inline-flex rounded-full h-2 w-2 bg-orange-500" />
@@ -173,7 +271,7 @@ function TabNav({ active, onChange }: { active: TabKey; onChange: (k: TabKey) =>
               ref={el => { buttonRefs.current[i] = el }}
               onClick={() => onChange(tab.key)}
               className={cn(
-                'relative px-4 py-3.5 text-sm font-medium whitespace-nowrap transition-colors duration-200 shrink-0',
+                'relative px-4 py-3.5 text-sm font-medium whitespace-nowrap transition-colors duration-200 shrink-0 cursor-pointer',
                 active === tab.key
                   ? 'text-foreground'
                   : 'text-muted-foreground hover:text-foreground'
@@ -206,6 +304,14 @@ export default function GuildDetailPage() {
 
   const [activeTab, setActiveTab] = useState<TabKey>('feed')
 
+  const handleAnnouncementClick = () => {
+    setActiveTab('announce')
+    const tabNav = document.querySelector('.sticky')
+    if (tabNav) {
+      tabNav.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }
+  }
+
   const TAB_CONTENT: Record<TabKey, React.ReactNode> = {
     feed:        <GuildFeedTab />,
     announce:    <GuildAnnouncementsTab />,
@@ -221,14 +327,14 @@ export default function GuildDetailPage() {
       {/* Breadcrumb */}
       <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 pt-4 pb-0">
         <nav className="flex items-center gap-1.5 text-sm text-muted-foreground mb-4">
-          <Link href="/guilds" className="hover:text-foreground transition-colors">公会列表</Link>
+          <Link href="/guilds" className="hover:text-foreground transition-colors cursor-pointer">公会列表</Link>
           <ChevronRight className="w-3.5 h-3.5" />
           <span className="text-foreground font-medium">{guild.name}</span>
         </nav>
       </div>
 
       {/* Hero */}
-      <GuildHero guild={guild} />
+      <GuildHero guild={guild} onAnnouncementClick={handleAnnouncementClick} />
 
       {/* Tab nav */}
       <TabNav active={activeTab} onChange={setActiveTab} />

@@ -6,8 +6,9 @@ import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { SidePanelProvider } from "@/components/layout/SidePanelContext";
 import { LayoutShell } from "@/components/layout/LayoutShell";
-import { SidePanelContent } from "@/components/layout/SidePanelContent";
-import { SidePanelTrigger } from "@/components/layout/SidePanelTrigger";
+import { DynamicLayoutParts } from "@/components/layout/DynamicLayoutParts";
+import { CodeThemeProvider } from "@/lib/CodeThemeContext";
+import NextTopLoader from "nextjs-toploader";
 
 const orbitron = Orbitron({
   subsets: ["latin"],
@@ -35,6 +36,7 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
+          <CodeThemeProvider>
           <SidePanelProvider>
             {/*
               LayoutShell is a client component that applies a right-padding
@@ -42,17 +44,16 @@ export default function RootLayout({
               left when the panel opens, without any overlay or pointer-events mask.
             */}
             <LayoutShell>
+              <NextTopLoader showSpinner={false} color="#00C2FF" height={3} />
               <Navbar />
               <main className="flex-1">{children}</main>
               <Footer />
             </LayoutShell>
 
             {/* Panel renders fixed/full-height outside the layout flow */}
-            <SidePanelContent />
-
-            {/* Floating draggable trigger orb */}
-            <SidePanelTrigger />
+            <DynamicLayoutParts />
           </SidePanelProvider>
+          </CodeThemeProvider>
         </ThemeProvider>
       </body>
     </html>

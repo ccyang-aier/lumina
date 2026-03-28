@@ -39,7 +39,7 @@ export function TableOfContents({ contentId = "markdown-content" }: TableOfConte
       }
 
       const headings = Array.from(
-        contentEl.querySelectorAll("h1, h2, h3, h4")
+        contentEl.querySelectorAll("h1, h2, h3, h4, h5, h6")
       ) as HTMLElement[]
 
       const tocItems: TocItem[] = headings.map((heading) => ({
@@ -143,7 +143,7 @@ export function TableOfContents({ contentId = "markdown-content" }: TableOfConte
                         ? "text-emerald-600 dark:text-emerald-400 font-medium"
                         : "text-muted-foreground/70 hover:text-emerald-600 dark:hover:text-emerald-400"
                     )}
-                    style={{ paddingLeft: `${12 + indent}px` }}
+                    style={{ paddingLeft: `${16 + indent}px` }}
                   >
                     {/* Active indicator on the line */}
                     <AnimatePresence>
@@ -184,7 +184,7 @@ export function TableOfContents({ contentId = "markdown-content" }: TableOfConte
       {/* Back to top */}
       <motion.button
         onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-        className="cursor-pointer mt-5 w-full flex items-center justify-center gap-1.5 py-2 text-[11px] text-muted-foreground/60 hover:text-muted-foreground transition-colors border border-dashed border-border/50 rounded-lg hover:border-border/80"
+        className="cursor-pointer mt-5 w-full flex items-center justify-center gap-1.5 py-2 text-[11px] text-muted-foreground/60 hover:text-muted-foreground transition-colors border border-border/80 rounded-lg hover:border-foreground/20 hover:bg-muted/30"
         whileHover={{ y: -1 }}
         whileTap={{ scale: 0.98 }}
       >

@@ -187,7 +187,7 @@ export function ExpeditionCard({ expedition, index = 0 }: ExpeditionCardProps) {
             </div>
 
             {/* 底部：参与者 + 截止 + 奖励 */}
-            <div className="flex items-center justify-between gap-2 pt-3 border-t border-slate-200/50 dark:border-white/5">
+            <div className="flex items-center justify-between gap-2 pt-3 border-t border-slate-200/50 dark:border-white/5 mt-auto">
               <div className="flex items-center gap-3 min-w-0">
                 {expedition.participants.length > 0 ? (
                   <ParticipantAvatars participants={expedition.participants} maxParticipants={expedition.maxParticipants} />

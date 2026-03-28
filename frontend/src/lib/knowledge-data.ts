@@ -334,6 +334,66 @@ Islands Architecture（孤岛架构）由 Preact 作者 Jason Miller 提出，�
 3. **现有项目迁移**：渐进式引入，从叶子组件开始服务器化`
 
 export const MOCK_SERIES: Record<string, SeriesData> = {
+  "comprehensive-test": {
+    id: "comprehensive-test",
+    title: "Lumina 知识库综合测试指南",
+    description: "用于测试知识库详情页各项功能的极限边界情况，包括超长目录滚动、复杂 Markdown 渲染等。",
+    totalChapters: 60,
+    level: "Expert",
+    lastUpdated: "2024-03-25",
+    cards: Array.from({ length: 60 }, (_, i) => ({
+      id: 1000 + i,
+      title: `第 ${i + 1} 章：测试章节标题长度是否会换行以及滚动的流畅性 - ${i + 1}`,
+      chapterIndex: i + 1,
+      chapter: `测试章节 ${i + 1}`,
+    })),
+    groups: [
+      {
+        id: "group-1",
+        title: "基础 Markdown 测试",
+        icon: "book",
+        chapters: Array.from({ length: 10 }, (_, i) => ({
+          id: 1000 + i,
+          title: `第 ${i + 1} 章：基础元素测试 - ${i + 1}`,
+          chapterIndex: i + 1,
+          chapter: `基础测试 ${i + 1}`,
+        })),
+      },
+      {
+        id: "group-2",
+        title: "代码与表格测试",
+        icon: "code",
+        chapters: Array.from({ length: 15 }, (_, i) => ({
+          id: 1010 + i,
+          title: `第 ${i + 11} 章：复杂组件渲染 - ${i + 11}`,
+          chapterIndex: i + 11,
+          chapter: `进阶测试 ${i + 11}`,
+        })),
+      },
+      {
+        id: "group-3",
+        title: "超长列表滚动测试 A",
+        icon: "layers",
+        chapters: Array.from({ length: 15 }, (_, i) => ({
+          id: 1025 + i,
+          title: `第 ${i + 26} 章：滚动性能测试 A - ${i + 26}`,
+          chapterIndex: i + 26,
+          chapter: `滚动测试 A ${i + 26}`,
+        })),
+      },
+      {
+        id: "group-4",
+        title: "超长列表滚动测试 B",
+        icon: "database",
+        chapters: Array.from({ length: 20 }, (_, i) => ({
+          id: 1040 + i,
+          title: `第 ${i + 41} 章：滚动性能测试 B - ${i + 41}`,
+          chapterIndex: i + 41,
+          chapter: `滚动测试 B ${i + 41}`,
+        })),
+      },
+    ],
+  },
   "ai-frontier": {
     id: "ai-frontier",
     title: "AI 前沿探索",
@@ -467,7 +527,218 @@ export const MOCK_SERIES: Record<string, SeriesData> = {
   },
 }
 
+const COMPREHENSIVE_MARKDOWN_CONTENT = `
+# 综合 Markdown 渲染测试
+
+> **摘要**：本文旨在测试所有常见的 Markdown 语法渲染效果，确保样式美观、布局合理。包括长文本、代码块、表格、列表、引用、图片以及特殊组件。
+
+## 1. 文本排版测试
+
+这是一段普通的文本，用来测试段落间距和行高。Markdown 是一种轻量级标记语言，它允许人们使用易读易写的纯文本格式编写文档，然后转换成有效的 XHTML（或者 HTML）。
+
+### 1.1 字体样式
+
+- **加粗文本 (Bold)**：强调重要内容。
+- *斜体文本 (Italic)*：表示引用或专有名词。
+- ~~删除线 (Strikethrough)~~：表示已废弃的内容。
+- \`行内代码 (Inline Code)\`：用于标记变量、函数名或命令，如 \`npm install\`。
+- [链接 (Link)](https://example.com)：跳转到外部链接。
+
+### 1.2 引用块 (Blockquotes)
+
+> 这是一个一级引用块。
+>
+> > 这是一个嵌套的二级引用块。
+> > 
+> > > 这是一个三级引用块，用来测试深层嵌套的样式。
+
+### 1.3 增强引用块 (Alerts)
+
+> [!NOTE]
+> 这是一个 **Note** 类型的引用块，用于提示一般信息。
+
+> [!TIP]
+> 这是一个 **Tip** 类型的引用块，用于提供建议或技巧。
+
+> [!IMPORTANT]
+> 这是一个 **Important** 类型的引用块，用于强调关键信息。
+
+> [!WARNING]
+> 这是一个 **Warning** 类型的引用块，用于警告潜在风险。
+
+> [!CAUTION]
+> 这是一个 **Caution** 类型的引用块，用于警示严重后果。
+
+> [!INFO]
+> 这是一个 **Info** 类型的引用块（扩展类型）。
+
+> [!ERROR]
+> 这是一个 **Error** 类型的引用块（扩展类型）。
+
+> [!SUCCESS]
+> 这是一个 **Success** 类型的引用块（扩展类型）。
+
+## 2. 列表测试
+
+### 2.1 无序列表
+
+- 项目 A
+- 项目 B
+  - 子项目 B.1
+  - 子项目 B.2
+    - 孙项目 B.2.1
+- 项目 C
+
+### 2.2 有序列表
+
+1. 第一步：安装依赖
+2. 第二步：编写代码
+   1. 初始化项目
+   2. 配置环境
+3. 第三步：运行测试
+
+### 2.3 任务列表 (Task List)
+
+- [x] 已完成的任务
+- [ ] 待处理的任务
+- [ ] 正在进行的任务
+
+## 3. 代码块测试
+
+### 3.1 TypeScript
+
+\`\`\`typescript
+interface User {
+  id: number;
+  name: string;
+  role: "admin" | "user";
+}
+
+function getUser(id: number): User {
+  // 模拟数据库查询
+  return {
+    id,
+    name: "Lumina User",
+    role: "admin"
+  };
+}
+
+const user = getUser(1);
+console.log(\`Hello, \${user.name}!\`);
+\`\`\`
+
+### 3.2 Python
+
+\`\`\`python
+import os
+
+def list_files(directory):
+    """列出指定目录下的所有文件"""
+    for root, dirs, files in os.walk(directory):
+        for file in files:
+            print(os.path.join(root, file))
+
+if __name__ == "__main__":
+    list_files(".")
+\`\`\`
+
+### 3.3 Rust
+
+\`\`\`rust
+use std::collections::HashMap;
+
+fn main() {
+    let mut scores = HashMap::new();
+
+    scores.insert(String::from("Blue"), 10);
+    scores.insert(String::from("Yellow"), 50);
+
+    for (key, value) in &scores {
+        println!("{}: {}", key, value);
+    }
+}
+\`\`\`
+
+### 3.4 超长代码行测试 (水平滚动)
+
+\`\`\`json
+{
+  "id": "1234567890",
+  "name": "Super Long JSON Object Name That Should Cause Horizontal Scrolling In The Code Block If The Container Is Not Wide Enough",
+  "description": "This is a test to ensure that long lines of code do not break the layout and instead provide a horizontal scrollbar for better readability on smaller screens.",
+  "nested": {
+    "deeply": {
+      "nested": {
+        "value": "Some value deep inside"
+      }
+    }
+  }
+}
+\`\`\`
+
+## 4. 表格测试
+
+| 功能 | 状态 | 优先级 | 负责 |
+| :--- | :---: | :---: | ---: |
+| 用户登录 | ✅ 完成 | High | Sarah |
+| 支付集成 | 🚧 进行中 | Critical | Mike |
+| 数据导出 | ❌以此类推 | Low | John |
+| 长文本测试 | 这是一个非常长的单元格内容，用来测试表格在内容过多时是否会自动换行或者保持良好的布局而不破坏页面结构。 | Medium | Alice |
+
+## 5. 媒体测试
+
+### 5.1 图片
+
+![示例图片](https://images.unsplash.com/photo-1461749280684-dccba630e2f6?auto=format&fit=crop&q=80&w=1000)
+*图片说明：这是一张来自 Unsplash 的示例图片，用于测试图片自适应宽度。*
+
+## 6. 其他元素
+
+### 6.1 分割线
+
+---
+
+### 6.2 脚注 (Footnotes)
+
+这是一个带有脚注的文本[^1]。
+
+[^1]: 这是脚注的内容说明。
+
+### 6.3 标题层级测试 (用于 TOC 滚动)
+
+#### 6.3.1 四级标题 A
+内容 A...
+
+#### 6.3.2 四级标题 B
+内容 B...
+
+##### 6.3.2.1 五级标题
+内容...
+
+###### 6.3.2.1.1 六级标题
+内容...
+
+## 7. 结语
+
+测试结束。希望这个页面能完美展示所有 Markdown 元素！
+` + "\n\n".repeat(20) + "## 8. 底部填充内容 (测试页面滚动)\n\n这里是为了增加页面高度，确保右侧 TOC 能够测试滚动效果。\n\n" + Array.from({ length: 20 }, (_, i) => `### 8.${i + 1} 填充标题 ${i + 1}\n\n填充内容段落 ${i + 1}...`).join("\n\n");
+
 export const MOCK_CARDS: KnowledgeCardData[] = [
+  {
+    id: 1000,
+    title: "Lumina 综合渲染测试：Markdown 样式与布局极限测试",
+    description: "本页面包含所有常见的 Markdown 元素、超长代码块、宽表格、深层嵌套列表等，用于测试渲染引擎的健壮性和样式美观度。",
+    image: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&q=80&w=1000",
+    tags: ["测试", "Markdown", "渲染", "布局"],
+    domain: "质量保证",
+    author: { name: "QA Engineer", guild: "测试实验室", avatar: "https://github.com/shadcn.png", bio: "专注于前端渲染质量与自动化测试。" },
+    publishDate: "2024-03-25",
+    stats: { views: 9999, likes: 888, comments: 77 },
+    type: "document",
+    status: "completed",
+    location: { series: "Lumina 知识库综合测试指南", seriesId: "comprehensive-test", chapter: "基础测试 1", chapterIndex: 1 },
+    content: COMPREHENSIVE_MARKDOWN_CONTENT,
+  },
   {
     id: 1,
     title: "AI Agent 在企业级应用中的落地实践与挑战",

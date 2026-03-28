@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import Link from "next/link"
 import { motion, AnimatePresence } from "framer-motion"
 import {
@@ -251,7 +251,7 @@ function SeriesView({ series, currentCardId }: { series: SeriesData; currentCard
   return (
     <div className="flex flex-col">
       {/* ── Header ── */}
-      <div className="px-4 pt-4 pb-4 border-b border-border/60">
+      <div className="px-4 pt-4 pb-4 border-b border-border">
         <div className="flex items-start gap-2.5">
           <div className="mt-0.5 flex-shrink-0 w-7 h-7 rounded-lg bg-muted flex items-center justify-center">
             <BookOpen className="w-3.5 h-3.5 text-foreground" />
@@ -357,7 +357,7 @@ function AuthorArchiveView({
   return (
     <div className="flex flex-col">
       {/* ── Author header ── */}
-      <div className="px-4 pt-4 pb-4 border-b border-border/60">
+      <div className="px-4 pt-4 pb-4 border-b border-border">
         <div className="flex items-start gap-3">
           <div className="flex-shrink-0 w-9 h-9 rounded-full bg-muted border border-border overflow-hidden flex items-center justify-center text-sm font-semibold text-foreground">
             {authorAvatar ? (
@@ -486,19 +486,70 @@ interface SeriesSidebarProps {
 export function SeriesSidebar({
   currentCardId, series, authorCards, authorName, authorBio, authorAvatar,
 }: SeriesSidebarProps) {
+  const scrollRef = useRef<HTMLDivElement>(null)
+  const [isOverflowing, setIsOverflowing] = useState(false)
+
+  useEffect(() => {
+    const el = scrollRef.current
+    if (!el) return
+
+    const updateOverflow = () => {
+      setIsOverflowing(el.scrollHeight > el.clientHeight + 1)
+    }
+
+    updateOverflow()
+
+    const resizeObserver = new ResizeObserver(() => {
+      updateOverflow()
+    })
+    resizeObserver.observe(el)
+
+    const mutationObserver = new MutationObserver(() => {
+      requestAnimationFrame(updateOverflow)
+    })
+    mutationObserver.observe(el, {
+      childList: true,
+      subtree: true,
+      characterData: true,
+      attributes: true,
+    })
+
+    window.addEventListener("resize", updateOverflow)
+
+    return () => {
+      resizeObserver.disconnect()
+      mutationObserver.disconnect()
+      window.removeEventListener("resize", updateOverflow)
+    }
+  }, [series, authorCards, currentCardId])
+
+  if (!series && (!authorCards || authorCards.length === 0)) {
+    return null
+  }
+
   return (
-    <aside className="w-full rounded-xl border border-border bg-card overflow-hidden">
-      {series ? (
-        <SeriesView series={series} currentCardId={currentCardId} />
-      ) : authorCards && authorCards.length > 0 ? (
-        <AuthorArchiveView
-          authorCards={authorCards}
-          currentCardId={currentCardId}
-          authorName={authorName || ""}
-          authorBio={authorBio}
-          authorAvatar={authorAvatar}
-        />
-      ) : null}
-    </aside>
+    <div
+      ref={scrollRef}
+      className={cn(
+        "sticky top-24 max-h-[calc(100vh-6rem)] overflow-y-auto pr-3 [scrollbar-width:thin] [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-full",
+        isOverflowing
+          ? "border-r-0 [&::-webkit-scrollbar-thumb]:bg-border/60 hover:[&::-webkit-scrollbar-thumb]:bg-border/80"
+          : "border-r border-border/60 [&::-webkit-scrollbar-thumb]:bg-transparent"
+      )}
+    >
+      <div className="w-full h-full">
+        {series ? (
+          <SeriesView series={series} currentCardId={currentCardId} />
+        ) : (
+          <AuthorArchiveView
+            authorCards={authorCards!}
+            currentCardId={currentCardId}
+            authorName={authorName || ""}
+            authorBio={authorBio}
+            authorAvatar={authorAvatar}
+          />
+        )}
+      </div>
+    </div>
   )
 }

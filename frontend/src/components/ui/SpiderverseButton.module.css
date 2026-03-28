@@ -1,0 +1,199 @@
+.buttonWrapper {
+  position: relative;
+  /* transform-style: preserve-3d; - Removed to prevent overflow issues */
+  transition: transform 0.2s ease;
+  padding: 10px;
+  display: inline-block;
+}
+
+.spiderverseButton {
+  position: relative;
+  padding: 12px 140px; /* Increased padding for longer button */
+  font-size: 24px;
+  font-weight: 900;
+  border: 2px solid #000;
+  border-radius: 50px;
+  cursor: pointer;
+  background: #fff;
+  color: #000;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  /* transform-style: preserve-3d; - Removed to fix overflow:hidden clipping */
+  transition: all 0.15s ease;
+  font-family: Arial, sans-serif;
+  text-shadow:
+    -1px -1px 0 #000,
+    1px -1px 0 #000,
+    -1px 1px 0 #000,
+    1px 1px 0 #000;
+  white-space: nowrap;
+  overflow: hidden; /* This should now correctly clip children */
+}
+
+.glitchText {
+  position: relative;
+  display: inline-block;
+  z-index: 5;
+}
+
+.glitchLayers {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 50px;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.glitchLayer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fff;
+  border-radius: 50px;
+  opacity: 0;
+  transition: all 0.15s ease;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  color: #000;
+  text-shadow:
+    -1px -1px 0 #000,
+    1px -1px 0 #000,
+    -1px 1px 0 #000,
+    1px 1px 0 #000;
+}
+
+.layer1 {
+  color: #0ff;
+  transform-origin: center;
+  z-index: -1;
+  text-shadow: none;
+}
+
+.layer2 {
+  color: #f0f;
+  transform-origin: center;
+  z-index: -2;
+  text-shadow: none;
+}
+
+/* Hover States */
+.buttonWrapper:hover .spiderverseButton {
+  background: #fff; /* Ensure background stays white on hover */
+  animation: buttonGlitch 0.3s steps(2) infinite;
+  box-shadow:
+    5px 5px 0px rgba(0, 0, 0, 1),
+    0 0 20px rgba(255, 255, 255, 0.5);
+}
+
+.buttonWrapper:hover .glitchLayer {
+  opacity: 1;
+  background: #fff; /* Ensure glitch layers stay white */
+}
+
+.buttonWrapper:hover .layer1 {
+  animation: glitchLayer1 0.4s steps(2) infinite;
+}
+
+.buttonWrapper:hover .layer2 {
+  animation: glitchLayer2 0.4s steps(2) infinite;
+}
+
+.noise {
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: repeating-radial-gradient(
+    circle at 50% 50%,
+    transparent 0,
+    rgba(0, 0, 0, 0.02) 1px, /* Reduced opacity to prevent gray look */
+    transparent 2px
+  );
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s;
+  animation: noise 0.2s steps(2) infinite;
+  z-index: 2;
+  mix-blend-mode: multiply;
+}
+
+.buttonWrapper:hover .noise {
+  opacity: 1;
+}
+
+.glitchSlice {
+  position: absolute;
+  width: 120%;
+  height: 5px;
+  background: #000;
+  opacity: 0;
+  left: -10%;
+  animation: slice 3s linear infinite;
+  z-index: 3;
+  pointer-events: none;
+}
+
+@keyframes buttonGlitch {
+  0% { transform: translate(0) scale(1.0); }
+  25% { transform: translate(-2px, 2px) scale(1.01) skew(-1deg); }
+  50% { transform: translate(2px, -2px) scale(1.0) skew(1deg); }
+  75% { transform: translate(-2px, -2px) scale(1.01) skew(-1deg); }
+  100% { transform: translate(0) scale(1.0); }
+}
+
+@keyframes glitchLayer1 {
+  0% {
+    transform: translate(-3px, -2px);
+    clip-path: polygon(0 20%, 100% 20%, 100% 50%, 0 50%);
+  }
+  25% {
+    transform: translate(3px, 2px);
+    clip-path: polygon(0 30%, 100% 30%, 100% 60%, 0 60%);
+  }
+  50% {
+    transform: translate(-3px, 1px);
+    clip-path: polygon(0 10%, 100% 10%, 100% 40%, 0 40%);
+  }
+  75% {
+    transform: translate(3px, -1px);
+    clip-path: polygon(0 40%, 100% 40%, 100% 70%, 0 70%);
+  }
+  100% {
+    transform: translate(-3px, -2px);
+    clip-path: polygon(0 20%, 100% 20%, 100% 50%, 0 50%);
+  }
+}
+
+@keyframes glitchLayer2 {
+  0% {
+    transform: translate(3px, 2px);
+    clip-path: polygon(0 50%, 100% 50%, 100% 80%, 0 80%);
+  }
+  25% {
+    transform: translate(-3px, -2px);
+    clip-path: polygon(0 60%, 100% 60%, 100% 90%, 0 90%);
+  }
+  50% {
+    transform: translate(3px, -1px);
+    clip-path: polygon(0 40%, 100% 40%, 100% 70%, 0 70%);
+  }
+  75% {
+    transform: translate(-3px, 1px);
+    clip-path: polygon(0 70%, 100% 70%, 100% 100%, 0 100%);
+  }
+  100% {
+    transform: translate(3px, 2px);
+    clip-path: polygon(0 50%, 100% 50%, 100% 80%, 0 80%);
+  }
+}

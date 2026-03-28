@@ -49,7 +49,7 @@ function AnnouncementCard({ item, index }: { item: Announcement; index: number }
               </h3>
               <button
                 onClick={() => setExpanded(v => !v)}
-                className="shrink-0 p-1 rounded text-muted-foreground hover:text-foreground hover:bg-accent transition-all duration-200"
+                className="shrink-0 p-1 rounded text-muted-foreground hover:text-foreground hover:bg-accent transition-all duration-200 cursor-pointer"
               >
                 {expanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
               </button>

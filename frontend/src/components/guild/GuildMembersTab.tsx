@@ -212,7 +212,7 @@ export function GuildMembersTab() {
               key={tab.key}
               onClick={() => setRoleFilter(tab.key)}
               className={cn(
-                'px-3 py-2 rounded-lg text-xs font-medium whitespace-nowrap transition-all duration-200',
+                'px-3 py-2 rounded-lg text-xs font-medium whitespace-nowrap transition-all duration-200 cursor-pointer',
                 roleFilter === tab.key
                   ? 'bg-foreground text-background'
                   : 'text-muted-foreground hover:text-foreground hover:bg-accent border border-border'

@@ -18,10 +18,14 @@ import { AnimatedDropdownContent } from "@/components/design/AnimatedDropdownCon
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { AnimatedShinyText } from "@/components/ui/animated-shiny-text"
 import { Logo } from "@/components/ui/logo"
-import { SearchModal } from "./SearchModal"
 import { ThemeToggle } from "./ThemeToggle"
 import { NotificationButton } from "@/components/design/NotificationButton"
 import { cn } from "@/lib/utils"
+import dynamic from "next/dynamic"
+
+const SearchModal = dynamic(() => import("./SearchModal").then((mod) => mod.SearchModal), {
+  ssr: false,
+})
 
 const navItems = [
   { href: "/knowledge", label: "知识库" },
@@ -51,7 +55,7 @@ export function Navbar() {
   }, [])
 
   // Hide Navbar on Alchemy module
-  if (pathname.startsWith("/guild")) {
+  if (pathname === "/guild" || pathname.startsWith("/guild/")) {
     return null
   }
 

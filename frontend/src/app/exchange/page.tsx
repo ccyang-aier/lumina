@@ -1,13 +1,37 @@
 "use client"
 
-import { useState } from "react"
+import { useState, Suspense } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { Trophy, BarChart2, Award } from "lucide-react"
+import dynamic from "next/dynamic"
 import { cn } from "@/lib/utils"
-import { ProfileTab } from "@/components/honor/ProfileTab"
-import { LeaderboardTab } from "@/components/honor/LeaderboardTab"
-import { AchievementsTab } from "@/components/honor/AchievementsTab"
 import { CURRENT_USER } from "@/lib/honor-data"
+import { Skeleton } from "@/components/ui/skeleton"
+
+// ─── Dynamic Imports with Loading Skeletons ───────────────────────────────────
+
+const ProfileTab = dynamic(() => import("@/components/honor/ProfileTab").then(mod => mod.ProfileTab), {
+  loading: () => <TabContentSkeleton />,
+})
+const LeaderboardTab = dynamic(() => import("@/components/honor/LeaderboardTab").then(mod => mod.LeaderboardTab), {
+  loading: () => <TabContentSkeleton />,
+})
+const AchievementsTab = dynamic(() => import("@/components/honor/AchievementsTab").then(mod => mod.AchievementsTab), {
+  loading: () => <TabContentSkeleton />,
+})
+
+function TabContentSkeleton() {
+  return (
+    <div className="space-y-6">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        {Array.from({ length: 4 }).map((_, i) => (
+          <Skeleton key={i} className="h-32 w-full rounded-xl" />
+        ))}
+      </div>
+      <Skeleton className="h-[400px] w-full rounded-xl" />
+    </div>
+  )
+}
 
 // ─── Tab Config ───────────────────────────────────────────────────────────────
 

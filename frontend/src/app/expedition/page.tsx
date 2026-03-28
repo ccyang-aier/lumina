@@ -3,10 +3,16 @@
 import { useState, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Swords, Flame, BookOpen, CheckSquare, Star, Filter, Zap, Shield, Crown, Users } from 'lucide-react'
+import dynamic from 'next/dynamic'
 import { MOCK_EXPEDITIONS, type ExpeditionStatus, type ExpeditionType, RARITY_CONFIG } from '@/lib/expedition-data'
-import { ExpeditionCard } from '@/components/expedition/ExpeditionCard'
 import styles from '@/components/expedition/expedition.module.css'
 import { cn } from '@/lib/utils'
+import { Skeleton } from '@/components/ui/skeleton'
+
+// ─── Dynamic Import ───────────────────────────────────────────────────────────
+const ExpeditionCard = dynamic(() => import('@/components/expedition/ExpeditionCard').then(mod => mod.ExpeditionCard), {
+  loading: () => <Skeleton className="h-40 w-full rounded-xl" />,
+})
 
 const STATUS_TABS: { key: ExpeditionStatus | 'all'; label: string; icon: React.ReactNode; count?: boolean }[] = [
   { key: 'active',    label: '进行中', icon: <Flame className="w-3.5 h-3.5" />, count: true },
@@ -91,21 +97,10 @@ export default function ExpeditionPage() {
           {/* 主标题 */}
           <div className="relative inline-block mb-3">
             <h1
-              className={cn(styles.heroTitle, styles.glitchText, 'text-4xl sm:text-5xl lg:text-6xl font-black')}
-              data-text="⚔️ 远征战场"
+              className={cn(styles.heroTitle, styles.glitchText, 'text-4xl sm:text-5xl lg:text-6xl font-black text-slate-700 dark:text-slate-200')}
+              data-text="远征任务"
             >
-              ⚔️{' '}
-              <span
-                style={{
-                  background: 'linear-gradient(135deg, #94a3b8, #e2e8f0, #f1f5f9)',
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent',
-                  backgroundClip: 'text',
-                }}
-                className="dark:[background:linear-gradient(135deg,#64748b,#94a3b8,#e2e8f0)] dark:[-webkit-text-fill-color:transparent] dark:[-webkit-background-clip:text]"
-              >
-                远征战场
-              </span>
+              <span className="text-slate-800 dark:text-slate-100">远征任务</span>
             </h1>
           </div>
 
@@ -138,20 +133,10 @@ export default function ExpeditionPage() {
           </div>
         </div>
 
-        {/* ── 筛选控制栏 ── */}
-        <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.28 }}
-          className={cn(
-            styles.glassPanel,
-            'sticky top-[65px] z-20 rounded-2xl border border-slate-200/70 dark:border-slate-700/50',
-            'bg-white/85 dark:bg-slate-900/85 px-4 py-3 mb-6'
-          )}
-        >
-          <div className="flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between">
+        {/* ── 筛选控制栏（移动到此处） ── */}
+        <div className="flex flex-col items-center justify-center gap-4 mb-8">
             {/* 状态 Tab */}
-            <div className="flex gap-1 overflow-x-auto scrollbar-none">
+            <div className="flex gap-1 overflow-x-auto scrollbar-none p-1">
               {STATUS_TABS.map(tab => {
                 const isActive = activeStatus === tab.key
                 const count = tab.key === 'active' ? counts.active : tab.key === 'available' ? counts.available : undefined
@@ -160,9 +145,9 @@ export default function ExpeditionPage() {
                     key={tab.key}
                     onClick={() => setActiveStatus(tab.key as ExpeditionStatus | 'all')}
                     className={cn(
-                      'flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all duration-200',
+                      'flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-semibold whitespace-nowrap transition-all duration-200',
                       isActive
-                        ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900 shadow-sm'
+                        ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900 shadow-md transform scale-105'
                         : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800/60'
                     )}
                   >
@@ -170,7 +155,7 @@ export default function ExpeditionPage() {
                     {tab.label}
                     {count !== undefined && (
                       <span className={cn(
-                        'inline-flex items-center justify-center w-4 h-4 rounded-full text-[9px] font-bold',
+                        'inline-flex items-center justify-center w-5 h-5 rounded-full text-[10px] font-bold',
                         isActive
                           ? 'bg-white/20 text-white dark:bg-slate-900/20 dark:text-slate-900'
                           : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400'
@@ -184,25 +169,24 @@ export default function ExpeditionPage() {
             </div>
 
             {/* 类型筛选 */}
-            <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none">
-              <Filter className="w-3 h-3 text-slate-400 shrink-0" />
+            <div className="flex items-center gap-2 overflow-x-auto scrollbar-none">
+              <Filter className="w-4 h-4 text-slate-400 shrink-0" />
               {TYPE_FILTERS.map(f => (
                 <button
                   key={f.key}
                   onClick={() => setActiveType(f.key as ExpeditionType | 'all')}
                   className={cn(
-                    'px-2.5 py-1 rounded-md text-[11px] font-medium whitespace-nowrap transition-all duration-200 border',
+                    'px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-all duration-200 border',
                     activeType === f.key
                       ? 'bg-slate-800/90 text-white border-slate-700 dark:bg-slate-100 dark:text-slate-900 dark:border-slate-300'
-                      : 'text-slate-500 border-slate-200 dark:border-slate-700 hover:border-slate-400 dark:hover:border-slate-500'
+                      : 'text-slate-500 border-transparent hover:bg-slate-100 dark:hover:bg-slate-800'
                   )}
                 >
                   {f.label}
                 </button>
               ))}
             </div>
-          </div>
-        </motion.div>
+        </div>
 
         {/* ── 卡片列表 ── */}
         <div className="pb-16">
@@ -231,7 +215,7 @@ export default function ExpeditionPage() {
                     {filtered.filter(e => e.status === 'active').length > 0 && (
                       <div className="mb-8">
                         <SectionDivider icon={<Flame className="w-3.5 h-3.5 text-orange-400" />} label="战火燃烧中" color="orange" />
-                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                           {filtered.filter(e => e.status === 'active').map((exp, i) => (
                             <ExpeditionCard key={exp.id} expedition={exp} index={i} />
                           ))}
@@ -241,7 +225,7 @@ export default function ExpeditionPage() {
                     {filtered.filter(e => e.status === 'available').length > 0 && (
                       <div className="mb-8">
                         <SectionDivider icon={<Zap className="w-3.5 h-3.5 text-sky-400" />} label="召集远征者" color="sky" />
-                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                           {filtered.filter(e => e.status === 'available').map((exp, i) => (
                             <ExpeditionCard key={exp.id} expedition={exp} index={i} />
                           ))}
@@ -251,7 +235,7 @@ export default function ExpeditionPage() {
                     {filtered.filter(e => e.status === 'completed').length > 0 && (
                       <div>
                         <SectionDivider icon={<Shield className="w-3.5 h-3.5 text-emerald-400" />} label="战役纪念碑" color="emerald" />
-                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                           {filtered.filter(e => e.status === 'completed').map((exp, i) => (
                             <ExpeditionCard key={exp.id} expedition={exp} index={i} />
                           ))}
@@ -260,7 +244,7 @@ export default function ExpeditionPage() {
                     )}
                   </>
                 ) : (
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {filtered.map((exp, i) => (
                       <ExpeditionCard key={exp.id} expedition={exp} index={i} />
                     ))}

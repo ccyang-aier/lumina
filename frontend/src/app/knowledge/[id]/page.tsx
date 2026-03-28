@@ -16,6 +16,7 @@ import { SeriesSidebar } from "@/components/knowledge/KnowledgeDetail/SeriesSide
 import { TableOfContents } from "@/components/knowledge/KnowledgeDetail/TableOfContents"
 import { ChapterNav } from "@/components/knowledge/KnowledgeDetail/ChapterNav"
 import { ActionButtons } from "@/components/knowledge/KnowledgeDetail/ActionButtons"
+import { PageActions } from "@/components/knowledge/KnowledgeDetail/PageActions"
 import { CommentSection } from "@/components/knowledge/KnowledgeDetail/CommentSection"
 import styles from "@/components/knowledge/KnowledgeDetail/KnowledgeDetail.module.css"
 import { MarkdownRenderer } from "@/components/knowledge/KnowledgeDetail/MarkdownRenderer"
@@ -95,37 +96,12 @@ export default async function KnowledgeDetailPage({ params }: PageProps) {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Sticky top breadcrumb bar */}
-      <div className="sticky top-0 z-30 w-full border-b border-border/60 bg-background/90 backdrop-blur-md">
-        <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 h-12 flex items-center gap-3">
-          <Link
-            href="/knowledge"
-            className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors group"
-          >
-            <ArrowLeft className="w-3.5 h-3.5 transition-transform group-hover:-translate-x-0.5" />
-            知识图鉴
-          </Link>
-          <span className="text-muted-foreground/40">/</span>
-          {card.location && (
-            <>
-              <span className="text-xs text-muted-foreground truncate max-w-[180px]">
-                {card.location.series}
-              </span>
-              <span className="text-muted-foreground/40">/</span>
-            </>
-          )}
-          <span className="text-xs text-foreground font-medium truncate max-w-[300px]">
-            {card.title}
-          </span>
-        </div>
-      </div>
-
       {/* Main 3-column layout */}
-      <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-[260px_1fr_220px] gap-8 items-start">
+      <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr_240px] items-stretch">
 
           {/* ===== LEFT COLUMN: Series / Author Sidebar ===== */}
-          <aside className="hidden lg:block lg:sticky lg:top-20">
+          <div className="hidden lg:block relative pr-0">
             <SeriesSidebar
               currentCardId={card.id}
               series={series}
@@ -134,10 +110,37 @@ export default async function KnowledgeDetailPage({ params }: PageProps) {
               authorBio={card.author.bio}
               authorAvatar={card.author.avatar}
             />
-          </aside>
+          </div>
 
           {/* ===== CENTER COLUMN: Article Content ===== */}
-          <main className="min-w-0">
+          <main className="min-w-0 px-8 lg:px-12">
+            {/* Breadcrumb + Page Actions */}
+            <div className="flex items-center justify-between gap-4 mb-6">
+              <nav className="flex items-center gap-2 text-sm text-muted-foreground min-w-0">
+                {card.location ? (
+                  <>
+                    <Link href={`/knowledge/series/${card.location.seriesId}`} className="hover:text-foreground transition-colors whitespace-nowrap">
+                      {card.location.series}
+                    </Link>
+                    <span className="text-muted-foreground/40">/</span>
+                  </>
+                ) : (
+                  <>
+                    <Link href="/knowledge" className="hover:text-foreground transition-colors whitespace-nowrap">
+                      知识图鉴
+                    </Link>
+                    <span className="text-muted-foreground/40">/</span>
+                  </>
+                )}
+                <span className="text-foreground font-medium truncate">
+                  {card.title}
+                </span>
+              </nav>
+              {card.content && (
+                <PageActions markdownContent={card.content} title={card.title} />
+              )}
+            </div>
+
             {/* Article Header */}
             <header className="mb-8 pb-8 border-b border-border/60">
               
@@ -262,13 +265,14 @@ export default async function KnowledgeDetailPage({ params }: PageProps) {
           </main>
 
           {/* ===== RIGHT COLUMN: Table of Contents ===== */}
-          <aside className="hidden lg:block lg:sticky lg:top-20">
-            <TableOfContents contentId="markdown-content" />
-          </aside>
+          <div className="hidden lg:block pl-8">
+            <div className="sticky top-24 max-h-[calc(100vh-6rem)] overflow-y-auto pr-4 [scrollbar-width:thin] [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-border/40 [&::-webkit-scrollbar-thumb]:rounded-full hover:[&::-webkit-scrollbar-thumb]:bg-border/60">
+              <TableOfContents contentId="markdown-content" />
+            </div>
+          </div>
 
         </div>
       </div>
     </div>
   )
 }
-
