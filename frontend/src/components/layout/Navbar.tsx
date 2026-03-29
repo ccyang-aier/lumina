@@ -223,7 +223,7 @@ export function Navbar() {
               <Button 
                 variant="ghost" 
                 size="sm"
-                className="gap-2 text-muted-foreground hover:text-foreground"
+                className="gap-2 text-muted-foreground hover:text-foreground cursor-pointer"
                 onClick={() => {
                   setAuthModalTab("login")
                   setAuthModalOpen(true)
@@ -235,22 +235,20 @@ export function Navbar() {
             )}
 
             {/* Publish Button - After avatar */}
+            {/* [DISABLED] 上传知识卡按钮 - 临时屏蔽
             <Link href="/publish" className="relative group">
               <Button 
                 size="sm"
                 className="h-9 w-[130px] bg-zinc-900 text-white hover:bg-zinc-800 dark:bg-zinc-50 dark:text-zinc-900 dark:hover:bg-zinc-200 border-0 shadow-md transition-colors duration-300 rounded-lg font-medium overflow-hidden relative flex items-center justify-center"
               >
-                {/* Shine effect - sweeps from left to right */}
                 <span className="absolute inset-0 -translate-x-full group-hover:translate-x-full bg-gradient-to-r from-transparent via-white/30 to-transparent transition-transform duration-700 ease-out pointer-events-none" />
-                {/* Content wrapper */}
                 <span className="flex items-center gap-1.5">
-                  {/* Icon - moves left when text disappears to stay centered */}
                   <Plus className="w-4 h-4 transition-all duration-300 ease-out group-hover:-translate-x-3 group-hover:scale-110" />
-                  {/* Text - slides right and fades out on hover */}
                   <span className="hidden sm:inline text-sm whitespace-nowrap transition-all duration-300 ease-out group-hover:translate-x-6 group-hover:opacity-0">上传知识卡</span>
                 </span>
               </Button>
             </Link>
+            */}
 
             {/* Mobile Menu Trigger (Placeholder) */}
             <Button variant="ghost" size="icon" className="lg:hidden cursor-pointer">

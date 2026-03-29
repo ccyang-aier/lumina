@@ -17,6 +17,16 @@ const nextConfig = {
       },
     ],
   },
+  // [DISABLED] 发布页面路由 - 临时屏蔽
+  async redirects() {
+    return [
+      {
+        source: '/publish',
+        destination: '/knowledge',
+        permanent: false,
+      },
+    ]
+  },
 };
 
 export default nextConfig;

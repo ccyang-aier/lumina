@@ -1,19 +1,13 @@
 "use client"
 
 import * as React from "react"
-import { motion, AnimatePresence } from "framer-motion"
-import { Loader2, Mail, Lock, User, AtSign } from "lucide-react"
+import { motion } from "framer-motion"
+import { Loader2, Mail, Lock } from "lucide-react"
 
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
 } from "@/components/ui/dialog"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useAuthStore } from "@/store/authStore"
 import { cn } from "@/lib/utils"
 
@@ -23,48 +17,27 @@ interface AuthModalProps {
   defaultTab?: "login" | "register"
 }
 
-export function AuthModal({ open, onOpenChange, defaultTab = "login" }: AuthModalProps) {
-  const { login, register, isLoading, error, clearError } = useAuthStore()
-  const [activeTab, setActiveTab] = React.useState(defaultTab)
+export function AuthModal({ open, onOpenChange }: AuthModalProps) {
+  const { login, isLoading, error, clearError } = useAuthStore()
 
   // Login form state
   const [loginEmail, setLoginEmail] = React.useState("")
   const [loginPassword, setLoginPassword] = React.useState("")
   const [loginErrors, setLoginErrors] = React.useState<Record<string, string>>({})
 
-  // Register form state
-  const [registerEmail, setRegisterEmail] = React.useState("")
-  const [registerUsername, setRegisterUsername] = React.useState("")
-  const [registerPassword, setRegisterPassword] = React.useState("")
-  const [registerFullName, setRegisterFullName] = React.useState("")
-  const [registerErrors, setRegisterErrors] = React.useState<Record<string, string>>({})
-
-  // Reset form when modal closes or tab changes
+  // Reset form when modal closes
   React.useEffect(() => {
     if (!open) {
       clearError()
       setLoginEmail("")
       setLoginPassword("")
-      setRegisterEmail("")
-      setRegisterUsername("")
-      setRegisterPassword("")
-      setRegisterFullName("")
       setLoginErrors({})
-      setRegisterErrors({})
     }
   }, [open, clearError])
-
-  React.useEffect(() => {
-    setActiveTab(defaultTab)
-  }, [defaultTab])
 
   const validateEmail = (email: string) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
     return emailRegex.test(email)
-  }
-
-  const validatePassword = (password: string) => {
-    return password.length >= 6
   }
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -94,252 +67,176 @@ export function AuthModal({ open, onOpenChange, defaultTab = "login" }: AuthModa
     }
   }
 
-  const handleRegister = async (e: React.FormEvent) => {
-    e.preventDefault()
-    const errors: Record<string, string> = {}
-
-    if (!registerEmail) {
-      errors.email = "请输入邮箱"
-    } else if (!validateEmail(registerEmail)) {
-      errors.email = "请输入有效的邮箱地址"
-    }
-
-    if (!registerUsername) {
-      errors.username = "请输入用户名"
-    } else if (registerUsername.length < 3) {
-      errors.username = "用户名至少需要3个字符"
-    }
-
-    if (!registerPassword) {
-      errors.password = "请输入密码"
-    } else if (!validatePassword(registerPassword)) {
-      errors.password = "密码至少需要6个字符"
-    }
-
-    if (Object.keys(errors).length > 0) {
-      setRegisterErrors(errors)
-      return
-    }
-
-    try {
-      await register({
-        email: registerEmail,
-        username: registerUsername,
-        password: registerPassword,
-        full_name: registerFullName || undefined,
-      })
-      onOpenChange(false)
-    } catch {
-      // Error is handled by the store
-    }
-  }
-
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[425px] bg-background/95 backdrop-blur-xl border-border/50">
-        <DialogHeader className="space-y-3">
-          <DialogTitle className="text-2xl font-bold text-center bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
-            欢迎来到 Lumina
-          </DialogTitle>
-          <DialogDescription className="text-center text-muted-foreground">
-            登录或注册以探索更多精彩内容
-          </DialogDescription>
-        </DialogHeader>
+      <DialogContent 
+        className={cn(
+          "p-0 border-0 bg-transparent shadow-none max-w-fit overflow-visible",
+          // 关闭按钮样式覆盖：hover时小手不变色，点击时无高亮边框
+          "[&>button]:opacity-70 [&>button]:cursor-pointer [&>button]:text-muted-foreground",
+          "[&>button]:hover:opacity-70 [&>button]:hover:text-muted-foreground",
+          "[&>button]:focus:outline-none [&>button]:focus:ring-0 [&>button]:focus:ring-offset-0",
+          "[&>button]:focus-visible:outline-none [&>button]:focus-visible:ring-0 [&>button]:focus-visible:ring-offset-0",
+          "[&>button]:data-[state=open]:bg-transparent [&>button]:data-[state=open]:text-muted-foreground"
+        )}
+      >
+        {/* Form Container - 精确参考 login-example.md */}
+        <form
+          onSubmit={handleLogin}
+          className={cn(
+            "flex flex-col items-center justify-center gap-[15px]",
+            "pt-[50px] px-[50px] pb-5",
+            "w-[420px]",
+            "bg-background",
+            "rounded-[11px]",
+            // 多层阴影效果
+            "shadow-[0px_106px_42px_rgba(0,0,0,0.01),0px_59px_36px_rgba(0,0,0,0.05),0px_26px_26px_rgba(0,0,0,0.09),0px_7px_15px_rgba(0,0,0,0.1)]"
+          )}
+        >
+          {/* Logo Container */}
+          <div
+            className={cn(
+              "box-border w-20 h-20",
+              "bg-gradient-to-b from-transparent to-[#F8F8F8]/50 dark:to-[#F8F8F8]/10",
+              "border border-[#F7F7F8] dark:border-[#F7F7F8]/20",
+              "rounded-[11px]",
+              "drop-shadow-[0px_0.5px_0.5px_#EFEFEF] dark:drop-shadow-[0px_0.5px_0.5px_rgba(239,239,239,0.2)]"
+            )}
+          />
 
-        <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as "login" | "register")} className="mt-4">
-          <TabsList className="grid w-full grid-cols-2 bg-muted/50">
-            <TabsTrigger value="login" className="data-[state=active]:bg-background">
-              登录
-            </TabsTrigger>
-            <TabsTrigger value="register" className="data-[state=active]:bg-background">
-              注册
-            </TabsTrigger>
-          </TabsList>
+          {/* Title Container */}
+          <div className="flex flex-col items-center justify-center">
+            <p className="m-0 text-[1.25rem] font-bold text-foreground">
+              登录您的账户
+            </p>
+          </div>
 
-          <AnimatePresence mode="wait">
-            <TabsContent value="login" className="mt-4" asChild>
-              <motion.form
-                initial={{ opacity: 0, x: -10 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: 10 }}
-                transition={{ duration: 0.2 }}
-                onSubmit={handleLogin}
-                className="space-y-4"
-              >
-                <div className="space-y-2">
-                  <div className="relative">
-                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      type="email"
-                      placeholder="邮箱"
-                      value={loginEmail}
-                      onChange={(e) => {
-                        setLoginEmail(e.target.value)
-                        if (loginErrors.email) setLoginErrors((prev) => ({ ...prev, email: "" }))
-                      }}
-                      className={cn("pl-10", loginErrors.email && "border-destructive")}
-                      disabled={isLoading}
-                    />
-                  </div>
-                  {loginErrors.email && (
-                    <p className="text-xs text-destructive">{loginErrors.email}</p>
-                  )}
-                </div>
-
-                <div className="space-y-2">
-                  <div className="relative">
-                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      type="password"
-                      placeholder="密码"
-                      value={loginPassword}
-                      onChange={(e) => {
-                        setLoginPassword(e.target.value)
-                        if (loginErrors.password) setLoginErrors((prev) => ({ ...prev, password: "" }))
-                      }}
-                      className={cn("pl-10", loginErrors.password && "border-destructive")}
-                      disabled={isLoading}
-                    />
-                  </div>
-                  {loginErrors.password && (
-                    <p className="text-xs text-destructive">{loginErrors.password}</p>
-                  )}
-                </div>
-
-                {error && (
-                  <motion.p
-                    initial={{ opacity: 0, y: -5 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="text-sm text-destructive text-center bg-destructive/10 rounded-md p-2"
-                  >
-                    {error}
-                  </motion.p>
+          {/* Email Input Container */}
+          <div className="w-full h-fit relative flex flex-col gap-[5px]">
+            <label className="text-[0.75rem] text-muted-foreground font-semibold">
+              邮箱
+            </label>
+            <div className="relative">
+              {/* Icon - 精确位置: left-12px bottom-9px */}
+              <Mail className="absolute left-3 bottom-[9px] w-5 h-5 text-[#141B34] dark:text-muted-foreground z-[99]" />
+              <input
+                type="email"
+                placeholder="name@mail.com"
+                value={loginEmail}
+                onChange={(e) => {
+                  setLoginEmail(e.target.value)
+                  if (loginErrors.email) setLoginErrors((prev) => ({ ...prev, email: "" }))
+                }}
+                disabled={isLoading}
+                className={cn(
+                  "w-full h-10 rounded-[7px] outline-none",
+                  "pl-10",
+                  "border border-[#e5e5e5] dark:border-border",
+                  "bg-background",
+                  "drop-shadow-[0px_1px_0px_#efefef] dark:drop-shadow-none",
+                  "transition-all duration-300 [cubic-bezier(0.15,0.83,0.66,1)]",
+                  "focus:border-transparent focus:shadow-[0px_0px_0px_2px_#242424] dark:focus:shadow-[0px_0px_0px_2px_hsl(var(--foreground))]",
+                  "disabled:opacity-50 disabled:cursor-not-allowed",
+                  loginErrors.email && "border-destructive"
                 )}
+              />
+            </div>
+            {loginErrors.email && (
+              <p className="text-xs text-destructive mt-1">{loginErrors.email}</p>
+            )}
+          </div>
 
-                <Button type="submit" className="w-full" disabled={isLoading}>
-                  {isLoading ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      登录中...
-                    </>
-                  ) : (
-                    "登录"
-                  )}
-                </Button>
-              </motion.form>
-            </TabsContent>
-
-            <TabsContent value="register" className="mt-4" asChild>
-              <motion.form
-                initial={{ opacity: 0, x: 10 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -10 }}
-                transition={{ duration: 0.2 }}
-                onSubmit={handleRegister}
-                className="space-y-4"
-              >
-                <div className="space-y-2">
-                  <div className="relative">
-                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      type="email"
-                      placeholder="邮箱"
-                      value={registerEmail}
-                      onChange={(e) => {
-                        setRegisterEmail(e.target.value)
-                        if (registerErrors.email) setRegisterErrors((prev) => ({ ...prev, email: "" }))
-                      }}
-                      className={cn("pl-10", registerErrors.email && "border-destructive")}
-                      disabled={isLoading}
-                    />
-                  </div>
-                  {registerErrors.email && (
-                    <p className="text-xs text-destructive">{registerErrors.email}</p>
-                  )}
-                </div>
-
-                <div className="space-y-2">
-                  <div className="relative">
-                    <AtSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      type="text"
-                      placeholder="用户名"
-                      value={registerUsername}
-                      onChange={(e) => {
-                        setRegisterUsername(e.target.value)
-                        if (registerErrors.username) setRegisterErrors((prev) => ({ ...prev, username: "" }))
-                      }}
-                      className={cn("pl-10", registerErrors.username && "border-destructive")}
-                      disabled={isLoading}
-                    />
-                  </div>
-                  {registerErrors.username && (
-                    <p className="text-xs text-destructive">{registerErrors.username}</p>
-                  )}
-                </div>
-
-                <div className="space-y-2">
-                  <div className="relative">
-                    <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      type="text"
-                      placeholder="昵称（可选）"
-                      value={registerFullName}
-                      onChange={(e) => setRegisterFullName(e.target.value)}
-                      className="pl-10"
-                      disabled={isLoading}
-                    />
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <div className="relative">
-                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      type="password"
-                      placeholder="密码（至少6位）"
-                      value={registerPassword}
-                      onChange={(e) => {
-                        setRegisterPassword(e.target.value)
-                        if (registerErrors.password) setRegisterErrors((prev) => ({ ...prev, password: "" }))
-                      }}
-                      className={cn("pl-10", registerErrors.password && "border-destructive")}
-                      disabled={isLoading}
-                    />
-                  </div>
-                  {registerErrors.password && (
-                    <p className="text-xs text-destructive">{registerErrors.password}</p>
-                  )}
-                </div>
-
-                {error && (
-                  <motion.p
-                    initial={{ opacity: 0, y: -5 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="text-sm text-destructive text-center bg-destructive/10 rounded-md p-2"
-                  >
-                    {error}
-                  </motion.p>
+          {/* Password Input Container */}
+          <div className="w-full h-fit relative flex flex-col gap-[5px]">
+            <label className="text-[0.75rem] text-muted-foreground font-semibold">
+              密码
+            </label>
+            <div className="relative">
+              {/* Icon - 精确位置: left-12px bottom-9px */}
+              <Lock className="absolute left-3 bottom-[9px] w-5 h-5 text-[#141B34] dark:text-muted-foreground z-[99]" />
+              <input
+                type="password"
+                placeholder="密码"
+                value={loginPassword}
+                onChange={(e) => {
+                  setLoginPassword(e.target.value)
+                  if (loginErrors.password) setLoginErrors((prev) => ({ ...prev, password: "" }))
+                }}
+                disabled={isLoading}
+                className={cn(
+                  "w-full h-10 rounded-[7px] outline-none",
+                  "pl-10",
+                  "border border-[#e5e5e5] dark:border-border",
+                  "bg-background",
+                  "drop-shadow-[0px_1px_0px_#efefef] dark:drop-shadow-none",
+                  "transition-all duration-300 [cubic-bezier(0.15,0.83,0.66,1)]",
+                  "focus:border-transparent focus:shadow-[0px_0px_0px_2px_#242424] dark:focus:shadow-[0px_0px_0px_2px_hsl(var(--foreground))]",
+                  "disabled:opacity-50 disabled:cursor-not-allowed",
+                  loginErrors.password && "border-destructive"
                 )}
+              />
+            </div>
+            {loginErrors.password && (
+              <p className="text-xs text-destructive mt-1">{loginErrors.password}</p>
+            )}
+          </div>
 
-                <Button type="submit" className="w-full" disabled={isLoading}>
-                  {isLoading ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      注册中...
-                    </>
-                  ) : (
-                    "注册"
-                  )}
-                </Button>
-              </motion.form>
-            </TabsContent>
-          </AnimatePresence>
-        </Tabs>
+          {/* Error Message */}
+          {error && (
+            <motion.p
+              initial={{ opacity: 0, y: -5 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="text-sm text-destructive text-center bg-destructive/10 rounded-[7px] p-2 w-full"
+            >
+              {error}
+            </motion.p>
+          )}
 
-        <div className="mt-4 text-center text-xs text-muted-foreground">
-          登录即表示您同意我们的服务条款和隐私政策
-        </div>
+          {/* Submit Button - 纯黑白底色 + shine effect */}
+          <button
+            type="submit"
+            disabled={isLoading}
+            className={cn(
+              "relative w-full h-10 rounded-[7px] outline-none",
+              "border-0",
+              "bg-black dark:bg-white",
+              "text-white dark:text-black",
+              "cursor-pointer",
+              "disabled:opacity-50 disabled:cursor-not-allowed",
+              "overflow-hidden",
+              "group",
+              "mt-4"
+            )}
+          >
+            {/* Shine effect - hover时从左到右一闪而过 */}
+            <span
+              className={cn(
+                "absolute inset-0",
+                "-translate-x-full",
+                "group-hover:translate-x-full",
+                "bg-gradient-to-r from-transparent via-white/30 to-transparent",
+                "transition-transform duration-700 ease-out",
+                "pointer-events-none"
+              )}
+            />
+            {/* Button text */}
+            <span className="relative z-10">
+              {isLoading ? (
+                <span className="flex items-center justify-center gap-2">
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  登录中...
+                </span>
+              ) : (
+                "登录"
+              )}
+            </span>
+          </button>
+
+          {/* Note - 注册提示 */}
+          <p className="text-[0.75rem] text-muted-foreground text-center">
+            如果需要注册，请联系 <span className="text-foreground/80">admin@lumina.com</span>
+          </p>
+        </form>
       </DialogContent>
     </Dialog>
   )
