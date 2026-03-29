@@ -6,7 +6,6 @@ import { useRouter } from "next/navigation"
 import { motion, AnimatePresence } from "framer-motion"
 import {
   ArrowLeft,
-  Eye,
   Send,
   ImagePlus,
   X,
@@ -15,8 +14,6 @@ import {
   MessageCircleQuestion,
   Coffee,
   Terminal,
-  Sparkles,
-  Plus,
   Loader2,
   Settings2,
   CheckCircle,
@@ -158,12 +155,6 @@ export default function PublishPage() {
     }, 1500)
   }, [formData, router])
 
-  // Handle preview
-  const handlePreview = useCallback(() => {
-    sessionStorage.setItem("lumina_preview", JSON.stringify(formData))
-    window.open("/knowledge/1000", "_blank")
-  }, [formData])
-
   return (
     <div className="min-h-screen bg-background">
       <SuccessToast show={showSuccess} onClose={() => setShowSuccess(false)} />
@@ -172,7 +163,7 @@ export default function PublishPage() {
       <header className="sticky top-0 z-40 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex h-16 items-center justify-between">
-            {/* Left: Back button & Title */}
+            {/* Left: Back button */}
             <div className="flex items-center gap-4">
               <Button
                 variant="ghost"
@@ -183,33 +174,27 @@ export default function PublishPage() {
                 <ArrowLeft className="w-4 h-4" />
                 <span className="hidden sm:inline">返回</span>
               </Button>
-              <div className="h-6 w-px bg-border" />
-              <h1 className="text-lg font-semibold">发布知识卡</h1>
             </div>
 
             {/* Right: Actions */}
             <div className="flex items-center gap-2">
               <Button
+                size="sm"
                 variant="outline"
-                size="sm"
-                onClick={handlePreview}
-                className="gap-2 cursor-pointer text-muted-foreground hover:text-foreground"
-              >
-                <Eye className="w-4 h-4" />
-                <span className="hidden sm:inline">预览</span>
-              </Button>
-              <Button
-                size="sm"
                 onClick={handleSubmit}
                 disabled={isSubmitting}
-                className="gap-2 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white cursor-pointer shadow-md shadow-emerald-500/20"
+                className="w-[80px] border border-foreground/10 hover:border-foreground/20 hover:bg-foreground/5 cursor-pointer transition-all overflow-hidden relative flex items-center justify-center"
               >
                 {isSubmitting ? (
                   <Loader2 className="w-4 h-4 animate-spin" />
                 ) : (
-                  <Send className="w-4 h-4" />
+                  <span className="flex items-center gap-1.5">
+                    {/* Icon - moves left when text disappears to stay centered */}
+                    <Send className="w-4 h-4 transition-all duration-300 ease-out group-hover:-translate-x-2 group-hover:scale-110" />
+                    {/* Text - slides right and fades out on hover */}
+                    <span className="hidden sm:inline text-sm whitespace-nowrap transition-all duration-300 ease-out group-hover:translate-x-4 group-hover:opacity-0">发布</span>
+                  </span>
                 )}
-                <span className="hidden sm:inline">发布</span>
               </Button>
             </div>
           </div>
@@ -263,8 +248,8 @@ export default function PublishPage() {
               >
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 p-5 rounded-xl border border-border bg-muted/20">
                   {/* Left Column: Cover Image */}
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium text-foreground">封面图</label>
+                  <div>
+                    <label className="text-sm font-medium text-muted-foreground block mb-3">封面图</label>
                     <div className="relative group">
                       {formData.coverImage ? (
                         <div className="relative aspect-[16/9] rounded-xl overflow-hidden border border-border">
@@ -313,8 +298,8 @@ export default function PublishPage() {
                   {/* Right Column: Type, Domain, Tags */}
                   <div className="flex flex-col gap-5">
                     {/* Type Selection */}
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium text-foreground">类型</label>
+                    <div>
+                      <label className="text-sm font-medium text-muted-foreground block mb-3">类型</label>
                       <div className="flex flex-wrap gap-2">
                         {CARD_TYPES.map((type) => {
                           const Icon = type.icon
@@ -339,8 +324,8 @@ export default function PublishPage() {
                     </div>
 
                     {/* Domain Selection */}
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium text-foreground">领域</label>
+                    <div>
+                      <label className="text-sm font-medium text-muted-foreground block mb-3">领域</label>
                       <div className="flex flex-wrap gap-2">
                         {DOMAINS.map((domain) => {
                           const isSelected = formData.domain === domain
@@ -366,21 +351,21 @@ export default function PublishPage() {
                     </div>
 
                     {/* Tags */}
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium text-foreground">
+                    <div>
+                      <label className="text-sm font-medium text-muted-foreground block mb-3">
                         标签
-                        <span className="text-xs text-muted-foreground font-normal ml-2">最多5个</span>
+                        <span className="text-xs text-muted-foreground/60 font-normal ml-2">最多5个</span>
                       </label>
                       <div className="flex flex-wrap items-center gap-2">
                         {formData.tags.map((tag) => (
                           <span
                             key={tag}
-                            className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm bg-muted text-foreground border border-border"
+                            className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm bg-muted text-foreground border border-border"
                           >
                             #{tag}
                             <button
                               onClick={() => removeTag(tag)}
-                              className="hover:text-destructive transition-colors cursor-pointer ml-1"
+                              className="hover:text-destructive transition-colors cursor-pointer"
                             >
                               <X className="w-3.5 h-3.5" />
                             </button>
@@ -398,18 +383,18 @@ export default function PublishPage() {
                               }
                             }}
                             placeholder="输入标签后回车"
-                            className="h-8 px-3 rounded-lg text-sm bg-background border border-border outline-none placeholder:text-muted-foreground/50 focus:border-primary/50 transition-colors w-32"
+                            className="h-8 px-3 rounded-full text-sm bg-background border border-border outline-none placeholder:text-muted-foreground/50 focus:border-primary/50 transition-colors w-32"
                           />
                         )}
                       </div>
                       {/* Suggested Tags */}
                       <div className="flex flex-wrap items-center gap-2 pt-1">
-                        <span className="text-xs text-muted-foreground">推荐：</span>
+                        <span className="text-xs text-muted-foreground/60">推荐：</span>
                         {SUGGESTED_TAGS.filter((t) => !formData.tags.includes(t)).slice(0, 5).map((tag) => (
                           <button
                             key={tag}
                             onClick={() => addTag(tag)}
-                            className="px-2 py-0.5 rounded text-xs text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer"
+                            className="px-2.5 py-1 rounded-full text-xs text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer"
                           >
                             +{tag}
                           </button>

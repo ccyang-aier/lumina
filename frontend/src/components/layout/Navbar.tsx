@@ -3,7 +3,7 @@
 import * as React from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Search, User, LogOut, Settings, Menu, Users, Plus, Sparkles } from "lucide-react"
+import { Search, User, LogOut, Settings, Menu, Users, Plus } from "lucide-react"
 import { motion } from "framer-motion"
 
 import { Button } from "@/components/ui/button"
@@ -159,24 +159,6 @@ export function Navbar() {
             {/* Notification Button */}
             <NotificationButton />
 
-            {/* Publish Button - Rightmost before avatar */}
-            <Link href="/publish">
-              <motion.div
-                whileHover={{ scale: 1.03 }}
-                whileTap={{ scale: 0.97 }}
-                className="relative group"
-              >
-                <Button 
-                  size="sm"
-                  className="h-9 px-4 gap-1.5 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white border-0 shadow-md shadow-emerald-500/20 transition-all duration-300 rounded-lg font-medium overflow-hidden"
-                >
-                  <Plus className="w-4 h-4 transition-transform group-hover:rotate-90 duration-300" />
-                  <span className="hidden sm:inline">发布</span>
-                  <Sparkles className="w-3 h-3 opacity-0 -ml-1 group-hover:opacity-100 group-hover:ml-0 transition-all duration-300" />
-                </Button>
-              </motion.div>
-            </Link>
-
             {/* User Profile */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -219,6 +201,24 @@ export function Navbar() {
                 </DropdownMenuItem>
               </AnimatedDropdownContent>
             </DropdownMenu>
+
+            {/* Publish Button - After avatar */}
+            <Link href="/publish" className="relative group">
+              <Button 
+                size="sm"
+                className="h-9 w-[130px] bg-zinc-900 text-white hover:bg-zinc-800 dark:bg-zinc-50 dark:text-zinc-900 dark:hover:bg-zinc-200 border-0 shadow-md transition-colors duration-300 rounded-lg font-medium overflow-hidden relative flex items-center justify-center"
+              >
+                {/* Shine effect - sweeps from left to right */}
+                <span className="absolute inset-0 -translate-x-full group-hover:translate-x-full bg-gradient-to-r from-transparent via-white/30 to-transparent transition-transform duration-700 ease-out pointer-events-none" />
+                {/* Content wrapper */}
+                <span className="flex items-center gap-1.5">
+                  {/* Icon - moves left when text disappears to stay centered */}
+                  <Plus className="w-4 h-4 transition-all duration-300 ease-out group-hover:-translate-x-3 group-hover:scale-110" />
+                  {/* Text - slides right and fades out on hover */}
+                  <span className="hidden sm:inline text-sm whitespace-nowrap transition-all duration-300 ease-out group-hover:translate-x-6 group-hover:opacity-0">上传知识卡</span>
+                </span>
+              </Button>
+            </Link>
 
             {/* Mobile Menu Trigger (Placeholder) */}
             <Button variant="ghost" size="icon" className="lg:hidden cursor-pointer">
