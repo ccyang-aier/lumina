@@ -3,7 +3,7 @@
 import * as React from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Search, User, LogOut, Settings, Menu, Users } from "lucide-react"
+import { Search, User, LogOut, Settings, Menu, Users, Plus, Sparkles } from "lucide-react"
 import { motion } from "framer-motion"
 
 import { Button } from "@/components/ui/button"
@@ -159,16 +159,34 @@ export function Navbar() {
             {/* Notification Button */}
             <NotificationButton />
 
+            {/* Publish Button - Rightmost before avatar */}
+            <Link href="/publish">
+              <motion.div
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.97 }}
+                className="relative group"
+              >
+                <Button 
+                  size="sm"
+                  className="h-9 px-4 gap-1.5 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white border-0 shadow-md shadow-emerald-500/20 transition-all duration-300 rounded-lg font-medium overflow-hidden"
+                >
+                  <Plus className="w-4 h-4 transition-transform group-hover:rotate-90 duration-300" />
+                  <span className="hidden sm:inline">发布</span>
+                  <Sparkles className="w-3 h-3 opacity-0 -ml-1 group-hover:opacity-100 group-hover:ml-0 transition-all duration-300" />
+                </Button>
+              </motion.div>
+            </Link>
+
             {/* User Profile */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <motion.div 
                   whileHover={{ scale: 1.05 }} 
                   whileTap={{ scale: 0.95 }}
-                  transition={{ type: "spring", stiffness: 400, damping: 17 }} // Slower, smoother animation
+                  transition={{ type: "spring", stiffness: 400, damping: 17 }}
                   className="cursor-pointer outline-none"
                 >
-                  <Button variant="ghost" className="relative h-9 w-9 rounded-full transition-all cursor-pointer p-0 ml-1 hover:bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0">
+                  <Button variant="ghost" className="relative h-9 w-9 rounded-full transition-all cursor-pointer p-0 hover:bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0">
                     <Avatar className="h-9 w-9 border border-border/50">
                       <AvatarImage src="/avatars/01.png" alt="@user" />
                       <AvatarFallback>U</AvatarFallback>
