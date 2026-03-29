@@ -59,6 +59,7 @@ export interface Comment {
   images?: CommentImage[]
   isHot?: boolean
   hotScore?: number
+  quoteText?: string // 引用的文档文本
 }
 
 // Image Lightbox Component
@@ -156,14 +157,14 @@ const EMOJI_CATEGORIES = {
 }
 
 // Emoji Picker Component - Uses Portal to avoid z-index issues
-interface EmojiPickerProps {
+export interface EmojiPickerProps {
   onSelect: (emoji: string) => void
   open: boolean
   onOpenChange: (open: boolean) => void
   triggerRef: React.RefObject<HTMLButtonElement | null>
 }
 
-function EmojiPicker({ onSelect, open, onOpenChange, triggerRef }: EmojiPickerProps) {
+export function EmojiPicker({ onSelect, open, onOpenChange, triggerRef }: EmojiPickerProps) {
   const [activeCategory, setActiveCategory] = React.useState<keyof typeof EMOJI_CATEGORIES>("default")
   const [position, setPosition] = React.useState({ top: 0, left: 0 })
   const pickerRef = React.useRef<HTMLDivElement>(null)
@@ -212,7 +213,7 @@ function EmojiPicker({ onSelect, open, onOpenChange, triggerRef }: EmojiPickerPr
   return createPortal(
     <div 
       ref={pickerRef}
-      className="fixed bg-popover border border-border rounded-lg shadow-xl z-[9998] animate-in fade-in-0 zoom-in-95 w-72"
+      className="fixed bg-popover border border-border rounded-lg shadow-xl z-[10001] animate-in fade-in-0 zoom-in-95 w-72"
       style={{ top: position.top, left: position.left }}
     >
       {/* Category Tabs */}
@@ -457,6 +458,13 @@ function CommentItem({ comment, onReply, onLike, depth = 0 }: CommentItemProps) 
             </DropdownMenu>
           </div>
 
+          {/* Quote Reference */}
+          {comment.quoteText && (
+            <div className="mb-2 text-xs text-muted-foreground border-l-2 border-blue-400/60 pl-3 py-1 bg-blue-400/5 rounded-r italic line-clamp-3">
+              &ldquo;{comment.quoteText}&rdquo;
+            </div>
+          )}
+
           <div className="text-sm text-foreground/90 leading-relaxed break-words">
             {comment.content}
           </div>
@@ -652,10 +660,16 @@ interface CommentSectionProps {
   articleId?: string | number
 }
 
+// Exported methods for CommentSection
+export interface CommentSectionRef {
+  addCommentWithQuote: (content: string, images: CommentImage[], quoteText: string) => void
+}
+
 // Tab type for sorting
 type SortTab = "hot" | "latest"
 
-export function CommentSection({ articleId }: CommentSectionProps) {
+export const CommentSection = React.forwardRef<CommentSectionRef, CommentSectionProps>(
+  function CommentSection({ articleId }, ref) {
   // Generate mock comments based on articleId for AI Agent article (id: 1)
   const getInitialComments = (): Comment[] => {
     if (articleId === 1) {
@@ -673,6 +687,28 @@ export function CommentSection({ articleId }: CommentSectionProps) {
   const fileInputRef = React.useRef<HTMLInputElement>(null)
   const textareaRef = React.useRef<HTMLTextAreaElement>(null)
   const emojiButtonRef = React.useRef<HTMLButtonElement>(null)
+
+  // Expose methods via ref
+  React.useImperativeHandle(ref, () => ({
+    addCommentWithQuote: (content: string, images: CommentImage[], quoteText: string) => {
+      const comment: Comment = {
+        id: Date.now().toString(),
+        content,
+        author: {
+          name: "我",
+          avatar: "https://github.com/shadcn.png",
+          role: "user"
+        },
+        createdAt: new Date(),
+        likes: 0,
+        isLiked: false,
+        replies: [],
+        images: images.length > 0 ? images : undefined,
+        quoteText
+      }
+      setAllComments((prev) => [comment, ...prev])
+    }
+  }))
 
   // Comment fold threshold
   const COMMENT_FOLD_THRESHOLD = 5
@@ -976,7 +1012,7 @@ export function CommentSection({ articleId }: CommentSectionProps) {
       )}
     </div>
   )
-}
+})
 
 // Generate rich mock comments for AI Agent article
 function generateAIComments(): Comment[] {

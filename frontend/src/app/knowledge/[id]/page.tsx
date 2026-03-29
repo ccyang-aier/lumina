@@ -8,36 +8,41 @@ import rehypePrettyCode from "rehype-pretty-code"
 import rehypeSlug from "rehype-slug"
 import rehypeStringify from "rehype-stringify"
 import { visit } from "unist-util-visit"
-import { Eye, Heart, MessageSquare, ArrowLeft, Calendar, Building2, Tag, FileText, BookOpen, Coffee, MessageCircleQuestion, Terminal } from "lucide-react"
-// ArrowLeft used in breadcrumb above
+import type { Element, Root } from "hast"
+import { Eye, Heart, MessageSquare, Calendar, Building2, Tag, FileText, BookOpen, Coffee, MessageCircleQuestion, Terminal, type LucideIcon } from "lucide-react"
 
 import { getCardById, getSeriesById, getAuthorCards } from "@/lib/knowledge-data"
 import { SeriesSidebar } from "@/components/knowledge/KnowledgeDetail/SeriesSidebar"
 import { TableOfContents } from "@/components/knowledge/KnowledgeDetail/TableOfContents"
 import { ChapterNav } from "@/components/knowledge/KnowledgeDetail/ChapterNav"
-import { ActionButtons } from "@/components/knowledge/KnowledgeDetail/ActionButtons"
 import { PageActions } from "@/components/knowledge/KnowledgeDetail/PageActions"
-import { CommentSection, ClickableImage } from "@/components/knowledge/KnowledgeDetail/CommentSection"
-import styles from "@/components/knowledge/KnowledgeDetail/KnowledgeDetail.module.css"
-import { MarkdownRenderer } from "@/components/knowledge/KnowledgeDetail/MarkdownRenderer"
+import { ClickableImage } from "@/components/knowledge/KnowledgeDetail/CommentSection"
+import { KnowledgeDetailContent } from "@/components/knowledge/KnowledgeDetail/KnowledgeDetailContent"
 
 // Custom rehype plugin to attach raw code to pre elements
-const attachRawCode = () => (tree: any) => {
-  visit(tree, (node: any) => {
+const attachRawCode = () => (tree: Root) => {
+  visit(tree, (node) => {
     if (node.type !== "element" || node.tagName !== "pre") {
       return
     }
 
-    const codeElement = node.children.find((child: any) => child.tagName === "code")
+    const codeElement = node.children.find(
+      (child): child is Element => child.type === "element" && child.tagName === "code"
+    )
 
     if (codeElement) {
       // 1. Get raw code for Copy button
-      if (codeElement.children.length > 0 && codeElement.children[0].type === "text") {
-        const rawCode = codeElement.children[0].value
+      const textChild = codeElement.children.find(
+        (child): child is { type: "text"; value: string } => child.type === "text"
+      )
+      if (textChild) {
+        const rawCode = textChild.value
+        node.properties = node.properties || {}
         node.properties["data-raw-code"] = encodeURIComponent(rawCode)
       }
       
       // 2. Enable Line Numbers (for all code blocks)
+      codeElement.properties = codeElement.properties || {}
       codeElement.properties["data-line-numbers"] = ""
     }
   })
@@ -84,7 +89,7 @@ export default async function KnowledgeDetailPage({ params }: PageProps) {
   const authorCards = !series ? getAuthorCards(card.author.name) : undefined
   const htmlContent = card.content ? await markdownToHtml(card.content) : ""
 
-  const typeMap: Record<string, { label: string; color: string; icon: any }> = {
+  const typeMap: Record<string, { label: string; color: string; icon: LucideIcon }> = {
     document: { label: "文档", color: "bg-blue-500/10 text-blue-500 border-blue-500/20", icon: FileText },
     tutorial: { label: "教程", color: "bg-emerald-500/10 text-emerald-500 border-emerald-500/20", icon: BookOpen },
     faq: { label: "FAQ", color: "bg-orange-500/10 text-orange-500 border-orange-500/20", icon: MessageCircleQuestion },
@@ -239,17 +244,8 @@ export default async function KnowledgeDetailPage({ params }: PageProps) {
               </div>
             )}
 
-            {/* Markdown Content */}
-            {htmlContent ? (
-              <MarkdownRenderer content={htmlContent} />
-            ) : (
-              <div className="flex flex-col items-center justify-center py-20 text-muted-foreground">
-                <p className="text-sm">内容暂未收录，敬请期待。</p>
-              </div>
-            )}
-
-            {/* Action Buttons */}
-            <ActionButtons />
+            {/* Markdown Content with Selection Features */}
+            <KnowledgeDetailContent htmlContent={htmlContent} articleId={card.id} />
 
             {/* Footer nav: prev / next chapter */}
             {series && card.location && (() => {
@@ -258,9 +254,6 @@ export default async function KnowledgeDetailPage({ params }: PageProps) {
               const next = series.cards.find((c) => c.chapterIndex === ci + 1)
               return <ChapterNav prev={prev} next={next} />
             })()}
-
-            {/* Comment Section */}
-            <CommentSection articleId={card.id} />
           </main>
 
           {/* ===== RIGHT COLUMN: Table of Contents ===== */}

@@ -3,6 +3,25 @@
    Supports both light and dark themes via CSS variables
    ============================================================ */
 
+/* ---- Text Selection Highlight - Lumina Theme Color (Emerald) ---- */
+.prose ::selection {
+  background: hsl(160 60% 50% / 0.3);
+  color: inherit;
+}
+
+.prose ::-moz-selection {
+  background: hsl(160 60% 50% / 0.3);
+  color: inherit;
+}
+
+:global(.dark) .prose ::selection {
+  background: hsl(160 70% 55% / 0.4);
+}
+
+:global(.dark) .prose ::-moz-selection {
+  background: hsl(160 70% 55% / 0.4);
+}
+
 .prose {
   --prose-body: hsl(240 10% 15%);
   --prose-headings: hsl(240 10% 6%);
