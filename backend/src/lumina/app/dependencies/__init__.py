@@ -2,4 +2,6 @@
 
 from .database import provide_session
 
-__all__ = ["provide_session"]
+__all__ = [
+    "provide_session",
+]

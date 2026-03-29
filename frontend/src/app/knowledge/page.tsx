@@ -1,9 +1,9 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { useTheme } from "next-themes"
-import { Check, Filter, X, ChevronRight, BookOpen, Layers } from "lucide-react"
+import { Check, Filter, X, ChevronRight, BookOpen, Layers, Loader2 } from "lucide-react"
 
 import { FlickeringGrid } from "@/components/magicui/flickering-grid"
 import { cn } from "@/lib/utils"
@@ -18,7 +18,8 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination"
 import { KnowledgeCard, KnowledgeCardProps } from "@/components/knowledge/KnowledgeCard"
-import { MOCK_CARDS } from "@/lib/knowledge-data"
+import { cardsDataProvider } from "@/lib/cardsDataProvider"
+import type { KnowledgeCardBrief, KnowledgeCardListResponse } from "@/lib/api/types/cards"
 
 const ITEMS_PER_PAGE = 5
 
@@ -66,6 +67,12 @@ export default function KnowledgePage() {
   const [currentPage, setCurrentPage] = useState(1)
   const { theme, resolvedTheme } = useTheme()
   const [gridColor, setGridColor] = useState("#6B7280")
+  
+  // API Data state
+  const [cards, setCards] = useState<KnowledgeCardBrief[]>([])
+  const [totalCards, setTotalCards] = useState(0)
+  const [totalPages, setTotalPages] = useState(0)
+  const [isLoading, setIsLoading] = useState(false)
 
   // Update grid color based on theme
   useEffect(() => {
@@ -76,6 +83,32 @@ export default function KnowledgePage() {
     }
   }, [resolvedTheme])
 
+  // Fetch cards from API (with mock fallback)
+  const fetchCards = useCallback(async () => {
+    setIsLoading(true)
+    try {
+      const domain = activeTab === "all" ? undefined : KNOWLEDGE_DOMAINS.find(d => d.id === activeTab)?.label
+      const response = await cardsDataProvider.getCards({
+        page: currentPage,
+        page_size: ITEMS_PER_PAGE,
+        domain,
+        sort_by: 'created_at',
+        sort_order: 'desc',
+      })
+      setCards(response.items)
+      setTotalCards(response.total)
+      setTotalPages(response.total_pages)
+    } catch (error) {
+      console.error('Failed to fetch cards:', error)
+    } finally {
+      setIsLoading(false)
+    }
+  }, [activeTab, currentPage])
+
+  useEffect(() => {
+    fetchCards()
+  }, [fetchCards])
+
   const toggleSource = (id: string) => {
     setSelectedSources((prev) =>
       prev.includes(id)
@@ -85,19 +118,6 @@ export default function KnowledgePage() {
   }
 
   const clearSources = () => setSelectedSources([])
-
-  const filteredCards = MOCK_CARDS.filter((card) => {
-    if (activeTab === "all") return true
-    const domain = KNOWLEDGE_DOMAINS.find((d) => d.id === activeTab)
-    return card.domain === domain?.label
-  })
-
-  // Pagination Logic
-  const totalPages = Math.ceil(filteredCards.length / ITEMS_PER_PAGE)
-  const paginatedCards = filteredCards.slice(
-    (currentPage - 1) * ITEMS_PER_PAGE,
-    currentPage * ITEMS_PER_PAGE
-  )
 
   // Reset to first page when filters change
   useEffect(() => {
@@ -186,9 +206,6 @@ export default function KnowledgePage() {
                 <div className="text-xs font-medium text-muted-foreground mr-1 flex items-center gap-1">
                   <Filter className="w-3 h-3" />
                   <span>来源:</span>
-                  <span className="text-[10px] text-muted-foreground/60 font-normal ml-0.5">
-                    ({filteredCards.length})
-                  </span>
                 </div>
                 
                 {SOURCES.map((source) => {
@@ -226,16 +243,26 @@ export default function KnowledgePage() {
 
             {/* Knowledge Cards List */}
             <div className="flex flex-col gap-4">
-              {paginatedCards.map((card, i) => (
-                <motion.div
-                  key={card.id}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.3, delay: 0.05 * i }}
-                >
-                  <KnowledgeCard {...(card as KnowledgeCardProps)} />
-                </motion.div>
-              ))}
+              {isLoading ? (
+                <div className="flex items-center justify-center py-12">
+                  <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+                </div>
+              ) : cards.length === 0 ? (
+                <div className="text-center py-12 text-muted-foreground">
+                  暂无知识卡
+                </div>
+              ) : (
+                cards.map((card, i) => (
+                  <motion.div
+                    key={card.id}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3, delay: 0.05 * i }}
+                  >
+                    <KnowledgeCard {...(card as KnowledgeCardProps)} />
+                  </motion.div>
+                ))
+              )}
             </div>
 
             {/* Pagination */}

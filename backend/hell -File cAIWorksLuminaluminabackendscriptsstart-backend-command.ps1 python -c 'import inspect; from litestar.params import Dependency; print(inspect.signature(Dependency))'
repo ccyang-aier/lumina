@@ -1,0 +1,8 @@
+Help on function Dependency in module litestar.params:
+
+DDeeppeennddeennccyy(*, default: 'Any' = <_EmptyEnum.EMPTY: 0>, skip_validation: 'bool' = False) -> 'Any'
+    Create a dependency kwarg definition.
+    
+    Args:
+        default: A default value to use in case a dependency is not provided.
+        skip_validation: If `True` provided dependency values are not validated by signature model.

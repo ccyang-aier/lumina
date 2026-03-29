@@ -3,7 +3,7 @@
 import * as React from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Search, User, LogOut, Settings, Menu, Users, Plus } from "lucide-react"
+import { Search, User, LogOut, Settings, Menu, Users, Plus, LogIn } from "lucide-react"
 import { motion } from "framer-motion"
 
 import { Button } from "@/components/ui/button"
@@ -20,6 +20,8 @@ import { AnimatedShinyText } from "@/components/ui/animated-shiny-text"
 import { Logo } from "@/components/ui/logo"
 import { ThemeToggle } from "./ThemeToggle"
 import { NotificationButton } from "@/components/design/NotificationButton"
+import { AuthModal } from "./AuthModal"
+import { useAuthStore } from "@/store/authStore"
 import { cn } from "@/lib/utils"
 import dynamic from "next/dynamic"
 
@@ -37,9 +39,19 @@ export function Navbar() {
   const pathname = usePathname() ?? ""
   const [searchOpen, setSearchOpen] = React.useState(false)
   const [scrolled, setScrolled] = React.useState(false)
+  const [authModalOpen, setAuthModalOpen] = React.useState(false)
+  const [authModalTab, setAuthModalTab] = React.useState<"login" | "register">("login")
+  
+  // Auth state from store
+  const { user, isAuthenticated, logout, checkAuth } = useAuthStore()
   
   // Mock online users count
   const onlineUsers = 1234
+
+  // Check auth on mount
+  React.useEffect(() => {
+    checkAuth()
+  }, [checkAuth])
 
   React.useEffect(() => {
     const handleScroll = () => {
@@ -159,48 +171,68 @@ export function Navbar() {
             {/* Notification Button */}
             <NotificationButton />
 
-            {/* User Profile */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <motion.div 
-                  whileHover={{ scale: 1.05 }} 
-                  whileTap={{ scale: 0.95 }}
-                  transition={{ type: "spring", stiffness: 400, damping: 17 }}
-                  className="cursor-pointer outline-none"
-                >
-                  <Button variant="ghost" className="relative h-9 w-9 rounded-full transition-all cursor-pointer p-0 hover:bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0">
-                    <Avatar className="h-9 w-9 border border-border/50">
-                      <AvatarImage src="/avatars/01.png" alt="@user" />
-                      <AvatarFallback>U</AvatarFallback>
-                    </Avatar>
-                  </Button>
-                </motion.div>
-              </DropdownMenuTrigger>
-              <AnimatedDropdownContent className="w-56" align="end">
-                <DropdownMenuLabel className="font-normal">
-                  <div className="flex flex-col space-y-1">
-                    <p className="text-sm font-medium leading-none">User</p>
-                    <p className="text-xs leading-none text-muted-foreground">
-                      user@example.com
-                    </p>
-                  </div>
-                </DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem className="cursor-pointer">
-                  <User className="mr-2 h-4 w-4" />
-                  <span>Profile</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem className="cursor-pointer">
-                  <Settings className="mr-2 h-4 w-4" />
-                  <span>Settings</span>
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem className="cursor-pointer">
-                  <LogOut className="mr-2 h-4 w-4" />
-                  <span>Log out</span>
-                </DropdownMenuItem>
-              </AnimatedDropdownContent>
-            </DropdownMenu>
+            {/* User Profile or Login Button */}
+            {isAuthenticated && user ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <motion.div 
+                    whileHover={{ scale: 1.05 }} 
+                    whileTap={{ scale: 0.95 }}
+                    transition={{ type: "spring", stiffness: 400, damping: 17 }}
+                    className="cursor-pointer outline-none"
+                  >
+                    <Button variant="ghost" className="relative h-9 w-9 rounded-full transition-all cursor-pointer p-0 hover:bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0">
+                      <Avatar className="h-9 w-9 border border-border/50">
+                        <AvatarImage src={user.avatar || "/avatars/01.png"} alt={user.username} />
+                        <AvatarFallback>{user.username?.[0]?.toUpperCase() || "U"}</AvatarFallback>
+                      </Avatar>
+                    </Button>
+                  </motion.div>
+                </DropdownMenuTrigger>
+                <AnimatedDropdownContent className="w-56" align="end">
+                  <DropdownMenuLabel className="font-normal">
+                    <div className="flex flex-col space-y-1">
+                      <p className="text-sm font-medium leading-none">{user.full_name || user.username}</p>
+                      <p className="text-xs leading-none text-muted-foreground">
+                        {user.email}
+                      </p>
+                    </div>
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem className="cursor-pointer">
+                    <User className="mr-2 h-4 w-4" />
+                    <span>个人主页</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem className="cursor-pointer">
+                    <Settings className="mr-2 h-4 w-4" />
+                    <span>设置</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem 
+                    className="cursor-pointer text-destructive focus:text-destructive"
+                    onClick={async () => {
+                      await logout()
+                    }}
+                  >
+                    <LogOut className="mr-2 h-4 w-4" />
+                    <span>退出登录</span>
+                  </DropdownMenuItem>
+                </AnimatedDropdownContent>
+              </DropdownMenu>
+            ) : (
+              <Button 
+                variant="ghost" 
+                size="sm"
+                className="gap-2 text-muted-foreground hover:text-foreground"
+                onClick={() => {
+                  setAuthModalTab("login")
+                  setAuthModalOpen(true)
+                }}
+              >
+                <LogIn className="h-4 w-4" />
+                <span className="hidden sm:inline">登录</span>
+              </Button>
+            )}
 
             {/* Publish Button - After avatar */}
             <Link href="/publish" className="relative group">
@@ -228,6 +260,11 @@ export function Navbar() {
         </div>
       </div>
       <SearchModal open={searchOpen} onOpenChange={setSearchOpen} />
+      <AuthModal 
+        open={authModalOpen} 
+        onOpenChange={setAuthModalOpen} 
+        defaultTab={authModalTab} 
+      />
     </header>
   )
 }

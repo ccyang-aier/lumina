@@ -24,6 +24,7 @@ import {
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { MarkdownEditor } from "@/components/publish/MarkdownEditor"
+import { cardsDataProvider } from "@/lib/cardsDataProvider"
 
 // Knowledge card types
 const CARD_TYPES = [
@@ -143,16 +144,31 @@ export default function PublishPage() {
 
     setIsSubmitting(true)
     
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1200))
-    
-    // Show success message
-    setShowSuccess(true)
-    
-    // Wait a moment then navigate
-    setTimeout(() => {
-      router.push("/knowledge/1000")
-    }, 1500)
+    try {
+      // Call API to create card
+      const card = await cardsDataProvider.createCard({
+        title: formData.title,
+        description: formData.content.substring(0, 200),
+        content: formData.content,
+        image: formData.coverImage || undefined,
+        type: formData.type as any,
+        domain: formData.domain,
+        tags: formData.tags,
+      })
+      
+      // Show success message
+      setShowSuccess(true)
+      
+      // Wait a moment then navigate to the new card
+      setTimeout(() => {
+        router.push(`/knowledge/${card.id}`)
+      }, 1500)
+    } catch (error) {
+      console.error('Failed to create card:', error)
+      alert("发布失败，请重试")
+    } finally {
+      setIsSubmitting(false)
+    }
   }, [formData, router])
 
   return (

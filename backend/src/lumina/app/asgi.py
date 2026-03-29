@@ -13,6 +13,7 @@ sys.path.insert(0, str(PROJECT_ROOT))
 from litestar import Litestar, Router
 from litestar.config.cors import CORSConfig
 from litestar.openapi import OpenAPIConfig
+from litestar.di import Provide
 
 from configs import settings
 from .api import health_router
@@ -20,6 +21,7 @@ from .dependencies import provide_session
 from .middlewares import LoggingMiddleware, ErrorHandlerMiddleware
 from ..infra.events import on_startup, on_shutdown
 from ..modules.auth import auth_router
+from ..modules.cards import cards_router
 
 # Import observability to initialize logging
 from ..infra.observability import logger  # noqa: F401
@@ -31,6 +33,7 @@ api_router = Router(
     route_handlers=[
         health_router,
         auth_router,
+        cards_router,
     ],
 )
 
@@ -59,7 +62,7 @@ app = Litestar(
     cors_config=cors_config,
     openapi_config=openapi_config,
     debug=settings.debug,
-    dependencies={"db_session": provide_session},
+    dependencies={"db_session": Provide(provide_session)},
     on_startup=[on_startup],
     on_shutdown=[on_shutdown],
 )
