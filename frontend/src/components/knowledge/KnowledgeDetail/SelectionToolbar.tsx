@@ -16,6 +16,12 @@ export interface SelectionInfo {
   text: string
   rect: DOMRect
   range: Range | null
+  clientRects: Array<{
+    top: number
+    left: number
+    width: number
+    height: number
+  }>
 }
 
 interface SelectionToolbarProps {
@@ -25,8 +31,23 @@ interface SelectionToolbarProps {
   activePopup?: 'ai' | 'comment' | null
 }
 
-// 全局样式ID
-const GLOBAL_STYLE_ID = 'lumina-selection-style'
+const LIGHT_SELECTION_HIGHLIGHT = "hsl(160 60% 50% / 0.3)"
+const DARK_SELECTION_HIGHLIGHT = "hsl(160 70% 55% / 0.4)"
+const GLOBAL_STYLE_ID = "lumina-selection-style"
+const PERSISTENT_HIGHLIGHT_NAME = "lumina-persistent-selection"
+
+interface CSSHighlightsRegistry {
+  set: (name: string, highlight: unknown) => void
+  delete: (name: string) => void
+}
+
+type WindowWithHighlight = Window & {
+  Highlight?: new (...ranges: Range[]) => unknown
+}
+
+type CSSWithHighlights = typeof CSS & {
+  highlights?: CSSHighlightsRegistry
+}
 
 export const SelectionToolbar = React.forwardRef<
   { clearSelection: () => void },
@@ -44,78 +65,102 @@ export const SelectionToolbar = React.forwardRef<
     setIsMounted(true)
   }, [])
 
-  // 添加全局高亮样式
+  const createSelectionInfo = React.useCallback((range: Range, text: string): SelectionInfo => ({
+    text,
+    rect: range.getBoundingClientRect(),
+    range: range.cloneRange(),
+    clientRects: Array.from(range.getClientRects())
+      .filter((rect) => rect.width > 0 && rect.height > 0)
+      .map((rect) => ({
+        top: rect.top,
+        left: rect.left,
+        width: rect.width,
+        height: rect.height,
+      })),
+  }), [])
+
+  const getHighlightRegistry = React.useCallback(() => {
+    if (typeof CSS === "undefined") return null
+    return (CSS as CSSWithHighlights).highlights ?? null
+  }, [])
+
+  const supportsPersistentHighlight = React.useCallback(() => {
+    return Boolean(getHighlightRegistry() && (window as WindowWithHighlight).Highlight)
+  }, [getHighlightRegistry])
+
   const addGlobalHighlightStyle = React.useCallback(() => {
     if (document.getElementById(GLOBAL_STYLE_ID)) return
-    
-    const style = document.createElement('style')
+
+    const style = document.createElement("style")
     style.id = GLOBAL_STYLE_ID
     style.textContent = `
-      /* 强制高亮样式 */
-      .lumina-force-highlight::selection,
-      .lumina-force-highlight *::selection {
-        background: hsl(160 60% 50% / 0.45) !important;
-        color: inherit !important;
+      #markdown-content::highlight(${PERSISTENT_HIGHLIGHT_NAME}) {
+        background: ${LIGHT_SELECTION_HIGHLIGHT};
+        color: inherit;
       }
-      .lumina-force-highlight::-moz-selection,
-      .lumina-force-highlight *::-moz-selection {
-        background: hsl(160 60% 50% / 0.45) !important;
-        color: inherit !important;
+
+      html.dark #markdown-content::highlight(${PERSISTENT_HIGHLIGHT_NAME}) {
+        background: ${DARK_SELECTION_HIGHLIGHT};
+        color: inherit;
       }
     `
     document.head.appendChild(style)
   }, [])
 
-  // 移除全局高亮样式
-  const removeGlobalHighlightStyle = React.useCallback(() => {
-    const style = document.getElementById(GLOBAL_STYLE_ID)
-    if (style) {
-      style.remove()
-    }
-  }, [])
+  const clearPersistentHighlight = React.useCallback(() => {
+    getHighlightRegistry()?.delete(PERSISTENT_HIGHLIGHT_NAME)
+  }, [getHighlightRegistry])
 
-  // 强制保持选区
-  const forceKeepSelection = React.useCallback(() => {
-    const selection = window.getSelection()
-    if (selection && !selection.isCollapsed) {
-      // 给选区所在的容器添加高亮类
-      const range = selection.getRangeAt(0)
-      const container = range.commonAncestorContainer
-      const element = container.nodeType === Node.TEXT_NODE 
-        ? container.parentElement 
-        : container as Element
-      
-      if (element) {
-        // 向上查找markdown内容容器
-        let target = element
-        while (target && !target.id?.includes('markdown') && target.tagName !== 'BODY') {
-          target = target.parentElement!
-        }
-        
-        if (target && target.id?.includes('markdown')) {
-          target.classList.add('lumina-force-highlight')
-        }
+  const syncPersistentHighlight = React.useCallback((nextSelection: SelectionInfo | null) => {
+    if (!activePopup || !nextSelection?.range || !supportsPersistentHighlight()) {
+      clearPersistentHighlight()
+      return
+    }
+
+    const HighlightConstructor = (window as WindowWithHighlight).Highlight
+    if (!HighlightConstructor) {
+      clearPersistentHighlight()
+      return
+    }
+
+    const highlightRegistry = getHighlightRegistry()
+    if (!highlightRegistry) return
+
+    highlightRegistry.set(
+      PERSISTENT_HIGHLIGHT_NAME,
+      new HighlightConstructor(nextSelection.range.cloneRange())
+    )
+  }, [activePopup, clearPersistentHighlight, getHighlightRegistry, supportsPersistentHighlight])
+
+  const refreshSelectionLayout = React.useCallback(() => {
+    setSelection((currentSelection) => {
+      if (!currentSelection?.range) return currentSelection
+
+      const startContainer = currentSelection.range.startContainer
+      const endContainer = currentSelection.range.endContainer
+      const startConnected = startContainer.isConnected ?? false
+      const endConnected = endContainer.isConnected ?? false
+
+      if (!startConnected || !endConnected) {
+        clearPersistentHighlight()
+        return null
       }
-    }
-  }, [])
 
-  // 清除强制高亮
-  const clearForceHighlight = React.useCallback(() => {
-    document.querySelectorAll('.lumina-force-highlight').forEach(el => {
-      el.classList.remove('lumina-force-highlight')
+      const nextSelection = createSelectionInfo(currentSelection.range, currentSelection.text)
+      syncPersistentHighlight(nextSelection)
+      return nextSelection
     })
-  }, [])
+  }, [clearPersistentHighlight, createSelectionInfo, syncPersistentHighlight])
 
   // Expose clearSelection method
   React.useImperativeHandle(ref, () => ({
     clearSelection: () => {
       setSelection(null)
       isPopupOpenRef.current = false
-      clearForceHighlight()
-      removeGlobalHighlightStyle()
+      clearPersistentHighlight()
       window.getSelection()?.removeAllRanges()
     }
-  }))
+  }), [clearPersistentHighlight])
 
   React.useEffect(() => {
     const handleSelectionChange = () => {
@@ -149,24 +194,13 @@ export const SelectionToolbar = React.forwardRef<
           rangeRect.top >= containerRect.top &&
           rangeRect.bottom <= containerRect.bottom
         ) {
-          const selInfo = {
-            text,
-            rect: rangeRect,
-            range: range.cloneRange(),
-          }
-          setSelection(selInfo)
+          setSelection(createSelectionInfo(range, text))
         } else {
           setSelection(null)
         }
       } else {
-        // No container check, just use selection
         const range = activeSelection.getRangeAt(0)
-        const selInfo = {
-          text,
-          rect: range.getBoundingClientRect(),
-          range: range.cloneRange(),
-        }
-        setSelection(selInfo)
+        setSelection(createSelectionInfo(range, text))
       }
     }
 
@@ -189,25 +223,46 @@ export const SelectionToolbar = React.forwardRef<
       document.removeEventListener("selectionchange", handleSelectionChange)
       document.removeEventListener("mousedown", handleMouseDown)
     }
-  }, [containerSelector])
+  }, [containerSelector, createSelectionInfo])
 
-  // 监听 activePopup 变化
   React.useEffect(() => {
-    if (activePopup) {
-      // 弹窗打开
-      isPopupOpenRef.current = true
-      addGlobalHighlightStyle()
-      // 延迟执行以确保DOM更新
-      setTimeout(() => {
-        forceKeepSelection()
-      }, 0)
-    } else {
-      // 弹窗关闭
-      isPopupOpenRef.current = false
-      clearForceHighlight()
-      removeGlobalHighlightStyle()
+    isPopupOpenRef.current = Boolean(activePopup)
+  }, [activePopup])
+
+  React.useEffect(() => {
+    addGlobalHighlightStyle()
+
+    return () => {
+      clearPersistentHighlight()
+      document.getElementById(GLOBAL_STYLE_ID)?.remove()
     }
-  }, [activePopup, addGlobalHighlightStyle, removeGlobalHighlightStyle, forceKeepSelection, clearForceHighlight])
+  }, [addGlobalHighlightStyle, clearPersistentHighlight])
+
+  React.useEffect(() => {
+    syncPersistentHighlight(selection)
+  }, [selection, syncPersistentHighlight])
+
+  React.useEffect(() => {
+    if (!selection) return
+
+    const handleViewportChange = () => {
+      refreshSelectionLayout()
+    }
+
+    window.addEventListener("resize", handleViewportChange)
+    window.addEventListener("scroll", handleViewportChange, true)
+
+    return () => {
+      window.removeEventListener("resize", handleViewportChange)
+      window.removeEventListener("scroll", handleViewportChange, true)
+    }
+  }, [selection, refreshSelectionLayout])
+
+  const persistentHighlightColor = !isMounted
+    ? LIGHT_SELECTION_HIGHLIGHT
+    : document.documentElement.classList.contains("dark")
+      ? DARK_SELECTION_HIGHLIGHT
+      : LIGHT_SELECTION_HIGHLIGHT
 
   // Update position when selection changes
   React.useEffect(() => {
@@ -243,6 +298,7 @@ export const SelectionToolbar = React.forwardRef<
     if (selection) {
       isPopupOpenRef.current = true
       onAskAI(selection)
+      window.getSelection()?.removeAllRanges()
     }
   }
 
@@ -250,75 +306,104 @@ export const SelectionToolbar = React.forwardRef<
     if (selection) {
       isPopupOpenRef.current = true
       onComment(selection)
+      window.getSelection()?.removeAllRanges()
     }
   }
 
   const shouldShowToolbar = isMounted && selection && !activePopup
 
-  if (!shouldShowToolbar) return null
+  const persistentHighlight = selection && activePopup && !supportsPersistentHighlight()
+    ? createPortal(
+        <div className="pointer-events-none fixed inset-0 z-[9998]">
+          {selection.clientRects.map((rect, index) => (
+            <div
+              key={`${rect.top}-${rect.left}-${index}`}
+              className="absolute rounded-[3px]"
+              style={{
+                top: rect.top,
+                left: rect.left,
+                width: rect.width,
+                height: rect.height,
+                backgroundColor: persistentHighlightColor,
+              }}
+            />
+          ))}
+        </div>,
+        document.body
+      )
+    : null
 
-  return createPortal(
-    <AnimatePresence>
-      {selection && !activePopup && (
-        <TooltipProvider delayDuration={300}>
-          <motion.div
-            data-selection-toolbar
-            initial={{ opacity: 0, y: 8, scale: 0.95 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 8, scale: 0.95 }}
-            transition={{ duration: 0.15, ease: "easeOut" }}
-            style={{
-              position: "fixed",
-              top: position.top,
-              left: position.left,
-              zIndex: 9999,
-            }}
-            className={cn(
-              "flex items-center gap-1 p-1.5 rounded-lg",
-              "bg-background/95 backdrop-blur-sm",
-              "border border-border shadow-lg",
-              "select-none"
-            )}
-          >
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <button
-                  onClick={handleAskAI}
-                  className={cn(
-                    "flex items-center justify-center w-7 h-7 rounded-md",
-                    "text-emerald-500 hover:bg-emerald-500/10",
-                    "transition-colors cursor-pointer"
-                  )}
-                >
-                  <Bot className="w-4 h-4" />
-                </button>
-              </TooltipTrigger>
-              <TooltipContent side="top" className="text-xs">
-                问AI
-              </TooltipContent>
-            </Tooltip>
-            
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <button
-                  onClick={handleComment}
-                  className={cn(
-                    "flex items-center justify-center w-7 h-7 rounded-md",
-                    "text-emerald-500 hover:bg-emerald-500/10",
-                    "transition-colors cursor-pointer"
-                  )}
-                >
-                  <MessageSquare className="w-4 h-4" />
-                </button>
-              </TooltipTrigger>
-              <TooltipContent side="top" className="text-xs">
-                评论
-              </TooltipContent>
-            </Tooltip>
-          </motion.div>
-        </TooltipProvider>
-      )}
-    </AnimatePresence>,
-    document.body
+  const toolbar = shouldShowToolbar
+    ? createPortal(
+        <AnimatePresence>
+          {selection && !activePopup && (
+            <TooltipProvider delayDuration={300}>
+              <motion.div
+                data-selection-toolbar
+                initial={{ opacity: 0, y: 8, scale: 0.95 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: 8, scale: 0.95 }}
+                transition={{ duration: 0.15, ease: "easeOut" }}
+                style={{
+                  position: "fixed",
+                  top: position.top,
+                  left: position.left,
+                  zIndex: 9999,
+                }}
+                className={cn(
+                  "flex items-center gap-1 p-1.5 rounded-lg",
+                  "bg-background/95 backdrop-blur-sm",
+                  "border border-border shadow-lg",
+                  "select-none"
+                )}
+              >
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button
+                      onClick={handleAskAI}
+                      className={cn(
+                        "flex items-center justify-center w-7 h-7 rounded-md",
+                        "text-emerald-500 hover:bg-emerald-500/10",
+                        "transition-colors cursor-pointer"
+                      )}
+                    >
+                      <Bot className="w-4 h-4" />
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent side="top" className="text-xs">
+                    问AI
+                  </TooltipContent>
+                </Tooltip>
+                
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button
+                      onClick={handleComment}
+                      className={cn(
+                        "flex items-center justify-center w-7 h-7 rounded-md",
+                        "text-emerald-500 hover:bg-emerald-500/10",
+                        "transition-colors cursor-pointer"
+                      )}
+                    >
+                      <MessageSquare className="w-4 h-4" />
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent side="top" className="text-xs">
+                    评论
+                  </TooltipContent>
+                </Tooltip>
+              </motion.div>
+            </TooltipProvider>
+          )}
+        </AnimatePresence>,
+        document.body
+      )
+    : null
+
+  return (
+    <>
+      {persistentHighlight}
+      {toolbar}
+    </>
   )
 })

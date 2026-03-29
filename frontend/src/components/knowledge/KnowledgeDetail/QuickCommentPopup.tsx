@@ -15,6 +15,8 @@ interface QuickCommentPopupProps {
   onSubmit: (content: string, images: CommentImage[], quoteText: string) => void
 }
 
+const POPUP_WIDTH = 520
+
 export function QuickCommentPopup({ 
   isOpen, 
   onClose, 
@@ -33,11 +35,10 @@ export function QuickCommentPopup({
   // Calculate position based on selection
   React.useEffect(() => {
     if (isOpen && selection) {
-      const popupWidth = 420
       const popupHeight = 120
       const gap = 12
 
-      let left = selection.rect.left + selection.rect.width / 2 - popupWidth / 2
+      let left = selection.rect.left + selection.rect.width / 2 - POPUP_WIDTH / 2
       let top = selection.rect.bottom + gap
 
       // Boundary checks
@@ -45,8 +46,8 @@ export function QuickCommentPopup({
       const viewportHeight = window.innerHeight
 
       if (left < 16) left = 16
-      if (left + popupWidth > viewportWidth - 16) {
-        left = viewportWidth - popupWidth - 16
+      if (left + POPUP_WIDTH > viewportWidth - 16) {
+        left = viewportWidth - POPUP_WIDTH - 16
       }
 
       // If not enough space below, show above
@@ -152,7 +153,7 @@ export function QuickCommentPopup({
           onMouseDown={(e) => e.stopPropagation()}
         >
           {/* 无边框容器 - 只有输入框 */}
-          <div className="w-[420px] max-w-[calc(100vw-32px)]">
+          <div className="w-[520px] max-w-[calc(100vw-32px)]">
             <div className="relative flex items-start bg-muted/80 backdrop-blur-sm rounded-xl shadow-lg border border-border/50">
               <textarea
                 ref={textareaRef}

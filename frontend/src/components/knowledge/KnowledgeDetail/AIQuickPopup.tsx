@@ -4,7 +4,7 @@ import * as React from "react"
 import { createPortal } from "react-dom"
 import { motion, AnimatePresence } from "framer-motion"
 import { 
-  X, Send, Code2, Languages, List, Braces, BookOpen, Zap, Loader2
+  X, Send, Code2, Languages, List, BookOpen, Loader2
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { SelectionInfo } from "./SelectionToolbar"
@@ -15,14 +15,14 @@ interface AIQuickPopupProps {
   selection: SelectionInfo | null
 }
 
+const POPUP_WIDTH = 520
+
 // Quick commands configuration
 const QUICK_COMMANDS = [
   { id: "explain", label: "解释", icon: BookOpen, prompt: "请解释这段内容：" },
   { id: "summary", label: "摘要", icon: List, prompt: "请为这段内容生成摘要：" },
   { id: "code", label: "转代码", icon: Code2, prompt: "请将这段内容转换为代码：" },
   { id: "translate", label: "翻译", icon: Languages, prompt: "请翻译这段内容：" },
-  { id: "refactor", label: "重构", icon: Braces, prompt: "请重构这段代码：" },
-  { id: "expand", label: "扩展", icon: Zap, prompt: "请扩展这段内容：" },
 ]
 
 // Mock AI response simulation
@@ -60,13 +60,21 @@ export function AIQuickPopup({ isOpen, onClose, selection }: AIQuickPopupProps) 
   const popupRef = React.useRef<HTMLDivElement>(null)
   const [position, setPosition] = React.useState({ top: 0, left: 0 })
 
+  const resizeTextarea = React.useCallback(() => {
+    const textarea = inputRef.current
+    if (!textarea) return
+
+    textarea.style.height = "auto"
+    textarea.style.height = `${Math.min(textarea.scrollHeight, 120)}px`
+    textarea.style.overflowY = textarea.scrollHeight > 120 ? "auto" : "hidden"
+  }, [])
+
   // Calculate position based on selection
   React.useEffect(() => {
     if (isOpen && selection) {
-      const popupWidth = 420
       const gap = 12
 
-      let left = selection.rect.left + selection.rect.width / 2 - popupWidth / 2
+      let left = selection.rect.left + selection.rect.width / 2 - POPUP_WIDTH / 2
       let top = selection.rect.bottom + gap
 
       // Boundary checks
@@ -74,8 +82,8 @@ export function AIQuickPopup({ isOpen, onClose, selection }: AIQuickPopupProps) 
       const viewportHeight = window.innerHeight
 
       if (left < 16) left = 16
-      if (left + popupWidth > viewportWidth - 16) {
-        left = viewportWidth - popupWidth - 16
+      if (left + POPUP_WIDTH > viewportWidth - 16) {
+        left = viewportWidth - POPUP_WIDTH - 16
       }
 
       // 如果下方空间不足，尝试计算上方位置
@@ -102,6 +110,12 @@ export function AIQuickPopup({ isOpen, onClose, selection }: AIQuickPopupProps) 
     }
   }, [isOpen])
 
+  React.useEffect(() => {
+    if (isOpen) {
+      resizeTextarea()
+    }
+  }, [isOpen, inputValue, resizeTextarea])
+
   // Reset state when closed
   React.useEffect(() => {
     if (!isOpen) {
@@ -109,6 +123,10 @@ export function AIQuickPopup({ isOpen, onClose, selection }: AIQuickPopupProps) 
       setAiResponse("")
       setStreamingText("")
       setIsGenerating(false)
+      if (inputRef.current) {
+        inputRef.current.style.height = "44px"
+        inputRef.current.style.overflowY = "hidden"
+      }
     }
   }, [isOpen])
 
@@ -199,7 +217,7 @@ export function AIQuickPopup({ isOpen, onClose, selection }: AIQuickPopupProps) 
           className="select-none flex flex-col"
           onMouseDown={(e) => e.stopPropagation()}
         >
-          <div className="w-[420px] max-w-[calc(100vw-32px)] flex flex-col">
+          <div className="w-[520px] max-w-[calc(100vw-32px)] flex flex-col">
             
             {/* 1. AI回复区域 - 最上方（在DOM中最先渲染） */}
             {(streamingText || aiResponse) && (
@@ -236,7 +254,7 @@ export function AIQuickPopup({ isOpen, onClose, selection }: AIQuickPopupProps) 
                 rows={1}
                 className={cn(
                   "flex-1 min-h-[44px] max-h-[120px] text-sm resize-none",
-                  "bg-transparent px-4 py-3 pr-24",
+                  "bg-transparent px-4 py-3 pr-28 overflow-y-hidden",
                   "focus:outline-none",
                   "disabled:opacity-50"
                 )}
@@ -248,20 +266,19 @@ export function AIQuickPopup({ isOpen, onClose, selection }: AIQuickPopupProps) 
                 onClick={() => handleSubmit()}
                 disabled={!inputValue.trim() || isGenerating}
                 className={cn(
-                  "absolute right-12 w-8 h-8 rounded-lg",
+                  "absolute top-1/2 right-12 -translate-y-1/2 w-8 h-8 rounded-lg",
                   "bg-emerald-500 text-white",
                   "hover:bg-emerald-600 transition-colors",
                   "disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer",
                   "flex items-center justify-center"
                 )}
               >
-                <Send className="w-4 h-4" />
+                {isGenerating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
               </button>
               
-              {/* Close Button */}
               <button
                 onClick={onClose}
-                className="absolute right-3 w-8 h-8 rounded-lg flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer"
+                className="absolute top-1/2 right-3 -translate-y-1/2 w-8 h-8 rounded-lg flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer"
               >
                 <X className="w-4 h-4" />
               </button>
