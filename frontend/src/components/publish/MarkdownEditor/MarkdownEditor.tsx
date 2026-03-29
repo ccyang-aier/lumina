@@ -1,17 +1,18 @@
 "use client"
 
 import * as React from "react"
-import { useCallback, useMemo, useRef, useState, useEffect, useLayoutEffect } from "react"
+import { useCallback, useMemo, useRef, useState, useEffect, useLayoutEffect, useDeferredValue } from "react"
 import { unified } from "unified"
 import remarkParse from "remark-parse"
 import remarkGfm from "remark-gfm"
 import remarkRehype from "remark-rehype"
 import rehypePrettyCode from "rehype-pretty-code"
+import rehypeSlug from "rehype-slug"
 import rehypeStringify from "rehype-stringify"
 import { visit } from "unist-util-visit"
 import type { Root } from "hast"
 import { cn } from "@/lib/utils"
-import styles from "./MarkdownEditor.module.css"
+import { MarkdownRenderer } from "@/components/knowledge/KnowledgeDetail/MarkdownRenderer"
 import { 
   Eye, 
   Code2, 
@@ -54,6 +55,14 @@ import {
 } from "@/components/ui/tooltip"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
 
 export interface MarkdownEditorProps {
   value?: string
@@ -83,13 +92,14 @@ async function markdownToHtml(markdown: string): Promise<string> {
   const processor = unified()
     .use(remarkParse)
     .use(remarkGfm)
-    .use(remarkRehype)
+    .use(remarkRehype, { allowDangerousHtml: true })
+    .use(rehypeSlug)
     .use(rehypePrettyCode, {
-      theme: { light: "github-light", dark: "github-dark" },
+      theme: { light: "github-light", dark: "github-dark-dimmed" },
       defaultLang: "plaintext",
     })
     .use(attachRawCode)
-    .use(rehypeStringify)
+    .use(rehypeStringify, { allowDangerousHtml: true })
 
   const file = await processor.process(markdown)
   return String(file)
@@ -124,15 +134,28 @@ interface TableBlock {
 type ContentBlock = TextBlock | ImageBlock | TableBlock
 
 interface PendingCursor {
+  absoluteIndex: number
+  absoluteEnd?: number
+  prefer?: "nearest" | "previous"
+  preserveScrollTop?: number
+  reveal?: boolean
+}
+
+interface ActiveSelection {
   lineStart: number
   selectionStart: number
-  selectionEnd?: number
-  prefer?: "nearest" | "previous"
+  selectionEnd: number
 }
 
 interface TableEditorState {
   block?: TableBlock
   initialData?: { headers: string[]; rows: string[][] }
+}
+
+interface ImageEditorState {
+  block?: ImageBlock
+  alt: string
+  url: string
 }
 
 // Parse content into blocks
@@ -231,6 +254,7 @@ function createStandaloneInsertion(text: string, selectionStart: number, selecti
 
   return {
     nextText,
+    caretIndex,
     focusLineOffset: lineOffset,
     focusPreference,
   }
@@ -385,6 +409,83 @@ function TableEditorModal({
   )
 }
 
+function ImageEditorModal({
+  state,
+  isOpen,
+  onClose,
+  onSave,
+}: {
+  state: ImageEditorState | null
+  isOpen: boolean
+  onClose: () => void
+  onSave: (alt: string, url: string) => void
+}) {
+  const [alt, setAlt] = useState("")
+  const [url, setUrl] = useState("")
+
+  useEffect(() => {
+    if (!state) return
+    setAlt(state.alt)
+    setUrl(state.url)
+  }, [state])
+
+  return (
+    <Dialog open={isOpen} onOpenChange={(open) => {
+      if (!open) {
+        onClose()
+      }
+    }}>
+      <DialogContent className="sm:max-w-lg">
+        <DialogHeader>
+          <DialogTitle>{state?.block ? "编辑图片" : "插入图片"}</DialogTitle>
+          <DialogDescription>
+            设置图片地址和描述，保存后将直接更新当前编辑内容。
+          </DialogDescription>
+        </DialogHeader>
+        <div className="space-y-4">
+          <div className="space-y-2">
+            <div className="text-sm font-medium text-foreground">图片描述</div>
+            <Input
+              value={alt}
+              onChange={(event) => setAlt(event.target.value)}
+              placeholder="例如：系统架构图"
+            />
+          </div>
+          <div className="space-y-2">
+            <div className="text-sm font-medium text-foreground">图片地址</div>
+            <Input
+              value={url}
+              onChange={(event) => setUrl(event.target.value)}
+              placeholder="https://example.com/image.png"
+            />
+          </div>
+          {url ? (
+            <div className="overflow-hidden rounded-xl border border-border bg-muted/20">
+              <div className="aspect-video bg-muted/40">
+                <img
+                  src={url}
+                  alt={alt || "图片预览"}
+                  className="h-full w-full object-contain"
+                />
+              </div>
+            </div>
+          ) : null}
+        </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={onClose} className="cursor-pointer">取消</Button>
+          <Button
+            onClick={() => onSave(alt, url)}
+            disabled={!url.trim()}
+            className="cursor-pointer"
+          >
+            保存
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  )
+}
+
 // Image Block Component
 function ImageBlockComponent({
   block,
@@ -532,6 +633,9 @@ function TextBlockComponent({
   onChange,
   onFocus,
   onSelectionChange,
+  onAfterInput,
+  onCompositionStart,
+  onCompositionEnd,
   onKeyDown,
   registerTextarea,
 }: {
@@ -540,10 +644,13 @@ function TextBlockComponent({
   placeholder: string
   isFirstBlock: boolean
   onChange: (newContent: string) => void
-  onFocus: () => void
+  onFocus: (selectionStart: number, selectionEnd: number) => void
   onSelectionChange: (selectionStart: number, selectionEnd: number) => void
+  onAfterInput: (node: HTMLTextAreaElement) => void
+  onCompositionStart: () => void
+  onCompositionEnd: (selectionStart: number, selectionEnd: number) => void
   onKeyDown: (e: React.KeyboardEvent<HTMLTextAreaElement>) => void
-  registerTextarea: (node: HTMLTextAreaElement | null) => void
+  registerTextarea: (lineStart: number, node: HTMLTextAreaElement | null) => void
 }) {
   const localTextareaRef = useRef<HTMLTextAreaElement | null>(null)
 
@@ -559,9 +666,9 @@ function TextBlockComponent({
 
   const handleRef = useCallback((node: HTMLTextAreaElement | null) => {
     localTextareaRef.current = node
-    registerTextarea(node)
+    registerTextarea(lineStart, node)
     resizeTextarea(node)
-  }, [registerTextarea, resizeTextarea])
+  }, [lineStart, registerTextarea, resizeTextarea])
 
   const syncSelection = useCallback((event: React.SyntheticEvent<HTMLTextAreaElement>) => {
     const target = event.currentTarget
@@ -576,9 +683,20 @@ function TextBlockComponent({
       rows={1}
       onChange={(e) => {
         onChange(e.target.value)
+        onSelectionChange(e.currentTarget.selectionStart, e.currentTarget.selectionEnd)
         resizeTextarea(e.currentTarget)
+        requestAnimationFrame(() => {
+          onAfterInput(e.currentTarget)
+        })
       }}
-      onFocus={onFocus}
+      onFocus={(event) => onFocus(event.currentTarget.selectionStart, event.currentTarget.selectionEnd)}
+      onCompositionStart={onCompositionStart}
+      onCompositionEnd={(event) => {
+        onCompositionEnd(event.currentTarget.selectionStart, event.currentTarget.selectionEnd)
+        requestAnimationFrame(() => {
+          onAfterInput(event.currentTarget)
+        })
+      }}
       onClick={syncSelection}
       onSelect={syncSelection}
       onKeyUp={syncSelection}
@@ -610,26 +728,49 @@ export function MarkdownEditor({
   const fileInputRef = useRef<HTMLInputElement>(null)
   const textareaRefs = useRef<Map<number, HTMLTextAreaElement>>(new Map())
   const activeTextBlockLineRef = useRef<number | null>(0)
+  const activeSelectionRef = useRef<ActiveSelection | null>(null)
   const pendingCursorRef = useRef<PendingCursor | null>(null)
+  const isComposingRef = useRef(false)
   const syncingScrollRef = useRef<"editor" | "preview" | null>(null)
   const [isProcessing, setIsProcessing] = useState(false)
   const [tableEditorState, setTableEditorState] = useState<TableEditorState | null>(null)
+  const [imageEditorState, setImageEditorState] = useState<ImageEditorState | null>(null)
 
   const currentValue = onChange ? value : internalValue
+  const deferredValue = useDeferredValue(currentValue)
 
   const blocks = useMemo(() => parseContent(currentValue), [currentValue])
   const textBlocks = useMemo(() => blocks.filter((block): block is TextBlock => block.type === 'text'), [blocks])
   const textBlockMap = useMemo(() => new Map(textBlocks.map((block) => [block.lineStart, block])), [textBlocks])
+  const lineStartOffsets = useMemo(() => {
+    const lines = currentValue.length === 0 ? [''] : currentValue.split('\n')
+    const offsets: number[] = []
+    let offset = 0
+
+    lines.forEach((line) => {
+      offsets.push(offset)
+      offset += line.length + 1
+    })
+
+    return offsets
+  }, [currentValue])
 
   useEffect(() => {
+    if (mode === "edit") {
+      setIsProcessing(false)
+      return
+    }
+
+    const valueToRender = deferredValue
+
     const renderMarkdown = async () => {
-      if (!currentValue) {
+      if (!valueToRender) {
         setRenderedHtml("")
         return
       }
       setIsProcessing(true)
       try {
-        const html = await markdownToHtml(currentValue)
+        const html = await markdownToHtml(valueToRender)
         setRenderedHtml(html)
       } catch (error) {
         console.error("Error rendering markdown:", error)
@@ -638,10 +779,36 @@ export function MarkdownEditor({
         setIsProcessing(false)
       }
     }
-    
-    const debounceTimer = setTimeout(renderMarkdown, 150)
-    return () => clearTimeout(debounceTimer)
-  }, [currentValue])
+
+    const debounceMs = valueToRender.length > 12000 ? 520 : valueToRender.length > 6000 ? 360 : valueToRender.length > 2500 ? 220 : 120
+    let isCancelled = false
+    let idleHandle: number | null = null
+
+    const debounceTimer = window.setTimeout(() => {
+      const schedule = () => {
+        if (isCancelled) return
+        void renderMarkdown()
+      }
+
+      if (typeof window.requestIdleCallback === "function") {
+        idleHandle = window.requestIdleCallback(schedule, { timeout: debounceMs })
+      } else {
+        idleHandle = window.setTimeout(schedule, 0)
+      }
+    }, debounceMs)
+
+    return () => {
+      isCancelled = true
+      window.clearTimeout(debounceTimer)
+      if (idleHandle !== null) {
+        if (typeof window.cancelIdleCallback === "function" && typeof window.requestIdleCallback === "function") {
+          window.cancelIdleCallback(idleHandle)
+        } else {
+          window.clearTimeout(idleHandle)
+        }
+      }
+    }
+  }, [deferredValue, mode])
 
   const handleChange = useCallback((newValue: string) => {
     if (onChange) {
@@ -659,41 +826,78 @@ export function MarkdownEditor({
   }, [currentValue, handleChange])
 
   const scheduleCursor = useCallback((cursor: PendingCursor) => {
-    pendingCursorRef.current = cursor
+    pendingCursorRef.current = {
+      preserveScrollTop: editorScrollRef.current?.scrollTop,
+      reveal: false,
+      ...cursor,
+    }
   }, [])
 
-  useEffect(() => {
-    const pendingCursor = pendingCursorRef.current
-    if (!pendingCursor) return
+  const clearPendingCursor = useCallback(() => {
+    pendingCursorRef.current = null
+  }, [])
 
-    const availableLineStarts = Array.from(textareaRefs.current.keys()).sort((a, b) => a - b)
-    if (availableLineStarts.length === 0) {
-      return
+  const setActiveSelection = useCallback((lineStart: number, selectionStart: number, selectionEnd: number) => {
+    activeTextBlockLineRef.current = lineStart
+    activeSelectionRef.current = {
+      lineStart,
+      selectionStart,
+      selectionEnd,
+    }
+  }, [])
+
+  const getBlockAbsoluteStart = useCallback((lineStart: number) => {
+    return lineStartOffsets[lineStart] ?? currentValue.length
+  }, [currentValue.length, lineStartOffsets])
+
+  const resolveAbsoluteSelection = useCallback((absoluteIndex: number, prefer: PendingCursor["prefer"] = "nearest") => {
+    if (textBlocks.length === 0) {
+      return null
     }
 
-    const targetLineStart = pendingCursor.prefer === "previous"
-      ? [...availableLineStarts].reverse().find((lineStart) => lineStart <= pendingCursor.lineStart)
-        ?? availableLineStarts[0]
-      : availableLineStarts.find((lineStart) => lineStart >= pendingCursor.lineStart)
-        ?? availableLineStarts[availableLineStarts.length - 1]
-
-    const targetTextarea = textareaRefs.current.get(targetLineStart)
-    if (!targetTextarea) {
-      return
-    }
-
-    const selectionEnd = pendingCursor.selectionEnd ?? pendingCursor.selectionStart
-    const clampedStart = Math.min(pendingCursor.selectionStart, targetTextarea.value.length)
-    const clampedEnd = Math.min(selectionEnd, targetTextarea.value.length)
-
-    requestAnimationFrame(() => {
-      targetTextarea.scrollIntoView({ block: "nearest" })
-      targetTextarea.focus()
-      targetTextarea.setSelectionRange(clampedStart, clampedEnd)
+    const mappedBlocks = textBlocks.map((block) => {
+      const start = getBlockAbsoluteStart(block.lineStart)
+      return {
+        block,
+        start,
+        end: start + block.content.length,
+      }
     })
 
-    pendingCursorRef.current = null
-  }, [blocks])
+    const containing = mappedBlocks.find(({ start, end }) => absoluteIndex >= start && absoluteIndex <= end)
+    if (containing) {
+      return {
+        lineStart: containing.block.lineStart,
+        localIndex: absoluteIndex - containing.start,
+      }
+    }
+
+    const nextBlock = mappedBlocks.find(({ start }) => start > absoluteIndex)
+    const previousBlock = [...mappedBlocks].reverse().find(({ end }) => end < absoluteIndex)
+
+    if (prefer === "previous" && previousBlock) {
+      return {
+        lineStart: previousBlock.block.lineStart,
+        localIndex: previousBlock.block.content.length,
+      }
+    }
+
+    if (nextBlock) {
+      return {
+        lineStart: nextBlock.block.lineStart,
+        localIndex: 0,
+      }
+    }
+
+    if (previousBlock) {
+      return {
+        lineStart: previousBlock.block.lineStart,
+        localIndex: previousBlock.block.content.length,
+      }
+    }
+
+    return null
+  }, [getBlockAbsoluteStart, textBlocks])
 
   const registerTextarea = useCallback((lineStart: number, node: HTMLTextAreaElement | null) => {
     if (node) {
@@ -704,25 +908,132 @@ export function MarkdownEditor({
     textareaRefs.current.delete(lineStart)
   }, [])
 
+  const ensureTextareaVisible = useCallback((textarea: HTMLTextAreaElement) => {
+    const editor = editorScrollRef.current
+    if (!editor) return
+
+    const editorRect = editor.getBoundingClientRect()
+    const textareaRect = textarea.getBoundingClientRect()
+    const lineHeight = Number.parseFloat(window.getComputedStyle(textarea).lineHeight) || 28
+    const topPadding = lineHeight * 1.25
+    const bottomPadding = lineHeight * 1.75
+
+    if (textareaRect.bottom > editorRect.bottom - bottomPadding) {
+      editor.scrollTop += textareaRect.bottom - (editorRect.bottom - bottomPadding)
+      return
+    }
+
+    if (textareaRect.top < editorRect.top + topPadding) {
+      editor.scrollTop -= (editorRect.top + topPadding) - textareaRect.top
+    }
+  }, [])
+
+  const restoreTextareaSelection = useCallback((
+    textarea: HTMLTextAreaElement,
+    lineStart: number,
+    selectionStart: number,
+    selectionEnd: number = selectionStart
+  ) => {
+    requestAnimationFrame(() => {
+      try {
+        textarea.focus({ preventScroll: true })
+      } catch {
+        textarea.focus()
+      }
+      textarea.setSelectionRange(selectionStart, selectionEnd)
+      setActiveSelection(lineStart, selectionStart, selectionEnd)
+      ensureTextareaVisible(textarea)
+    })
+  }, [ensureTextareaVisible, setActiveSelection])
+
+  useLayoutEffect(() => {
+    const pendingCursor = pendingCursorRef.current
+    if (!pendingCursor) return
+    pendingCursorRef.current = null
+
+    let cancelled = false
+
+    const attemptFocusRestore = (remainingAttempts: number) => {
+      if (cancelled) return
+
+      const resolvedSelection = resolveAbsoluteSelection(pendingCursor.absoluteIndex, pendingCursor.prefer)
+      if (!resolvedSelection) {
+        return
+      }
+
+      const targetTextarea = textareaRefs.current.get(resolvedSelection.lineStart)
+      if (!targetTextarea) {
+        if (remainingAttempts > 0) {
+          requestAnimationFrame(() => attemptFocusRestore(remainingAttempts - 1))
+        }
+        return
+      }
+
+      const selectionEnd = pendingCursor.absoluteEnd ?? pendingCursor.absoluteIndex
+      const resolvedEnd = resolveAbsoluteSelection(selectionEnd, pendingCursor.prefer) ?? resolvedSelection
+      const clampedStart = Math.min(resolvedSelection.localIndex, targetTextarea.value.length)
+      const clampedEnd = Math.min(
+        resolvedEnd.lineStart === resolvedSelection.lineStart ? resolvedEnd.localIndex : targetTextarea.value.length,
+        targetTextarea.value.length
+      )
+
+      requestAnimationFrame(() => {
+        if (cancelled) return
+
+        try {
+          targetTextarea.focus({ preventScroll: true })
+        } catch {
+          targetTextarea.focus()
+        }
+        targetTextarea.setSelectionRange(clampedStart, clampedEnd)
+        activeSelectionRef.current = {
+          lineStart: resolvedSelection.lineStart,
+          selectionStart: clampedStart,
+          selectionEnd: clampedEnd,
+        }
+
+        if (pendingCursor.reveal) {
+          targetTextarea.scrollIntoView({ block: "nearest" })
+        } else if (typeof pendingCursor.preserveScrollTop === "number" && editorScrollRef.current) {
+          editorScrollRef.current.scrollTop = pendingCursor.preserveScrollTop
+        }
+
+        ensureTextareaVisible(targetTextarea)
+      })
+    }
+
+    attemptFocusRestore(3)
+
+    return () => {
+      cancelled = true
+    }
+  }, [blocks, ensureTextareaVisible, resolveAbsoluteSelection])
+
   const getActiveTextBlock = useCallback(() => {
-    const activeLineStart = activeTextBlockLineRef.current
+    const selection = activeSelectionRef.current
+    const activeLineStart = selection?.lineStart ?? activeTextBlockLineRef.current
     if (activeLineStart === null) return null
 
     const block = textBlockMap.get(activeLineStart)
     const textarea = textareaRefs.current.get(activeLineStart)
     if (!block || !textarea) return null
 
-    return { block, textarea }
+    const isFocusedTextarea = document.activeElement === textarea
+
+    return {
+      block,
+      textarea,
+      selectionStart: isFocusedTextarea ? textarea.selectionStart : (selection?.selectionStart ?? textarea.selectionStart),
+      selectionEnd: isFocusedTextarea ? textarea.selectionEnd : (selection?.selectionEnd ?? textarea.selectionEnd),
+    }
   }, [textBlockMap])
 
   const insertAtDocumentEnd = useCallback((markdown: string) => {
     const prefix = currentValue.length > 0 && !currentValue.endsWith('\n') ? '\n' : ''
     const nextValue = `${currentValue}${prefix}${markdown}\n`
     handleChange(nextValue)
-    const nextLineStart = nextValue.split('\n').length - 1
     scheduleCursor({
-      lineStart: nextLineStart,
-      selectionStart: 0,
+      absoluteIndex: nextValue.length,
       prefer: "previous",
     })
   }, [currentValue, handleChange, scheduleCursor])
@@ -733,11 +1044,10 @@ export function MarkdownEditor({
     const nextValue = lines.length > 0 ? lines.join('\n') : ''
     handleChange(nextValue)
     scheduleCursor({
-      lineStart: block.lineStart,
-      selectionStart: 0,
+      absoluteIndex: getBlockAbsoluteStart(block.lineStart),
       prefer: "nearest",
     })
-  }, [currentValue, handleChange, scheduleCursor])
+  }, [currentValue, getBlockAbsoluteStart, handleChange, scheduleCursor])
 
   const replaceTextSelection = useCallback((before: string, after: string = "", placeholderText: string = "") => {
     const activeTarget = getActiveTextBlock()
@@ -749,19 +1059,15 @@ export function MarkdownEditor({
     }
 
     const { block, textarea } = activeTarget
-    const start = textarea.selectionStart
-    const end = textarea.selectionEnd
+    const start = activeTarget.selectionStart
+    const end = activeTarget.selectionEnd
     const selectedText = textarea.value.slice(start, end) || placeholderText
     const nextText = `${textarea.value.slice(0, start)}${before}${selectedText}${after}${textarea.value.slice(end)}`
     const nextCursor = start + before.length + selectedText.length
 
     updateBlockContent(block, nextText)
-    scheduleCursor({
-      lineStart: block.lineStart,
-      selectionStart: nextCursor,
-      prefer: "nearest",
-    })
-  }, [currentValue, getActiveTextBlock, handleChange, scheduleCursor, updateBlockContent])
+    restoreTextareaSelection(textarea, block.lineStart, nextCursor)
+  }, [currentValue, getActiveTextBlock, handleChange, restoreTextareaSelection, updateBlockContent])
 
   const insertStandaloneMarkdown = useCallback((markdown: string) => {
     const activeTarget = getActiveTextBlock()
@@ -771,39 +1077,51 @@ export function MarkdownEditor({
       return
     }
 
-    const { block, textarea } = activeTarget
+    const { block, textarea, selectionStart, selectionEnd } = activeTarget
     const insertion = createStandaloneInsertion(
       textarea.value,
-      textarea.selectionStart,
-      textarea.selectionEnd,
+      selectionStart,
+      selectionEnd,
       markdown
     )
 
     updateBlockContent(block, insertion.nextText)
     scheduleCursor({
-      lineStart: block.lineStart + insertion.focusLineOffset,
-      selectionStart: 0,
+      absoluteIndex: getBlockAbsoluteStart(block.lineStart) + insertion.caretIndex,
       prefer: insertion.focusPreference,
     })
-  }, [getActiveTextBlock, insertAtDocumentEnd, scheduleCursor, updateBlockContent])
+  }, [getActiveTextBlock, getBlockAbsoluteStart, insertAtDocumentEnd, scheduleCursor, updateBlockContent])
 
   const replaceBlockWithMarkdown = useCallback((block: ContentBlock, markdown: string) => {
     updateBlockContent(block, markdown)
     scheduleCursor({
-      lineStart: block.lineStart + markdown.split('\n').length,
-      selectionStart: 0,
+      absoluteIndex: getBlockAbsoluteStart(block.lineStart) + markdown.length,
       prefer: "nearest",
     })
-  }, [scheduleCursor, updateBlockContent])
+  }, [getBlockAbsoluteStart, scheduleCursor, updateBlockContent])
 
-  const editImage = useCallback((block: ImageBlock) => {
-    const newAlt = prompt('图片描述:', block.alt)
-    if (newAlt === null) return
-    const newUrl = prompt('图片链接:', block.url)
-    if (newUrl === null) return
+  const openImageEditor = useCallback((block?: ImageBlock) => {
+    setImageEditorState({
+      block,
+      alt: block?.alt ?? "",
+      url: block?.url ?? "",
+    })
+  }, [])
 
-    replaceBlockWithMarkdown(block, `![${newAlt}](${newUrl})`)
-  }, [replaceBlockWithMarkdown])
+  const saveImage = useCallback((alt: string, url: string) => {
+    const normalizedAlt = alt.trim()
+    const normalizedUrl = url.trim()
+    if (!normalizedUrl) {
+      return
+    }
+
+    if (imageEditorState?.block) {
+      replaceBlockWithMarkdown(imageEditorState.block, `![${normalizedAlt}](${normalizedUrl})`)
+      return
+    }
+
+    insertStandaloneMarkdown(`![${normalizedAlt}](${normalizedUrl})`)
+  }, [imageEditorState, insertStandaloneMarkdown, replaceBlockWithMarkdown])
 
   const openTableEditor = useCallback((block?: TableBlock) => {
     setTableEditorState(
@@ -862,26 +1180,31 @@ export function MarkdownEditor({
     { icon: Quote, label: "引用", action: () => replaceTextSelection("> ", "", "引用文本") },
     { icon: Code, label: "行内代码", action: () => replaceTextSelection("`", "`", "code") },
     { icon: Link2, label: "链接", action: () => replaceTextSelection("[", "](url)", "链接文本") },
-    { icon: ImageIcon, label: "图片链接", action: () => insertStandaloneMarkdown("![图片描述](url)") },
+    { icon: ImageIcon, label: "图片链接", action: () => openImageEditor() },
     { icon: Upload, label: "上传图片", action: handleImageUpload },
     { icon: Table, label: "插入表格", action: () => openTableEditor() },
     { icon: Minus, label: "分割线", action: () => insertStandaloneMarkdown("---") },
     { icon: CheckSquare, label: "任务列表", action: () => replaceTextSelection("- [ ] ", "", "任务项") },
-  ], [handleImageUpload, insertStandaloneMarkdown, openTableEditor, replaceTextSelection])
+  ], [handleImageUpload, insertStandaloneMarkdown, openImageEditor, openTableEditor, replaceTextSelection])
 
   const insertCodeBlock = useCallback((language: string) => {
     insertStandaloneMarkdown(`\`\`\`${language}\n// 代码内容\n\`\`\``)
   }, [insertStandaloneMarkdown])
 
-  const updateTextBlockWithSelection = useCallback((block: TextBlock, nextText: string, selectionStart: number, selectionEnd: number = selectionStart) => {
+  const keepEditorSelection = useCallback((event: React.MouseEvent<HTMLElement>) => {
+    event.preventDefault()
+  }, [])
+
+  const updateTextBlockWithSelection = useCallback((
+    block: TextBlock,
+    textarea: HTMLTextAreaElement,
+    nextText: string,
+    selectionStart: number,
+    selectionEnd: number = selectionStart
+  ) => {
     updateBlockContent(block, nextText)
-    scheduleCursor({
-      lineStart: block.lineStart,
-      selectionStart,
-      selectionEnd,
-      prefer: "nearest",
-    })
-  }, [scheduleCursor, updateBlockContent])
+    restoreTextareaSelection(textarea, block.lineStart, selectionStart, selectionEnd)
+  }, [restoreTextareaSelection, updateBlockContent])
 
   const syncScrollPosition = useCallback((source: HTMLDivElement, target: HTMLDivElement, origin: "editor" | "preview") => {
     if (syncingScrollRef.current && syncingScrollRef.current !== origin) {
@@ -913,6 +1236,13 @@ export function MarkdownEditor({
   const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLTextAreaElement>, block: TextBlock) => {
     const textarea = e.currentTarget
     const text = textarea.value
+    const isImeConfirming = isComposingRef.current || e.nativeEvent.isComposing || e.keyCode === 229
+
+    clearPendingCursor()
+
+    if (isImeConfirming) {
+      return
+    }
 
     if (e.key === 'Tab') {
       e.preventDefault()
@@ -924,11 +1254,11 @@ export function MarkdownEditor({
         const lineText = text.substring(lineStart, start)
         if (lineText.startsWith('  ')) {
           const nextText = `${text.substring(0, lineStart)}${text.substring(lineStart + 2)}`
-          updateTextBlockWithSelection(block, nextText, start - 2, end - 2)
+          updateTextBlockWithSelection(block, textarea, nextText, start - 2, end - 2)
         }
       } else {
         const nextText = `${text.substring(0, start)}  ${text.substring(end)}`
-        updateTextBlockWithSelection(block, nextText, start + 2, end + 2)
+        updateTextBlockWithSelection(block, textarea, nextText, start + 2, end + 2)
       }
       return
     }
@@ -937,10 +1267,24 @@ export function MarkdownEditor({
       const start = textarea.selectionStart
       const lineStart = text.lastIndexOf('\n', start - 1) + 1
       const currentLine = text.substring(lineStart, start)
+      const quoteMatch = currentLine.match(/^(\s*(?:>\s?)+)/)
 
       const unorderedMatch = currentLine.match(/^(\s*)([-*+])\s/)
       const orderedMatch = currentLine.match(/^(\s*)(\d+)\.\s/)
       const taskMatch = currentLine.match(/^(\s*)([-*+])\s\[\s\]\s/)
+
+      if (quoteMatch) {
+        e.preventDefault()
+
+        const quotePrefix = quoteMatch[1].replace(/\s+$/, ' ')
+        const quoteContent = currentLine.slice(quoteMatch[1].length).trim()
+        const nextQuoteLine = quoteContent.length === 0 ? "\n" : `\n${quotePrefix}`
+        const nextText = `${text.substring(0, start)}${nextQuoteLine}${text.substring(start)}`
+        const nextCursor = start + nextQuoteLine.length
+
+        updateTextBlockWithSelection(block, textarea, nextText, nextCursor)
+        return
+      }
 
       if (unorderedMatch || orderedMatch || taskMatch) {
         e.preventDefault()
@@ -952,7 +1296,7 @@ export function MarkdownEditor({
 
         if (isEmptyItem) {
           const nextText = `${text.substring(0, lineStart)}${text.substring(start)}`
-          updateTextBlockWithSelection(block, nextText, lineStart)
+          updateTextBlockWithSelection(block, textarea, nextText, lineStart)
         } else {
           let newListItem = ''
 
@@ -966,7 +1310,7 @@ export function MarkdownEditor({
           }
 
           const nextText = `${text.substring(0, start)}${newListItem}${text.substring(start)}`
-          updateTextBlockWithSelection(block, nextText, start + newListItem.length)
+          updateTextBlockWithSelection(block, textarea, nextText, start + newListItem.length)
         }
 
         return
@@ -981,10 +1325,10 @@ export function MarkdownEditor({
         e.preventDefault()
         const selectedText = text.substring(start, end)
         const nextText = `${text.substring(0, start)}${e.key}${selectedText}${pairs[e.key]}${text.substring(end)}`
-        updateTextBlockWithSelection(block, nextText, start + 1, end + 1)
+        updateTextBlockWithSelection(block, textarea, nextText, start + 1, end + 1)
       }
     }
-  }, [updateTextBlockWithSelection])
+  }, [clearPendingCursor, updateTextBlockWithSelection])
 
   return (
     <div 
@@ -1003,6 +1347,7 @@ export function MarkdownEditor({
               <Tooltip key={i}>
                 <TooltipTrigger asChild>
                   <button
+                    onMouseDown={keepEditorSelection}
                     onClick={tool.action}
                     className="p-2 rounded-md hover:bg-muted transition-colors cursor-pointer text-muted-foreground hover:text-foreground"
                   >
@@ -1015,28 +1360,36 @@ export function MarkdownEditor({
             
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <button className="p-2 rounded-md hover:bg-muted transition-colors cursor-pointer text-muted-foreground hover:text-foreground">
+                <button
+                  onMouseDown={keepEditorSelection}
+                  className="p-2 rounded-md hover:bg-muted transition-colors cursor-pointer text-muted-foreground hover:text-foreground"
+                >
                   <ChevronDown className="w-4 h-4" />
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="start" className="w-48">
                 {toolbarActions.slice(9).map((tool, i) => (
-                  <DropdownMenuItem key={i} onClick={tool.action} className="cursor-pointer gap-2">
+                  <DropdownMenuItem
+                    key={i}
+                    onMouseDown={keepEditorSelection}
+                    onClick={tool.action}
+                    className="cursor-pointer gap-2"
+                  >
                     <tool.icon className="w-4 h-4" />
                     {tool.label}
                   </DropdownMenuItem>
                 ))}
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => insertCodeBlock("javascript")} className="cursor-pointer">
+                <DropdownMenuItem onMouseDown={keepEditorSelection} onClick={() => insertCodeBlock("javascript")} className="cursor-pointer">
                   JavaScript 代码块
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => insertCodeBlock("typescript")} className="cursor-pointer">
+                <DropdownMenuItem onMouseDown={keepEditorSelection} onClick={() => insertCodeBlock("typescript")} className="cursor-pointer">
                   TypeScript 代码块
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => insertCodeBlock("python")} className="cursor-pointer">
+                <DropdownMenuItem onMouseDown={keepEditorSelection} onClick={() => insertCodeBlock("python")} className="cursor-pointer">
                   Python 代码块
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => insertCodeBlock("bash")} className="cursor-pointer">
+                <DropdownMenuItem onMouseDown={keepEditorSelection} onClick={() => insertCodeBlock("bash")} className="cursor-pointer">
                   Bash 代码块
                 </DropdownMenuItem>
               </DropdownMenuContent>
@@ -1093,7 +1446,7 @@ export function MarkdownEditor({
                     <ImageBlockComponent
                       key={`img-${block.lineStart}`}
                       block={block}
-                      onEdit={() => editImage(block)}
+                      onEdit={() => openImageEditor(block)}
                       onRemove={() => removeBlock(block)}
                     />
                   )
@@ -1118,14 +1471,26 @@ export function MarkdownEditor({
                     placeholder={placeholder}
                     isFirstBlock={block.lineStart === 0}
                     onChange={(newContent) => updateBlockContent(block, newContent)}
-                    onFocus={() => {
-                      activeTextBlockLineRef.current = block.lineStart
+                    onFocus={(selectionStart, selectionEnd) => {
+                      clearPendingCursor()
+                      setActiveSelection(block.lineStart, selectionStart, selectionEnd)
                     }}
-                    onSelectionChange={() => {
-                      activeTextBlockLineRef.current = block.lineStart
+                    onSelectionChange={(selectionStart, selectionEnd) => {
+                      clearPendingCursor()
+                      setActiveSelection(block.lineStart, selectionStart, selectionEnd)
+                    }}
+                    onAfterInput={ensureTextareaVisible}
+                    onCompositionStart={() => {
+                      clearPendingCursor()
+                      isComposingRef.current = true
+                    }}
+                    onCompositionEnd={(selectionStart, selectionEnd) => {
+                      isComposingRef.current = false
+                      clearPendingCursor()
+                      setActiveSelection(block.lineStart, selectionStart, selectionEnd)
                     }}
                     onKeyDown={(e) => handleKeyDown(e, block)}
-                    registerTextarea={(node) => registerTextarea(block.lineStart, node)}
+                    registerTextarea={registerTextarea}
                   />
                 )
               })}
@@ -1154,10 +1519,7 @@ export function MarkdownEditor({
                 <div className="animate-spin rounded-full h-6 w-6 border-2 border-primary border-t-transparent" />
               </div>
             ) : renderedHtml ? (
-              <div 
-                className={`prose dark:prose-invert max-w-none ${styles["markdown-editor-preview"]}`}
-                dangerouslySetInnerHTML={{ __html: renderedHtml }}
-              />
+              <MarkdownRenderer content={renderedHtml} />
             ) : (
               <div className="flex flex-col items-center justify-center h-full text-muted-foreground/50">
                 <Eye className="w-8 h-8 mb-2" />
@@ -1194,6 +1556,17 @@ export function MarkdownEditor({
           setTableEditorState(null)
         }}
         initialData={tableEditorState?.initialData}
+      />
+      <ImageEditorModal
+        state={imageEditorState}
+        isOpen={imageEditorState !== null}
+        onClose={() => {
+          setImageEditorState(null)
+        }}
+        onSave={(alt, url) => {
+          saveImage(alt, url)
+          setImageEditorState(null)
+        }}
       />
     </div>
   )
