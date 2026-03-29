@@ -721,6 +721,9 @@ export const CommentSection = React.forwardRef<CommentSectionRef, CommentSection
     return comment.likes + countReplies(comment.replies) * 3
   }
 
+  // Minimum hot score threshold to be considered as hot comment
+  const HOT_COMMENT_THRESHOLD = 10
+
   // Sort comments based on active tab
   const sortedComments = React.useMemo(() => {
     const commentsWithScore = allComments.map(c => ({
@@ -731,10 +734,10 @@ export const CommentSection = React.forwardRef<CommentSectionRef, CommentSection
     if (activeTab === "hot") {
       // Sort by hot score descending
       const sorted = [...commentsWithScore].sort((a, b) => b.hotScore - a.hotScore)
-      // Mark top 3 as hot
+      // Mark top 3 as hot only if they meet the threshold
       return sorted.map((c, i) => ({
         ...c,
-        isHot: i < 3 && c.hotScore > 0
+        isHot: i < 3 && c.hotScore >= HOT_COMMENT_THRESHOLD
       }))
     } else {
       // Sort by time descending
