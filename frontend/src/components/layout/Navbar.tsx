@@ -31,8 +31,9 @@ const SearchModal = dynamic(() => import("./SearchModal").then((mod) => mod.Sear
 
 const navItems = [
   { href: "/knowledge", label: "知识库" },
-  { href: "/exchange", label: "荣誉" },
+  { href: "/exchange", label: "排行榜" },
   { href: "/market", label: "集市" },
+  { href: "/insight", label: "洞察" },
 ]
 
 export function Navbar() {
@@ -141,7 +142,7 @@ export function Navbar() {
             <Button
               variant="outline"
               size="sm"
-              className="hidden md:flex items-center gap-2 text-muted-foreground hover:text-foreground shrink min-w-[120px] w-[220px] max-w-[256px] justify-between h-9 px-3 rounded-lg bg-muted/20 border-muted-foreground/10 hover:bg-muted/40 hover:border-muted-foreground/20 transition-all shadow-none overflow-hidden"
+              className="hidden md:flex items-center gap-2 text-muted-foreground hover:text-foreground shrink min-w-[120px] w-[220px] max-w-[256px] justify-between h-9 px-3 rounded-lg bg-muted/20 border-muted-foreground/10 hover:bg-muted/40 hover:border-muted-foreground/20 transition-all shadow-none overflow-hidden cursor-pointer"
               onClick={() => setSearchOpen(true)}
             >
               <div className="flex items-center gap-2 min-w-0">
@@ -168,8 +169,8 @@ export function Navbar() {
             {/* Theme Toggle */}
             <ThemeToggle className="text-muted-foreground hover:text-foreground rounded-full cursor-pointer" />
 
-            {/* Notification Button */}
-            <NotificationButton />
+            {/* Notification Button - Only show when authenticated */}
+            {isAuthenticated && <NotificationButton />}
 
             {/* User Profile or Login Button */}
             {isAuthenticated && user ? (
@@ -223,7 +224,7 @@ export function Navbar() {
               <Button 
                 variant="ghost" 
                 size="sm"
-                className="gap-2 text-muted-foreground hover:text-foreground cursor-pointer"
+                className="gap-1.5 px-2 text-muted-foreground hover:text-foreground cursor-pointer"
                 onClick={() => {
                   setAuthModalTab("login")
                   setAuthModalOpen(true)
