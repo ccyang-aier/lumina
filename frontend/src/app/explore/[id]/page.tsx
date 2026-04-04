@@ -11,16 +11,16 @@ export default function PaperDetails() {
           <div className="lg:w-2/3">
             <header className="mb-12">
               <div className="flex flex-wrap gap-2 mb-6 items-center">
-                <span className="px-2 py-0.5 bg-primary/10 text-primary text-[10px] uppercase tracking-widest rounded-sm border border-primary/20">Inference Acceleration</span>
+                <span className="px-2 py-0.5 bg-primary/10 text-primary text-[10px] uppercase tracking-widest rounded-sm border border-primary/20">推理加速</span>
                 <span className="px-2 py-0.5 bg-muted text-muted-foreground text-[10px] uppercase tracking-widest rounded-sm">arXiv:2403.1524</span>
-                <span className="px-2 py-0.5 bg-muted text-muted-foreground text-[10px] uppercase tracking-widest rounded-sm">Technical Paper</span>
+                <span className="px-2 py-0.5 bg-muted text-muted-foreground text-[10px] uppercase tracking-widest rounded-sm">技术论文</span>
               </div>
               <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight text-foreground leading-tight mb-8">
-                Optimizing Quantized Mixture-of-Experts for Ultra-Low Latency Inference
+                优化量化混合专家模型以实现超低延迟推理
               </h1>
               <div className="pl-6 border-l-[3px] border-primary py-2">
                 <p className="text-xl text-primary font-medium leading-relaxed">
-                  A novel framework achieving 4.2x speedup in MoE routing efficiency without compromising perceptual quality on edge devices.
+                  一个新颖的框架，在不影响边缘设备感知质量的情况下，实现了MoE路由效率4.2倍的提升。
                 </p>
               </div>
             </header>
@@ -29,34 +29,34 @@ export default function PaperDetails() {
               <section className="mb-16" id="core-problems">
                 <h2 className="text-2xl section-title text-foreground flex items-center gap-3">
                   <span className="font-mono text-primary text-sm">01.</span>
-                  核心问题 (Core Problems)
+                  核心问题
                 </h2>
                 <div className="space-y-6 text-muted-foreground">
-                  <p>Current Mixture-of-Experts (MoE) architectures face a significant bottleneck during inference: the dynamic routing mechanism introduces non-deterministic memory access patterns. Specifically, when deploying on hardware with limited SRAM, the constant switching between specialized experts leads to severe cache thrashing.</p>
-                  <p>Additionally, weight quantization in MoE models often results in heterogeneous precision requirements across different experts, which traditional uniform quantization fails to address.</p>
+                  <p>当前的混合专家（MoE）架构在推理过程中面临一个重要的瓶颈：动态路由机制引入了非确定性的内存访问模式。具体来说，当部署在SRAM有限的硬件上时，专用专家之间的频繁切换会导致严重的缓存抖动。</p>
+                  <p>此外，MoE模型中的权重量化通常会导致不同专家之间精度需求的差异，而传统的统一量化方法无法解决这个问题。</p>
                 </div>
               </section>
 
               <section className="mb-16" id="methodology">
                 <h2 className="text-2xl section-title text-foreground flex items-center gap-3">
                   <span className="font-mono text-primary text-sm">02.</span>
-                  方法 / 技术路径 (Method/Technical Path)
+                  方法 / 技术路径
                 </h2>
                 <div className="space-y-6 text-muted-foreground">
-                  <p>The researchers propose <strong className="text-foreground">&quot;Insight-MoE&quot;</strong>, a tiered-expert allocation strategy. The technical path involves three primary stages:</p>
+                  <p>研究人员提出了<strong className="text-foreground">&quot;Insight-MoE&quot;</strong>，一种分层专家分配策略。技术路径包括三个主要阶段：</p>
                   <ul className="list-none space-y-4 pl-4">
                     <li className="flex items-start gap-4">
                       <span className="w-1.5 h-1.5 rounded-full bg-primary mt-2.5 shrink-0"></span>
-                      <span><strong className="text-foreground">Asymmetric Routing:</strong> Implementing a priority-based dispatcher that predicts expert activation with 94% accuracy before full token computation.</span>
+                      <span><strong className="text-foreground">非对称路由：</strong>实现基于优先级的调度器，在完整token计算之前以94%的准确率预测专家激活。</span>
                     </li>
                     <li className="flex items-start gap-4">
                       <span className="w-1.5 h-1.5 rounded-full bg-primary mt-2.5 shrink-0"></span>
-                      <span><strong className="text-foreground">Expert-Aware Quantization:</strong> Using a dynamic sensitivity map to apply 4-bit quantization to sparse experts and 8-bit to &quot;anchor&quot; experts.</span>
+                      <span><strong className="text-foreground">专家感知量化：</strong>使用动态敏感度映射，对稀疏专家应用4位量化，对&quot;锚点&quot;专家应用8位量化。</span>
                     </li>
                   </ul>
                   <div className="bg-muted p-6 rounded-xl overflow-x-auto my-8 border border-border">
                     <code className="font-mono text-sm text-primary block leading-relaxed whitespace-pre">
-{`# Technical Snippet: Routing Optimization
+{`# 技术片段：路由优化
 def insight_router(token, experts, threshold=0.85):
     probs = softmax(linear_projection(token))
     if max(probs) > threshold:
@@ -69,32 +69,32 @@ def insight_router(token, experts, threshold=0.85):
 
               <section className="mb-16 p-8 bg-primary/[0.04] dark:bg-primary/[0.08] rounded-2xl border-l-4 border-primary" id="perspective">
                 <div className="flex items-center gap-4 mb-6">
-                  <Image alt="Blogger Avatar" width={48} height={48} className="w-12 h-12 rounded-full object-cover grayscale border border-border" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB-vXCXNbgxbdW2cy5glxuPiCXujcTXdJbDIOVgxuD2_d6hze1RTZU98WaxVeNiWU5PPVyhyCcvz8mcTe_erw_Exwew6fF1DK_EQEBCyPQV2-6FoUxj69usHa0SYMaSt-pI8DQLB0ZCloDjto0NibTKDdJU2I8k3ZjZz_CRX9oYY8uB-x6_h00YyDdpIFcmIJ9Gqm8qDaKLCeKRuRZb8lOsgB4bkI7PvbGij1-lpU-ot6aQdeHVWIJaZ27b77_Ju6A91_RR1i_BF37O" />
+                  <Image alt="博主头像" width={48} height={48} className="w-12 h-12 rounded-full object-cover grayscale border border-border" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB-vXCXNbgxbdW2cy5glxuPiCXujcTXdJbDIOVgxuD2_d6hze1RTZU98WaxVeNiWU5PPVyhyCcvz8mcTe_erw_Exwew6fF1DK_EQEBCyPQV2-6FoUxj69usHa0SYMaSt-pI8DQLB0ZCloDjto0NibTKDdJU2I8k3ZjZz_CRX9oYY8uB-x6_h00YyDdpIFcmIJ9Gqm8qDaKLCeKRuRZb8lOsgB4bkI7PvbGij1-lpU-ot6aQdeHVWIJaZ27b77_Ju6A91_RR1i_BF37O" />
                   <div>
-                    <h4 className="font-bold text-foreground">博主视角 (Blogger&apos;s Perspective)</h4>
-                    <p className="text-xs text-muted-foreground uppercase tracking-widest">Lead Research Analyst</p>
+                    <h4 className="font-bold text-foreground">博主视角</h4>
+                    <p className="text-xs text-muted-foreground uppercase tracking-widest">首席研究分析师</p>
                   </div>
                 </div>
                 <div className="italic text-muted-foreground leading-relaxed">
-                  &quot;This paper is a significant departure from standard MoE research. While everyone is focused on scaling up, this team is scaling &apos;in&apos;. The asymmetric routing logic reminds me of early cache-prediction algorithms in CPU design—proving that old hardware tricks still hold immense value in the age of LLMs.&quot;
+                  &quot;这篇论文是对标准MoE研究的重要突破。当所有人都在关注扩展规模时，这个团队却在向&apos;内&apos;扩展。非对称路由逻辑让我想起CPU设计中早期的缓存预测算法——证明了旧的硬件技巧在LLM时代仍然具有巨大价值。&quot;
                 </div>
               </section>
 
               <section className="mb-16" id="results">
                 <h2 className="text-2xl section-title text-foreground flex items-center gap-3">
                   <span className="font-mono text-primary text-sm">03.</span>
-                  关键结果 (Key Results)
+                  关键结果
                 </h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
                   <div className="p-6 bg-card border border-border rounded-xl shadow-sm">
-                    <p className="text-[10px] text-muted-foreground uppercase tracking-[0.2em] mb-2">Throughput</p>
+                    <p className="text-[10px] text-muted-foreground uppercase tracking-[0.2em] mb-2">吞吐量</p>
                     <p className="text-4xl font-bold text-primary">+4.2x</p>
-                    <p className="text-xs text-muted-foreground mt-2">Versus baseline FP16 MoE</p>
+                    <p className="text-xs text-muted-foreground mt-2">相比基线FP16 MoE</p>
                   </div>
                   <div className="p-6 bg-card border border-border rounded-xl shadow-sm">
-                    <p className="text-[10px] text-muted-foreground uppercase tracking-[0.2em] mb-2">Perplexity</p>
+                    <p className="text-[10px] text-muted-foreground uppercase tracking-[0.2em] mb-2">困惑度</p>
                     <p className="text-4xl font-bold text-primary">&lt; 0.1%</p>
-                    <p className="text-xs text-muted-foreground mt-2">Quality degradation after quantization</p>
+                    <p className="text-xs text-muted-foreground mt-2">量化后的质量损失</p>
                   </div>
                 </div>
               </section>
@@ -102,14 +102,14 @@ def insight_router(token, experts, threshold=0.85):
               <section className="mb-24" id="limitations">
                 <h2 className="text-2xl section-title text-foreground flex items-center gap-3">
                   <span className="font-mono text-primary text-sm">04.</span>
-                  局限性 / 未来方向 (Limitations)
+                  局限性 / 未来方向
                 </h2>
                 <p className="text-muted-foreground mb-12">
-                  While impressive, the approach requires a pre-profiling step on target hardware, which limits its &quot;out-of-the-box&quot; generalizability for heterogeneous cloud environments.
+                  尽管令人印象深刻，但该方法需要在目标硬件上进行预分析步骤，这限制了其在异构云环境中&quot;开箱即用&quot;的通用性。
                 </p>
                 <div className="flex gap-4">
                   <button className="flex-1 bg-primary text-primary-foreground py-4 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-primary/90 transition-all cursor-pointer">
-                    Read Original Paper <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
+                    阅读原始论文 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
                   </button>
                   <button className="px-6 py-4 rounded-xl border border-border hover:bg-muted transition-all cursor-pointer">
                     <CloudDownload className="w-5 h-5 text-muted-foreground" />
@@ -119,25 +119,25 @@ def insight_router(token, experts, threshold=0.85):
             </article>
 
             <div className="mt-12 pt-12 border-t border-border">
-              <h3 className="text-xs font-mono uppercase tracking-[0.2em] text-muted-foreground mb-10">Related Intelligence</h3>
+              <h3 className="text-xs font-mono uppercase tracking-[0.2em] text-muted-foreground mb-10">相关智能</h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div className="group cursor-pointer">
                   <div className="aspect-video mb-4 overflow-hidden rounded-lg bg-muted relative">
-                    <Image fill alt="Related" className="w-full h-full object-cover transition-transform group-hover:scale-105" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAZOXSe3NvuMdh2ancXTCUPxYV5VKAKhVRdEIlZgd7-FqeL-HYiyYtJ-eG273R1Z5Vx4_DiqlmlxAAFtVXTiv-uAu9V-fO6HssuW1SgNHdHrtMuqQDE-6NE2xwcFbgzdQf8ma95h_RJzKaZcuXdzv4m9RykVpNDLUhF9B2pdCieS64tOUB72e3ibRuACoRgtgw6GH2BJEq0r54JPOZ8Iypht1AASgAvBFnc7ndkBIk2U1bUEISq2VCLRDs5yCGbpIO3JlBJXmnfmS5M" />
+                    <Image fill alt="相关内容" className="w-full h-full object-cover transition-transform group-hover:scale-105" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAZOXSe3NvuMdh2ancXTCUPxYV5VKAKhVRdEIlZgd7-FqeL-HYiyYtJ-eG273R1Z5Vx4_DiqlmlxAAFtVXTiv-uAu9V-fO6HssuW1SgNHdHrtMuqQDE-6NE2xwcFbgzdQf8ma95h_RJzKaZcuXdzv4m9RykVpNDLUhF9B2pdCieS64tOUB72e3ibRuACoRgtgw6GH2BJEq0r54JPOZ8Iypht1AASgAvBFnc7ndkBIk2U1bUEISq2VCLRDs5yCGbpIO3JlBJXmnfmS5M" />
                   </div>
-                  <h4 className="text-sm font-bold leading-tight group-hover:text-primary text-foreground">Cross-Attention Efficiency in Vision Transformers</h4>
+                  <h4 className="text-sm font-bold leading-tight group-hover:text-primary text-foreground">视觉Transformer中的交叉注意力效率</h4>
                 </div>
                 <div className="group cursor-pointer">
                   <div className="aspect-video mb-4 overflow-hidden rounded-lg bg-muted relative">
-                    <Image fill alt="Related" className="w-full h-full object-cover transition-transform group-hover:scale-105" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAQXwIIjFM_wvf0y-pyf1IyN9ayY894DZdBH0NLd3gRr5iDqTzCg3L5eFY3P8xbsvFa7TY2Fw1aoQwp4RjqsnBWmd_Z00v-mVX0Zt0HJ1XpYS6EMgn73MU6fAOcZYVc0mXbBv2qWnogqGrmyFKCVrVcL6mhmH_cHag8GU_1Ftr5hX5Cx15xUhYeMGW72TB-70v3YEiK8_C9wjTu-F6H3NA5r36R0nZ274P5lS50SGMABZAAjSmoedqp4rXwXApSh4bu-qHXIIzRbhJp" />
+                    <Image fill alt="相关内容" className="w-full h-full object-cover transition-transform group-hover:scale-105" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAQXwIIjFM_wvf0y-pyf1IyN9ayY894DZdBH0NLd3gRr5iDqTzCg3L5eFY3P8xbsvFa7TY2Fw1aoQwp4RjqsnBWmd_Z00v-mVX0Zt0HJ1XpYS6EMgn73MU6fAOcZYVc0mXbBv2qWnogqGrmyFKCVrVcL6mhmH_cHag8GU_1Ftr5hX5Cx15xUhYeMGW72TB-70v3YEiK8_C9wjTu-F6H3NA5r36R0nZ274P5lS50SGMABZAAjSmoedqp4rXwXApSh4bu-qHXIIzRbhJp" />
                   </div>
-                  <h4 className="text-sm font-bold leading-tight group-hover:text-primary text-foreground">Hardware Acceleration for Sparse Matrices</h4>
+                  <h4 className="text-sm font-bold leading-tight group-hover:text-primary text-foreground">稀疏矩阵的硬件加速</h4>
                 </div>
                 <div className="group cursor-pointer">
                   <div className="aspect-video mb-4 overflow-hidden rounded-lg bg-muted relative">
-                    <Image fill alt="Related" className="w-full h-full object-cover transition-transform group-hover:scale-105" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCdmzcYU0boZHhMdJVb7kmfBdhh__ehRHIWxMSG2dsaBl6cpjZDItkJ1p5-VedC3ak97i-N0pCqlVgQSW3YB1QyCA9n6JE-cRleKbEORVZXMpDk6uzejqvkpcY_bW2qX1hhHVAb8LniNP4uA1FkWNY2OKxdWPvFj6wDMLElIG8XsZrPXmqiHTPcK3ygwOxuDEuP_r4Bd5dVco12WEdRYSJNMKrBuqvuESvdAJzWea2wZy3xnGn1R8GAgtSKbzFwetZjZjIaZdIIIsvc" />
+                    <Image fill alt="相关内容" className="w-full h-full object-cover transition-transform group-hover:scale-105" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCdmzcYU0boZHhMdJVb7kmfBdhh__ehRHIWxMSG2dsaBl6cpjZDItkJ1p5-VedC3ak97i-N0pCqlVgQSW3YB1QyCA9n6JE-cRleKbEORVZXMpDk6uzejqvkpcY_bW2qX1hhHVAb8LniNP4uA1FkWNY2OKxdWPvFj6wDMLElIG8XsZrPXmqiHTPcK3ygwOxuDEuP_r4Bd5dVco12WEdRYSJNMKrBuqvuESvdAJzWea2wZy3xnGn1R8GAgtSKbzFwetZjZjIaZdIIIsvc" />
                   </div>
-                  <h4 className="text-sm font-bold leading-tight group-hover:text-primary text-foreground">Decoding Latent Representations</h4>
+                  <h4 className="text-sm font-bold leading-tight group-hover:text-primary text-foreground">解码潜在表示</h4>
                 </div>
               </div>
             </div>
@@ -146,15 +146,15 @@ def insight_router(token, experts, threshold=0.85):
           <aside className="lg:w-1/3">
             <div className="sidebar-sticky space-y-8 sticky">
               <div className="bg-card p-6 rounded-2xl border border-border shadow-sm">
-                <h3 className="text-xs font-mono uppercase tracking-[0.2em] text-muted-foreground mb-4">Executive Brief</h3>
+                <h3 className="text-xs font-mono uppercase tracking-[0.2em] text-muted-foreground mb-4">执行摘要</h3>
                 <div className="space-y-4">
                   <div className="flex gap-4">
                     <div className="w-8 h-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center shrink-0">
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
                     </div>
                     <div>
-                      <p className="text-sm font-bold text-foreground">Immediate Impact</p>
-                      <p className="text-xs text-muted-foreground">Reduces infrastructure costs by 60% for MoE deployment.</p>
+                      <p className="text-sm font-bold text-foreground">即时影响</p>
+                      <p className="text-xs text-muted-foreground">将MoE部署的基础设施成本降低60%。</p>
                     </div>
                   </div>
                   <div className="flex gap-4">
@@ -162,8 +162,8 @@ def insight_router(token, experts, threshold=0.85):
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
                     </div>
                     <div>
-                      <p className="text-sm font-bold text-foreground">Target Market</p>
-                      <p className="text-xs text-muted-foreground">Edge AI, Real-time translation, On-device LLMs.</p>
+                      <p className="text-sm font-bold text-foreground">目标市场</p>
+                      <p className="text-xs text-muted-foreground">边缘AI、实时翻译、设备端LLM。</p>
                     </div>
                   </div>
                   <div className="flex gap-4">
@@ -171,42 +171,42 @@ def insight_router(token, experts, threshold=0.85):
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" /></svg>
                     </div>
                     <div>
-                      <p className="text-sm font-bold text-foreground">Maturity Level</p>
-                      <p className="text-xs text-muted-foreground">Research phase; requires hardware-specific tuning.</p>
+                      <p className="text-sm font-bold text-foreground">成熟度</p>
+                      <p className="text-xs text-muted-foreground">研究阶段；需要针对硬件进行调优。</p>
                     </div>
                   </div>
                 </div>
               </div>
 
               <div className="p-2">
-                <h3 className="text-xs font-mono uppercase tracking-[0.2em] text-muted-foreground mb-6 px-4">Dashboard Navigation</h3>
+                <h3 className="text-xs font-mono uppercase tracking-[0.2em] text-muted-foreground mb-6 px-4">页面导航</h3>
                 <nav className="space-y-4">
-                  <a className="nav-item-active block text-sm" href="#core-problems">01. Core Problems</a>
-                  <a className="nav-item-inactive block text-sm" href="#methodology">02. Method / Path</a>
-                  <a className="nav-item-inactive block text-sm" href="#perspective">Perspective</a>
-                  <a className="nav-item-inactive block text-sm" href="#results">03. Key Results</a>
-                  <a className="nav-item-inactive block text-sm" href="#limitations">04. Limitations</a>
+                  <a className="nav-item-active block text-sm" href="#core-problems">01. 核心问题</a>
+                  <a className="nav-item-inactive block text-sm" href="#methodology">02. 方法 / 路径</a>
+                  <a className="nav-item-inactive block text-sm" href="#perspective">博主视角</a>
+                  <a className="nav-item-inactive block text-sm" href="#results">03. 关键结果</a>
+                  <a className="nav-item-inactive block text-sm" href="#limitations">04. 局限性</a>
                 </nav>
               </div>
 
               <div className="bg-muted p-6 rounded-2xl border border-border">
-                <h3 className="text-xs font-mono uppercase tracking-[0.2em] text-muted-foreground mb-4">Core Intel</h3>
+                <h3 className="text-xs font-mono uppercase tracking-[0.2em] text-muted-foreground mb-4">核心要点</h3>
                 <ul className="space-y-4">
                   <li className="text-xs leading-relaxed flex gap-3">
                     <span className="text-primary font-bold">●</span>
-                    <span className="text-muted-foreground">Asymmetric routing predicts 94% of expert activations ahead of time.</span>
+                    <span className="text-muted-foreground">非对称路由可提前预测94%的专家激活。</span>
                   </li>
                   <li className="text-xs leading-relaxed flex gap-3">
                     <span className="text-primary font-bold">●</span>
-                    <span className="text-muted-foreground">Dynamic 4-bit/8-bit quantization maintains &lt;0.1% perplexity loss.</span>
+                    <span className="text-muted-foreground">动态4位/8位量化保持困惑度损失&lt;0.1%。</span>
                   </li>
                   <li className="text-xs leading-relaxed flex gap-3">
                     <span className="text-primary font-bold">●</span>
-                    <span className="text-muted-foreground">Framework enables 70B parameter models to run on mobile NPUs.</span>
+                    <span className="text-muted-foreground">框架使700亿参数模型能在移动端NPU上运行。</span>
                   </li>
                 </ul>
                 <button className="w-full mt-6 py-3 bg-card border border-border text-xs font-bold rounded-lg hover:shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer text-foreground">
-                  Add to Strategy Report
+                  添加到战略报告
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>
                 </button>
               </div>

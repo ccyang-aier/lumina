@@ -8,47 +8,47 @@ export default function ExplorePage() {
         <aside className="hidden lg:block w-64 shrink-0">
           <div className="sticky top-24 space-y-10">
             <section>
-              <h3 className="text-[10px] font-mono font-bold text-muted-foreground uppercase tracking-[0.2em] mb-6">Discovery Filters</h3>
+              <h3 className="text-[10px] font-mono font-bold text-muted-foreground uppercase tracking-[0.2em] mb-6">发现筛选器</h3>
               <div className="space-y-1">
                 <Link href="/explore" className="flex items-center justify-between px-3 py-2 bg-primary/5 text-primary rounded-lg font-medium text-sm">
-                  <span className="flex items-center gap-2"><LayoutDashboard className="w-5 h-5" />All Research</span>
+                  <span className="flex items-center gap-2"><LayoutDashboard className="w-5 h-5" />全部研究</span>
                   <span className="text-[10px] font-mono bg-primary/10 px-1.5 rounded">1.2k</span>
                 </Link>
                 <a className="flex items-center justify-between px-3 py-2 text-muted-foreground hover:bg-muted rounded-lg text-sm transition-colors cursor-pointer">
-                  <span className="flex items-center gap-2"><Brain className="w-5 h-5" />Large Language Models</span>
+                  <span className="flex items-center gap-2"><Brain className="w-5 h-5" />大语言模型</span>
                 </a>
                 <a className="flex items-center justify-between px-3 py-2 text-muted-foreground hover:bg-muted rounded-lg text-sm transition-colors cursor-pointer">
-                  <span className="flex items-center gap-2"><Component className="w-5 h-5" />MoE & Sparsity</span>
+                  <span className="flex items-center gap-2"><Component className="w-5 h-5" />MoE与稀疏化</span>
                 </a>
                 <a className="flex items-center justify-between px-3 py-2 text-muted-foreground hover:bg-muted rounded-lg text-sm transition-colors cursor-pointer">
-                  <span className="flex items-center gap-2"><Cpu className="w-5 h-5" />Inference Systems</span>
+                  <span className="flex items-center gap-2"><Cpu className="w-5 h-5" />推理系统</span>
                 </a>
                 <a className="flex items-center justify-between px-3 py-2 text-muted-foreground hover:bg-muted rounded-lg text-sm transition-colors cursor-pointer">
-                  <span className="flex items-center gap-2"><PenTool className="w-5 h-5" />Computer Vision</span>
+                  <span className="flex items-center gap-2"><PenTool className="w-5 h-5" />计算机视觉</span>
                 </a>
               </div>
             </section>
             
             <section>
-              <h3 className="text-[10px] font-mono font-bold text-muted-foreground uppercase tracking-[0.2em] mb-6">Publication Date</h3>
+              <h3 className="text-[10px] font-mono font-bold text-muted-foreground uppercase tracking-[0.2em] mb-6">发布时间</h3>
               <div className="space-y-1">
                 <label className="flex items-center gap-3 px-3 py-2 cursor-pointer group">
                   <input defaultChecked className="w-4 h-4 text-primary focus:ring-primary border-border rounded-sm" name="date" type="radio" />
-                  <span className="text-sm text-muted-foreground group-hover:text-foreground">Past 24 Hours</span>
+                  <span className="text-sm text-muted-foreground group-hover:text-foreground">最近24小时</span>
                 </label>
                 <label className="flex items-center gap-3 px-3 py-2 cursor-pointer group">
                   <input className="w-4 h-4 text-primary focus:ring-primary border-border rounded-sm" name="date" type="radio" />
-                  <span className="text-sm text-muted-foreground group-hover:text-foreground">Past 7 Days</span>
+                  <span className="text-sm text-muted-foreground group-hover:text-foreground">最近7天</span>
                 </label>
                 <label className="flex items-center gap-3 px-3 py-2 cursor-pointer group">
                   <input className="w-4 h-4 text-primary focus:ring-primary border-border rounded-sm" name="date" type="radio" />
-                  <span className="text-sm text-muted-foreground group-hover:text-foreground">Last 30 Days</span>
+                  <span className="text-sm text-muted-foreground group-hover:text-foreground">最近30天</span>
                 </label>
               </div>
             </section>
             
             <section>
-              <h3 className="text-[10px] font-mono font-bold text-muted-foreground uppercase tracking-[0.2em] mb-6">Elite Authors</h3>
+              <h3 className="text-[10px] font-mono font-bold text-muted-foreground uppercase tracking-[0.2em] mb-6">杰出作者</h3>
               <div className="flex flex-wrap gap-2">
                 <button className="px-2 py-1 text-[11px] bg-card border border-border rounded hover:border-primary transition-colors cursor-pointer">K. He</button>
                 <button className="px-2 py-1 text-[11px] bg-card border border-border rounded hover:border-primary transition-colors cursor-pointer">A. Karpathy</button>
@@ -62,73 +62,73 @@ export default function ExplorePage() {
         <div className="flex-1 min-w-0">
           <article className="bg-card p-10 terminal-border border-l-4 border-l-primary mb-12 shadow-sm">
             <div className="flex items-center gap-4 mb-6">
-              <span className="bg-primary px-3 py-1 text-[10px] text-primary-foreground font-mono font-bold tracking-widest uppercase">Deep Research Focus</span>
+              <span className="bg-primary px-3 py-1 text-[10px] text-primary-foreground font-mono font-bold tracking-widest uppercase">深度研究聚焦</span>
               <span className="text-xs font-mono text-muted-foreground">ARXIV:2405.12345 · 2024.05.23</span>
             </div>
-            <h1 className="text-4xl font-black tracking-tight mb-6 leading-[1.1] text-foreground">DeepSeek-V3: Multi-Head Latent Attention and Mixture-of-Experts with 671B Parameters</h1>
+            <h1 className="text-4xl font-black tracking-tight mb-6 leading-[1.1] text-foreground">DeepSeek-V3：多头潜在注意力与混合专家架构的6710亿参数模型</h1>
             <p className="text-lg text-muted-foreground leading-relaxed mb-10 max-w-4xl">
-              DeepSeek-V3 represents a paradigm shift in efficient scaling. This work introduces Multi-Head Latent Attention (MLA) and a revolutionary sparse Mixture-of-Experts (MoE) structure that optimizes inference throughput while maintaining state-of-the-art reasoning capabilities across 671B parameters.
+              DeepSeek-V3代表了高效扩展范式的转变。该工作引入了多头潜在注意力（MLA）和革命性的稀疏混合专家（MoE）结构，在保持6710亿参数规模下最先进推理能力的同时，优化了推理吞吐量。
             </p>
             
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10 border-y border-border py-8">
               <div className="space-y-2">
-                <span className="text-[10px] font-mono font-bold text-primary uppercase">Innovation 01</span>
-                <p className="text-sm font-semibold text-foreground">MLA Architecture reduces KV cache by 90% while increasing throughput by 3.5x.</p>
+                <span className="text-[10px] font-mono font-bold text-primary uppercase">创新点 01</span>
+                <p className="text-sm font-semibold text-foreground">MLA架构将KV缓存减少90%，同时吞吐量提升3.5倍。</p>
               </div>
               <div className="space-y-2">
-                <span className="text-[10px] font-mono font-bold text-primary uppercase">Innovation 02</span>
-                <p className="text-sm font-semibold text-foreground">Auxiliary-loss-free load balancing solves MoE expert collapse during 2T token training.</p>
+                <span className="text-[10px] font-mono font-bold text-primary uppercase">创新点 02</span>
+                <p className="text-sm font-semibold text-foreground">无辅助损失的负载均衡解决了2T token训练中的MoE专家崩溃问题。</p>
               </div>
               <div className="space-y-2">
-                <span className="text-[10px] font-mono font-bold text-primary uppercase">Innovation 03</span>
-                <p className="text-sm font-semibold text-foreground">Achieved parity with proprietary models (GPT-4o) in competitive coding and math.</p>
+                <span className="text-[10px] font-mono font-bold text-primary uppercase">创新点 03</span>
+                <p className="text-sm font-semibold text-foreground">在竞技编程和数学任务上达到与专有模型（GPT-4o）相当的水平。</p>
               </div>
             </div>
             
             <div className="flex items-center gap-6">
               <Link href="/explore/deepseek-v3" className="flex items-center gap-2 text-xs font-bold text-primary hover:opacity-80">
-                <FileText className="w-5 h-5" /> ANALYZE FULL PAPER
+                <FileText className="w-5 h-5" /> 分析完整论文
               </Link>
               <a className="flex items-center gap-2 text-xs font-bold text-primary hover:opacity-80 cursor-pointer">
-                <Code className="w-5 h-5" /> VIEW IMPLEMENTATION
+                <Code className="w-5 h-5" /> 查看实现代码
               </a>
             </div>
           </article>
 
           <div className="space-y-4">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-sm font-mono font-bold text-muted-foreground uppercase tracking-[0.2em]">Latest Aggregation</h2>
+              <h2 className="text-sm font-mono font-bold text-muted-foreground uppercase tracking-[0.2em]">最新聚合</h2>
               <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                <span>Sort by: <button className="text-foreground font-bold cursor-pointer">Recency</button></span>
-                <span>Display: <button className="text-foreground font-bold cursor-pointer">Dense</button></span>
+                <span>排序: <button className="text-foreground font-bold cursor-pointer">最新</button></span>
+                <span>显示: <button className="text-foreground font-bold cursor-pointer">紧凑</button></span>
               </div>
             </div>
 
             {[
               {
                 votes: 412,
-                tag: 'Inference',
-                time: '3H AGO',
-                title: 'FlashAttention-3: Fast and Accurate Attention with Asynchrony',
-                desc: 'Exploiting Hopper GPU hardware features via WGMMA and TMA to achieve asynchronous overlap of computation and memory loads.',
+                tag: '推理',
+                time: '3小时前',
+                title: 'FlashAttention-3：基于异步的快速精确注意力机制',
+                desc: '利用Hopper GPU硬件特性，通过WGMMA和TMA实现计算与内存加载的异步重叠。',
                 arxiv: '2405.0982',
                 comments: 12
               },
               {
                 votes: 285,
-                tag: 'Architecture',
-                time: '5H AGO',
-                title: 'Mamba-2: Compressing the Future of Sequence Modeling',
-                desc: 'The evolution of state-space models with refined gate mechanisms and superior long-context memory retrieval compared to traditional attention mechanisms.',
+                tag: '架构',
+                time: '5小时前',
+                title: 'Mamba-2：压缩序列建模的未来',
+                desc: '状态空间模型的演进，采用改进的门控机制，相比传统注意力机制具有更优的长上下文记忆检索能力。',
                 arxiv: '2405.0211',
                 comments: 8
               },
               {
                 votes: 156,
-                tag: 'Systems',
-                time: '8H AGO',
-                title: 'Scaling Laws for Precision-Efficient Training',
-                desc: 'An empirical study on how FP8 and INT8 quantization impact the scaling laws of multi-trillion parameter models during pre-training phases.',
+                tag: '系统',
+                time: '8小时前',
+                title: '精度高效训练的扩展定律',
+                desc: '关于FP8和INT8量化如何在预训练阶段影响万亿参数模型扩展定律的实证研究。',
                 arxiv: '2405.0110',
                 comments: 5
               }
@@ -151,7 +151,7 @@ export default function ExplorePage() {
                       <LinkIcon className="w-3.5 h-3.5" /> ARXIV:{item.arxiv}
                     </div>
                     <div className="flex items-center gap-1 text-[10px] font-mono font-bold text-muted-foreground">
-                      <MessageSquare className="w-3.5 h-3.5" /> {item.comments} COMMENTS
+                      <MessageSquare className="w-3.5 h-3.5" /> {item.comments} 评论
                     </div>
                   </div>
                 </div>
@@ -160,7 +160,7 @@ export default function ExplorePage() {
           </div>
           
           <button className="w-full mt-8 py-4 border-2 border-dashed border-border rounded-xl text-muted-foreground font-mono text-sm hover:border-primary hover:text-primary transition-all cursor-pointer">
-            LOAD PREVIOUS DAY AGGREGATION
+            加载前一天的聚合内容
           </button>
         </div>
 
@@ -169,21 +169,21 @@ export default function ExplorePage() {
             <div className="flex items-center justify-between mb-6">
               <h4 className="font-bold text-sm flex items-center gap-2 text-foreground">
                 <TrendingUp className="text-primary w-5 h-5" />
-                Weekly Trends
+                本周趋势
               </h4>
               <ArrowUpRight className="text-muted-foreground/30 group-hover:text-primary transition-colors w-5 h-5" />
             </div>
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-medium text-muted-foreground">Inference Accel.</span>
-                <span className="font-mono text-[10px] text-primary">+12k pts</span>
+                <span className="text-xs font-medium text-muted-foreground">推理加速</span>
+                <span className="font-mono text-[10px] text-primary">+12k 分</span>
               </div>
               <div className="w-full h-1 bg-muted rounded-full overflow-hidden">
                 <div className="bg-primary w-[85%] h-full"></div>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-xs font-medium text-muted-foreground">Sparse Autoenc.</span>
-                <span className="font-mono text-[10px] text-primary">+8.9k pts</span>
+                <span className="text-xs font-medium text-muted-foreground">稀疏自编码器</span>
+                <span className="font-mono text-[10px] text-primary">+8.9k 分</span>
               </div>
               <div className="w-full h-1 bg-muted rounded-full overflow-hidden">
                 <div className="bg-primary w-[62%] h-full"></div>
@@ -195,14 +195,14 @@ export default function ExplorePage() {
             <div className="flex items-center justify-between mb-6">
               <h4 className="font-bold text-sm flex items-center gap-2 text-foreground">
                 <BarChart2 className="text-primary w-5 h-5" />
-                Data Tracking
+                数据追踪
               </h4>
               <ArrowUpRight className="text-muted-foreground/30 group-hover:text-primary transition-colors w-5 h-5" />
             </div>
             <div className="space-y-6">
               <div>
                 <div className="flex justify-between mb-2">
-                  <span className="text-[10px] font-mono text-muted-foreground uppercase">arXiv Papers/Day</span>
+                  <span className="text-[10px] font-mono text-muted-foreground uppercase">arXiv论文/日</span>
                   <span className="text-[10px] font-mono text-primary font-bold">+24.2%</span>
                 </div>
                 <div className="h-10 flex items-end gap-1">
@@ -216,7 +216,7 @@ export default function ExplorePage() {
               </div>
               <div>
                 <div className="flex justify-between mb-2">
-                  <span className="text-[10px] font-mono text-muted-foreground uppercase">Top 10 Repo Stars</span>
+                  <span className="text-[10px] font-mono text-muted-foreground uppercase">Top 10 仓库星标</span>
                   <span className="text-[10px] font-mono text-primary font-bold">+3.2k</span>
                 </div>
                 <div className="h-10 flex items-end gap-1">
@@ -234,19 +234,19 @@ export default function ExplorePage() {
           <div className="bg-card p-6 terminal-border shadow-sm">
             <h4 className="font-bold text-sm mb-6 flex items-center gap-2 text-muted-foreground">
               <Network className="w-5 h-5" />
-              TECHNICAL EVOLUTION
+              技术演进
             </h4>
             <div className="space-y-4">
               <Link className="flex items-center justify-between group" href="/explore/methodologies">
-                <span className="text-xs font-medium group-hover:text-primary transition-colors text-foreground">Inference Acceleration Panorama</span>
+                <span className="text-xs font-medium group-hover:text-primary transition-colors text-foreground">推理加速全景</span>
                 <ChevronRight className="w-4 h-4 text-muted-foreground/30 group-hover:text-primary" />
               </Link>
               <Link className="flex items-center justify-between group" href="/explore/methodologies">
-                <span className="text-xs font-medium group-hover:text-primary transition-colors text-foreground">MoE Architecture History</span>
+                <span className="text-xs font-medium group-hover:text-primary transition-colors text-foreground">MoE架构发展史</span>
                 <ChevronRight className="w-4 h-4 text-muted-foreground/30 group-hover:text-primary" />
               </Link>
               <Link className="flex items-center justify-between group" href="/explore/methodologies">
-                <span className="text-xs font-medium group-hover:text-primary transition-colors text-foreground">Quantization Theory Roadmap</span>
+                <span className="text-xs font-medium group-hover:text-primary transition-colors text-foreground">量化理论路线图</span>
                 <ChevronRight className="w-4 h-4 text-muted-foreground/30 group-hover:text-primary" />
               </Link>
             </div>
@@ -255,10 +255,10 @@ export default function ExplorePage() {
           <div className="bg-foreground p-8 rounded-xl relative overflow-hidden group">
             <div className="absolute -top-10 -right-10 w-40 h-40 bg-primary/20 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-700"></div>
             <div className="relative z-10">
-              <h5 className="text-background font-bold text-lg mb-3">Intelligence Terminal</h5>
-              <p className="text-background/50 text-[11px] mb-6 leading-relaxed">Daily deep-dives and market intelligence reports automatically curated for the AI researcher.</p>
-              <button className="w-full py-3 bg-primary text-primary-foreground font-mono font-bold text-xs rounded hover:brightness-110 transition-all shadow-[0_10px_20px_-10px_rgba(0,195,255,0.4)] cursor-pointer">
-                SUBSCRIBE TO DIGEST
+              <h5 className="text-background font-bold text-lg mb-3">智能终端</h5>
+              <p className="text-background/50 text-[11px] mb-6 leading-relaxed">每日深度分析和市场情报报告，为AI研究者自动策划。</p>
+              <button className="w-full py-3 bg-primary text-primary-foreground font-mono font-bold text-xs rounded hover:brightness-110 transition-all shadow-[0_10px_20px_-10px_rgba(0,82,255,0.4)] cursor-pointer">
+                订阅摘要
               </button>
             </div>
           </div>

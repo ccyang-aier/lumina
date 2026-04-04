@@ -16,7 +16,7 @@
   --color-primary-200: hsl(204 94% 86%);
   --color-primary-300: hsl(199 95% 74%);
   --color-primary-400: hsl(198 93% 60%);
-  --color-primary-500: hsl(195.8 100% 50%);
+  --color-primary-500: hsl(219 100% 50%);
   --color-primary-600: hsl(200 98% 39%);
   --color-primary-foreground: hsl(var(--primary-foreground));
   --color-secondary: hsl(var(--secondary));
@@ -166,7 +166,7 @@
     --popover-foreground: 240 10% 3.9%;
     
     /* --primary: 195.8 100% 50%; Sky 500 */
-    --primary: 195.8 100% 50%;
+    --primary: 219 100% 50%; /* #0052FF */
     --primary-foreground: 0 0% 100%; /* White for contrast */
 
     --secondary: 240 4.8% 95.9%;
@@ -179,7 +179,7 @@
     --destructive-foreground: 0 0% 98%;
     --border: 240 5.9% 90%;
     --input: 240 5.9% 90%;
-    --ring: 195.8 100% 50%;
+    --ring: 219 100% 50%;
     --radius: 0.5rem;
 
     /* Sidebar - Light */
@@ -204,7 +204,7 @@
     --popover: 0 0% 13%;
     --popover-foreground: 0 0% 98%;
 
-    --primary: 195.8 100% 50%; /* Sky 500 */
+    --primary: 219 100% 50%; /* #0052FF */
     --primary-foreground: 0 0% 98%;
 
     --secondary: 0 0% 20%;
@@ -221,7 +221,7 @@
 
     --border: 0 0% 20%;
     --input: 0 0% 20%;
-    --ring: 195.8 100% 50%;
+    --ring: 219 100% 50%;
 
     /* Sidebar - Dark */
     --sidebar: 240 5.9% 10%;
@@ -415,6 +415,157 @@ html.dark :not(.themed-code-block) > pre[data-theme] code span {
 /* ============================================================
    Explore Module Styles (from examples/web/explore)
    ============================================================ */
+
+/* Explore Module Blue Theme - #0052FF */
+.explore-theme {
+  --explore-primary: 219 100% 50%; /* #0052FF */
+  --explore-primary-foreground: 0 0% 100%;
+  --explore-primary-light: 219 100% 95%;
+  --explore-primary-dark: 219 100% 40%;
+}
+
+.explore-theme .text-primary {
+  color: hsl(var(--explore-primary));
+}
+
+.explore-theme .bg-primary {
+  background-color: hsl(var(--explore-primary));
+}
+
+.explore-theme .border-primary {
+  border-color: hsl(var(--explore-primary));
+}
+
+.explore-theme .ring-primary {
+  --tw-ring-color: hsl(var(--explore-primary));
+}
+
+.explore-theme .hover\:bg-primary:hover {
+  background-color: hsl(var(--explore-primary));
+}
+
+.explore-theme .hover\:text-primary:hover {
+  color: hsl(var(--explore-primary));
+}
+
+.explore-theme .focus\:ring-primary:focus {
+  --tw-ring-color: hsl(var(--explore-primary));
+}
+
+.explore-theme .bg-primary\/10 {
+  background-color: hsl(var(--explore-primary) / 0.1);
+}
+
+.explore-theme .bg-primary\/20 {
+  background-color: hsl(var(--explore-primary) / 0.2);
+}
+
+.explore-theme .text-primary\/80 {
+  color: hsl(var(--explore-primary) / 0.8);
+}
+
+.explore-theme .border-primary\/20 {
+  border-color: hsl(var(--explore-primary) / 0.2);
+}
+
+.explore-theme .bg-primary\/\[0\.04\] {
+  background-color: hsl(var(--explore-primary) / 0.04);
+}
+
+.explore-theme .dark .bg-primary\/\[0\.08\] {
+  background-color: hsl(var(--explore-primary) / 0.08);
+}
+
+.explore-theme .bg-primary\/5 {
+  background-color: hsl(var(--explore-primary) / 0.05);
+}
+
+.explore-theme .stroke-primary {
+  stroke: hsl(var(--explore-primary));
+}
+
+.explore-theme .fill-primary {
+  fill: hsl(var(--explore-primary));
+}
+
+.explore-theme .group-hover\:border-primary\/50:hover {
+  border-color: hsl(var(--explore-primary) / 0.5);
+}
+
+.explore-theme .group-hover\:bg-primary:hover {
+  background-color: hsl(var(--explore-primary));
+}
+
+.explore-theme .group-hover\:text-primary:hover {
+  color: hsl(var(--explore-primary));
+}
+
+.explore-theme .hover\:border-primary\/50:hover {
+  border-color: hsl(var(--explore-primary) / 0.5);
+}
+
+.explore-theme .focus\:ring-primary:focus {
+  --tw-ring-color: hsl(var(--explore-primary));
+}
+
+.explore-theme .selection\:bg-primary\/10 ::selection {
+  background-color: hsl(var(--explore-primary) / 0.1);
+}
+
+.explore-theme .selection\:bg-primary\/10::selection {
+  background-color: hsl(var(--explore-primary) / 0.1);
+}
+
+.explore-theme .selection\:text-primary ::selection {
+  color: hsl(var(--explore-primary));
+}
+
+.explore-theme .selection\:text-primary::selection {
+  color: hsl(var(--explore-primary));
+}
+
+.explore-theme .from-primary {
+  --tw-gradient-from: hsl(var(--explore-primary));
+}
+
+.explore-theme .to-primary {
+  --tw-gradient-to: hsl(var(--explore-primary));
+}
+
+.explore-theme .via-primary {
+  --tw-gradient-via: hsl(var(--explore-primary));
+}
+
+/* Reading progress bar with explore blue */
+.explore-theme .reading-progress-bar {
+  background: hsl(var(--explore-primary));
+}
+
+/* Dot indicator with explore blue */
+.explore-theme .dot-indicator {
+  border-color: hsl(var(--explore-primary));
+}
+
+/* Accent border left with explore blue */
+.explore-theme .accent-border-left {
+  border-left-color: hsl(var(--explore-primary));
+}
+
+/* Graph point with explore blue */
+.explore-theme .graph-point {
+  fill: hsl(var(--explore-primary));
+}
+
+/* Impact line with explore blue */
+.explore-theme .impact-line {
+  background: linear-gradient(to bottom, hsl(var(--explore-primary)) 0%, hsl(var(--muted)) 100%);
+}
+
+/* Nav item active with explore blue */
+.explore-theme .nav-item-active {
+  border-color: hsl(var(--explore-primary));
+  color: hsl(var(--explore-primary));
+}
 
 /* Grain overlay effect */
 .grain-overlay {

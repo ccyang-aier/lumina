@@ -26,7 +26,7 @@
   --prose-body: hsl(240 10% 15%);
   --prose-headings: hsl(240 10% 6%);
   --prose-lead: hsl(240 6% 40%);
-  --prose-links: hsl(195.8 100% 40%);
+  --prose-links: hsl(219 100% 40%);
   --prose-bold: hsl(240 10% 6%);
   --prose-counters: hsl(240 6% 55%);
   --prose-bullets: hsl(240 6% 65%);
@@ -58,13 +58,13 @@
   --prose-body: hsl(0 0% 85%);
   --prose-headings: hsl(0 0% 97%);
   --prose-lead: hsl(0 0% 65%);
-  --prose-links: hsl(195.8 100% 55%);
+  --prose-links: hsl(219 100% 55%);
   --prose-bold: hsl(0 0% 97%);
   --prose-counters: hsl(0 0% 55%);
   --prose-bullets: hsl(0 0% 45%);
   --prose-hr: hsl(0 0% 22%);
   --prose-quotes: hsl(0 0% 85%);
-  --prose-quote-borders: hsl(195.8 100% 50%);
+  --prose-quote-borders: hsl(219 100% 50%);
   --prose-code: hsl(340 70% 68%);
   --prose-code-bg: hsl(0 0% 18%);
   --prose-code-border: hsl(0 0% 30%);
@@ -317,8 +317,8 @@
 
 /* Highlighted lines */
 .prose :global([data-highlighted-line]) {
-  background: hsl(195.8 100% 50% / 0.08) !important;
-  border-left: 2px solid hsl(195.8 100% 50%);
+  background: hsl(219 100% 50% / 0.08) !important;
+  border-left: 2px solid hsl(219 100% 50%);
   margin-left: -1.5rem;
   padding-left: calc(1.5rem - 2px);
   margin-right: -1.5rem;
@@ -347,7 +347,7 @@
   border-left: 3px solid var(--prose-quote-borders);
   margin: 1.75rem 0;
   padding: 0.75rem 1.25rem;
-  background: hsl(195.8 100% 50% / 0.04);
+  background: hsl(219 100% 50% / 0.04);
   border-radius: 0 8px 8px 0;
   color: var(--prose-quotes);
   font-style: italic;

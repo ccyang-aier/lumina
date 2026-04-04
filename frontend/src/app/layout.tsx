@@ -44,7 +44,7 @@ export default function RootLayout({
               left when the panel opens, without any overlay or pointer-events mask.
             */}
             <LayoutShell>
-              <NextTopLoader showSpinner={false} color="#00C2FF" height={3} />
+              <NextTopLoader showSpinner={false} color="#0052FF" height={3} />
               <Navbar />
               <main className="flex-1">{children}</main>
               <Footer />
