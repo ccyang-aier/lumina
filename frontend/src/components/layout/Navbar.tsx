@@ -33,7 +33,7 @@ const navItems = [
   { href: "/knowledge", label: "知识库" },
   { href: "/exchange", label: "排行榜" },
   { href: "/market", label: "集市" },
-  { href: "/insight", label: "洞察" },
+  { href: "/explore", label: "洞察" },
 ]
 
 export function Navbar() {

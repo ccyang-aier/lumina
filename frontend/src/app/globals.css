@@ -411,3 +411,113 @@ html.dark :not(.themed-code-block) > pre[data-theme] code span {
   user-select: none;
   flex-shrink: 0;
 }
+
+/* ============================================================
+   Explore Module Styles (from examples/web/explore)
+   ============================================================ */
+
+/* Grain overlay effect */
+.grain-overlay {
+  background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCOOmXbxiSZK0SFtJ5dNOwKEWKtHFCkyLKl6_Jeh6NiLHg77aCAcXutZVB-xwRED8ENXktdH_jtIx0ijPfpMCQkAXTkwgB-MdRJStzQDwrkeGYPQUtSHu0u2M76B_baG3WINbVklEbCPI5r225fmcvrQSwSOJPVGF7l-X0AaCCjdBWnjYpRqBIvmf8pYH_RTEsYAGTyPmdo0G9F4rSb5oFwgU_9D6a2s1h5d8eqU_ATvilGyfyBnr-b7JNqihUrA8pwWypaDUCwNVV8');
+  opacity: 0.03;
+  pointer-events: none;
+}
+
+/* Terminal style border */
+.terminal-border {
+  border: 1px solid hsl(var(--border));
+}
+
+.dark .terminal-border {
+  border: 1px solid hsl(var(--border));
+}
+
+/* Card hover effect */
+.card-hover {
+  transition: all 0.3s ease;
+}
+.card-hover:hover {
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.04);
+  transform: translateY(-2px);
+}
+.dark .card-hover:hover {
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+}
+
+/* No scrollbar */
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* For Paper Details */
+.reading-progress-bar {
+  height: 2px;
+  background: hsl(var(--primary));
+  width: 45%;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 100;
+}
+.main-content {
+  font-size: 17px;
+  line-height: 1.8;
+  color: hsl(var(--foreground));
+}
+.section-title {
+  position: relative;
+  margin-bottom: 1.5rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+.glass-nav {
+  background-color: hsl(var(--background) / 0.9);
+  backdrop-filter: blur(12px);
+}
+.sidebar-sticky {
+  top: 100px;
+  max-height: calc(100vh - 120px);
+  overflow-y: auto;
+}
+.sidebar-sticky::-webkit-scrollbar {
+  width: 4px;
+}
+.sidebar-sticky::-webkit-scrollbar-thumb {
+  background: hsl(var(--muted-foreground) / 0.3);
+  border-radius: 10px;
+}
+.nav-item-active {
+  @apply border-l-2 border-primary text-primary font-semibold pl-4;
+}
+.nav-item-inactive {
+  @apply border-l-2 border-transparent text-muted-foreground hover:text-foreground hover:border-border pl-4 transition-all;
+}
+
+/* For Data Tracking */
+.tech-shadow { box-shadow: 0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06); }
+.glass-panel { background: hsl(var(--card) / 0.9); backdrop-filter: blur(12px); }
+.accent-border-left { border-left: 4px solid hsl(var(--primary)); }
+.keyword-chip { @apply px-3 py-1.5 rounded-sm text-xs font-semibold transition-all border border-transparent; }
+.graph-point { fill: hsl(var(--primary)); stroke: white; stroke-width: 2px; }
+.table-header { @apply bg-muted text-[10px] font-bold uppercase tracking-wider text-muted-foreground px-6 py-3; }
+.data-row { @apply border-b border-border transition-colors hover:bg-muted/50; }
+
+/* For Methodologies */
+.glass-header {
+  @apply sticky top-0 z-50 bg-background/70 backdrop-blur-md border-b border-border;
+}
+.glass-card {
+  @apply bg-card/40 backdrop-blur-xl border border-border shadow-sm;
+}
+.impact-line {
+  background: linear-gradient(to bottom, hsl(var(--primary)) 0%, hsl(var(--muted)) 100%);
+  width: 1px;
+}
+.paper-card {
+  @apply bg-card border border-border shadow-sm transition-all duration-700 hover:shadow-lg hover:-translate-y-0.5;
+}
+.stat-badge {
+  @apply font-mono text-[9px] uppercase tracking-[0.1em] px-2 py-0.5 rounded bg-muted text-muted-foreground border border-border;
+}
+.dot-indicator {
+  @apply absolute left-1/2 -translate-x-1/2 w-3 h-3 bg-background border-2 border-primary rounded-full z-10;
+}
