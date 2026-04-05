@@ -1,59 +1,63 @@
 import Link from 'next/link';
-import { LayoutDashboard, Brain, Component, Cpu, PenTool, FileText, Code, ChevronUp, ChevronDown, Link as LinkIcon, MessageSquare, TrendingUp, ArrowUpRight, BarChart2, Network, ChevronRight } from 'lucide-react';
+import { Database, Sparkles, Settings2, Cpu, Layers, Network as NetworkIcon, FileText, Code, ChevronUp, ChevronDown, Link as LinkIcon, TrendingUp, ArrowUpRight, BarChart2, Network, ChevronRight } from 'lucide-react';
 
 export default function ExplorePage() {
   return (
     <div className="relative min-h-screen bg-background">
       <main className="pt-8 pb-12 px-4 sm:px-6 lg:px-8 max-w-[1440px] mx-auto flex flex-col lg:flex-row gap-10">
         <aside className="hidden lg:block w-64 shrink-0">
-          <div className="sticky top-24 space-y-10">
+          <div className="sticky top-24 space-y-8">
             <section>
-              <h3 className="text-[10px] font-mono font-bold text-muted-foreground uppercase tracking-[0.2em] mb-6">发现筛选器</h3>
-              <div className="space-y-1">
-                <Link href="/explore" className="flex items-center justify-between px-3 py-2 bg-primary/5 text-primary rounded-lg font-medium text-sm">
-                  <span className="flex items-center gap-2"><LayoutDashboard className="w-5 h-5" />全部研究</span>
-                  <span className="text-[10px] font-mono bg-primary/10 px-1.5 rounded">1.2k</span>
+              <h3 className="text-xs text-muted-foreground mb-4">发现筛选器</h3>
+              <div className="space-y-0.5">
+                <Link href="/explore" className="flex items-center justify-between px-3 py-2 bg-primary/5 text-primary rounded-lg text-sm">
+                  <span className="flex items-center gap-2"><Database className="w-4 h-4" />全部</span>
                 </Link>
-                <a className="flex items-center justify-between px-3 py-2 text-muted-foreground hover:bg-muted rounded-lg text-sm transition-colors cursor-pointer">
-                  <span className="flex items-center gap-2"><Brain className="w-5 h-5" />大语言模型</span>
+                <a className="flex items-center justify-between px-3 py-2 text-muted-foreground hover:bg-muted/50 hover:text-foreground rounded-lg text-sm transition-all cursor-pointer">
+                  <span className="flex items-center gap-2"><Database className="w-4 h-4" />KVCache</span>
                 </a>
-                <a className="flex items-center justify-between px-3 py-2 text-muted-foreground hover:bg-muted rounded-lg text-sm transition-colors cursor-pointer">
-                  <span className="flex items-center gap-2"><Component className="w-5 h-5" />MoE与稀疏化</span>
+                <a className="flex items-center justify-between px-3 py-2 text-muted-foreground hover:bg-muted/50 hover:text-foreground rounded-lg text-sm transition-all cursor-pointer">
+                  <span className="flex items-center gap-2"><Sparkles className="w-4 h-4" />稀疏注意力</span>
                 </a>
-                <a className="flex items-center justify-between px-3 py-2 text-muted-foreground hover:bg-muted rounded-lg text-sm transition-colors cursor-pointer">
-                  <span className="flex items-center gap-2"><Cpu className="w-5 h-5" />推理系统</span>
+                <a className="flex items-center justify-between px-3 py-2 text-muted-foreground hover:bg-muted/50 hover:text-foreground rounded-lg text-sm transition-all cursor-pointer">
+                  <span className="flex items-center gap-2"><Settings2 className="w-4 h-4" />调度优化</span>
                 </a>
-                <a className="flex items-center justify-between px-3 py-2 text-muted-foreground hover:bg-muted rounded-lg text-sm transition-colors cursor-pointer">
-                  <span className="flex items-center gap-2"><PenTool className="w-5 h-5" />计算机视觉</span>
+                <a className="flex items-center justify-between px-3 py-2 text-muted-foreground hover:bg-muted/50 hover:text-foreground rounded-lg text-sm transition-all cursor-pointer">
+                  <span className="flex items-center gap-2"><Cpu className="w-4 h-4" />推理引擎</span>
+                </a>
+                <a className="flex items-center justify-between px-3 py-2 text-muted-foreground hover:bg-muted/50 hover:text-foreground rounded-lg text-sm transition-all cursor-pointer">
+                  <span className="flex items-center gap-2"><Layers className="w-4 h-4" />系统架构</span>
                 </a>
               </div>
             </section>
             
             <section>
-              <h3 className="text-[10px] font-mono font-bold text-muted-foreground uppercase tracking-[0.2em] mb-6">发布时间</h3>
-              <div className="space-y-1">
+              <h3 className="text-xs text-muted-foreground mb-4">发布时间</h3>
+              <div className="space-y-0.5">
                 <label className="flex items-center gap-3 px-3 py-2 cursor-pointer group">
-                  <input defaultChecked className="w-4 h-4 text-primary focus:ring-primary border-border rounded-sm" name="date" type="radio" />
-                  <span className="text-sm text-muted-foreground group-hover:text-foreground">最近24小时</span>
+                  <input defaultChecked className="w-3.5 h-3.5 text-primary focus:ring-primary/50 border-border rounded" name="date" type="radio" />
+                  <span className="text-sm text-muted-foreground group-hover:text-foreground transition-colors">最近24小时</span>
                 </label>
                 <label className="flex items-center gap-3 px-3 py-2 cursor-pointer group">
-                  <input className="w-4 h-4 text-primary focus:ring-primary border-border rounded-sm" name="date" type="radio" />
-                  <span className="text-sm text-muted-foreground group-hover:text-foreground">最近7天</span>
+                  <input className="w-3.5 h-3.5 text-primary focus:ring-primary/50 border-border rounded" name="date" type="radio" />
+                  <span className="text-sm text-muted-foreground group-hover:text-foreground transition-colors">最近7天</span>
                 </label>
                 <label className="flex items-center gap-3 px-3 py-2 cursor-pointer group">
-                  <input className="w-4 h-4 text-primary focus:ring-primary border-border rounded-sm" name="date" type="radio" />
-                  <span className="text-sm text-muted-foreground group-hover:text-foreground">最近30天</span>
+                  <input className="w-3.5 h-3.5 text-primary focus:ring-primary/50 border-border rounded" name="date" type="radio" />
+                  <span className="text-sm text-muted-foreground group-hover:text-foreground transition-colors">最近一个月</span>
                 </label>
-              </div>
-            </section>
-            
-            <section>
-              <h3 className="text-[10px] font-mono font-bold text-muted-foreground uppercase tracking-[0.2em] mb-6">杰出作者</h3>
-              <div className="flex flex-wrap gap-2">
-                <button className="px-2 py-1 text-[11px] bg-card border border-border rounded hover:border-primary transition-colors cursor-pointer">K. He</button>
-                <button className="px-2 py-1 text-[11px] bg-card border border-border rounded hover:border-primary transition-colors cursor-pointer">A. Karpathy</button>
-                <button className="px-2 py-1 text-[11px] bg-card border border-border rounded hover:border-primary transition-colors cursor-pointer">Y. LeCun</button>
-                <button className="px-2 py-1 text-[11px] bg-card border border-border rounded hover:border-primary transition-colors cursor-pointer">I. Sutskever</button>
+                <label className="flex items-center gap-3 px-3 py-2 cursor-pointer group">
+                  <input className="w-3.5 h-3.5 text-primary focus:ring-primary/50 border-border rounded" name="date" type="radio" />
+                  <span className="text-sm text-muted-foreground group-hover:text-foreground transition-colors">最近一年</span>
+                </label>
+                <label className="flex items-center gap-3 px-3 py-2 cursor-pointer group">
+                  <input className="w-3.5 h-3.5 text-primary focus:ring-primary/50 border-border rounded" name="date" type="radio" />
+                  <span className="text-sm text-muted-foreground group-hover:text-foreground transition-colors">最近两年</span>
+                </label>
+                <label className="flex items-center gap-3 px-3 py-2 cursor-pointer group">
+                  <input className="w-3.5 h-3.5 text-primary focus:ring-primary/50 border-border rounded" name="date" type="radio" />
+                  <span className="text-sm text-muted-foreground group-hover:text-foreground transition-colors">最近三年</span>
+                </label>
               </div>
             </section>
           </div>
@@ -97,10 +101,10 @@ export default function ExplorePage() {
 
           <div className="space-y-4">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-sm font-mono font-bold text-muted-foreground uppercase tracking-[0.2em]">最新聚合</h2>
+              <h2 className="text-sm text-muted-foreground">最新聚合</h2>
               <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                <span>排序: <button className="text-foreground font-bold cursor-pointer">最新</button></span>
-                <span>显示: <button className="text-foreground font-bold cursor-pointer">紧凑</button></span>
+                <span>排序: <button className="text-foreground cursor-pointer hover:text-primary transition-colors">最新</button></span>
+                <span>显示: <button className="text-foreground cursor-pointer hover:text-primary transition-colors">紧凑</button></span>
               </div>
             </div>
 
@@ -111,8 +115,7 @@ export default function ExplorePage() {
                 time: '3小时前',
                 title: 'FlashAttention-3：基于异步的快速精确注意力机制',
                 desc: '利用Hopper GPU硬件特性，通过WGMMA和TMA实现计算与内存加载的异步重叠。',
-                arxiv: '2405.0982',
-                comments: 12
+                arxiv: '2405.0982'
               },
               {
                 votes: 285,
@@ -120,8 +123,7 @@ export default function ExplorePage() {
                 time: '5小时前',
                 title: 'Mamba-2：压缩序列建模的未来',
                 desc: '状态空间模型的演进，采用改进的门控机制，相比传统注意力机制具有更优的长上下文记忆检索能力。',
-                arxiv: '2405.0211',
-                comments: 8
+                arxiv: '2405.0211'
               },
               {
                 votes: 156,
@@ -129,30 +131,26 @@ export default function ExplorePage() {
                 time: '8小时前',
                 title: '精度高效训练的扩展定律',
                 desc: '关于FP8和INT8量化如何在预训练阶段影响万亿参数模型扩展定律的实证研究。',
-                arxiv: '2405.0110',
-                comments: 5
+                arxiv: '2405.0110'
               }
             ].map((item, i) => (
               <div key={i} className="bg-card p-6 terminal-border card-hover flex flex-col md:flex-row gap-6 items-start">
-                <div className="shrink-0 flex flex-col items-center gap-1 w-12 text-muted-foreground/50">
-                  <ChevronUp className="w-5 h-5 cursor-pointer hover:text-primary" />
-                  <span className="text-xs font-mono font-bold text-foreground">{item.votes}</span>
-                  <ChevronDown className="w-5 h-5 cursor-pointer hover:text-foreground" />
+                <div className="shrink-0 flex flex-col items-center gap-1 w-12 text-muted-foreground/40">
+                  <ChevronUp className="w-5 h-5 cursor-pointer hover:text-primary transition-colors" />
+                  <span className="text-xs font-mono text-muted-foreground">{item.votes}</span>
+                  <ChevronDown className="w-5 h-5 cursor-pointer hover:text-muted-foreground transition-colors" />
                 </div>
                 <div className="flex-1 space-y-3">
                   <div className="flex items-center gap-3">
-                    <span className="text-[10px] font-mono bg-muted px-2 py-0.5 rounded text-muted-foreground uppercase">{item.tag}</span>
-                    <span className="text-[10px] font-mono text-muted-foreground/50">{item.time}</span>
+                    <span className="text-[10px] font-mono bg-muted/50 px-2 py-0.5 rounded text-muted-foreground uppercase">{item.tag}</span>
+                    <span className="text-[10px] font-mono text-muted-foreground/60">{item.time}</span>
                   </div>
-                  <h3 className="text-xl font-bold leading-tight text-foreground">{item.title}</h3>
+                  <h3 className="text-lg font-medium leading-tight text-foreground hover:text-primary transition-colors cursor-pointer">{item.title}</h3>
                   <p className="text-sm text-muted-foreground line-clamp-2">{item.desc}</p>
                   <div className="flex items-center gap-4 pt-2">
-                    <div className="flex items-center gap-1 text-[10px] font-mono font-bold text-primary">
+                    <a className="flex items-center gap-1.5 text-[10px] font-mono text-primary hover:text-primary/80 transition-colors cursor-pointer" href={`https://arxiv.org/abs/${item.arxiv}`} target="_blank" rel="noopener noreferrer">
                       <LinkIcon className="w-3.5 h-3.5" /> ARXIV:{item.arxiv}
-                    </div>
-                    <div className="flex items-center gap-1 text-[10px] font-mono font-bold text-muted-foreground">
-                      <MessageSquare className="w-3.5 h-3.5" /> {item.comments} 评论
-                    </div>
+                    </a>
                   </div>
                 </div>
               </div>
@@ -164,100 +162,100 @@ export default function ExplorePage() {
           </button>
         </div>
 
-        <aside className="w-full lg:w-80 space-y-6">
-          <Link href="/explore/methodologies" className="block bg-card p-6 terminal-border card-hover group">
-            <div className="flex items-center justify-between mb-6">
-              <h4 className="font-bold text-sm flex items-center gap-2 text-foreground">
-                <TrendingUp className="text-primary w-5 h-5" />
+        <aside className="w-full lg:w-80 space-y-5">
+          <Link href="/explore/methodologies" className="block bg-card p-5 terminal-border card-hover group">
+            <div className="flex items-center justify-between mb-5">
+              <h4 className="text-sm flex items-center gap-2 text-muted-foreground">
+                <TrendingUp className="text-primary w-4 h-4 transition-transform group-hover:scale-110" />
                 本周趋势
               </h4>
-              <ArrowUpRight className="text-muted-foreground/30 group-hover:text-primary transition-colors w-5 h-5" />
+              <ArrowUpRight className="text-muted-foreground/30 group-hover:text-primary group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all w-4 h-4" />
             </div>
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-medium text-muted-foreground">推理加速</span>
+                <span className="text-xs text-muted-foreground">推理加速</span>
                 <span className="font-mono text-[10px] text-primary">+12k 分</span>
               </div>
-              <div className="w-full h-1 bg-muted rounded-full overflow-hidden">
-                <div className="bg-primary w-[85%] h-full"></div>
+              <div className="w-full h-1 bg-muted/50 rounded-full overflow-hidden">
+                <div className="bg-primary w-[85%] h-full rounded-full"></div>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-xs font-medium text-muted-foreground">稀疏自编码器</span>
+                <span className="text-xs text-muted-foreground">稀疏自编码器</span>
                 <span className="font-mono text-[10px] text-primary">+8.9k 分</span>
               </div>
-              <div className="w-full h-1 bg-muted rounded-full overflow-hidden">
-                <div className="bg-primary w-[62%] h-full"></div>
+              <div className="w-full h-1 bg-muted/50 rounded-full overflow-hidden">
+                <div className="bg-primary w-[62%] h-full rounded-full"></div>
               </div>
             </div>
           </Link>
 
-          <Link href="/explore/data-tracking" className="block bg-card p-6 terminal-border card-hover group">
-            <div className="flex items-center justify-between mb-6">
-              <h4 className="font-bold text-sm flex items-center gap-2 text-foreground">
-                <BarChart2 className="text-primary w-5 h-5" />
+          <Link href="/explore/data-tracking" className="block bg-card p-5 terminal-border card-hover group">
+            <div className="flex items-center justify-between mb-5">
+              <h4 className="text-sm flex items-center gap-2 text-muted-foreground">
+                <BarChart2 className="text-primary w-4 h-4 transition-transform group-hover:scale-110" />
                 数据追踪
               </h4>
-              <ArrowUpRight className="text-muted-foreground/30 group-hover:text-primary transition-colors w-5 h-5" />
+              <ArrowUpRight className="text-muted-foreground/30 group-hover:text-primary group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all w-4 h-4" />
             </div>
-            <div className="space-y-6">
+            <div className="space-y-5">
               <div>
                 <div className="flex justify-between mb-2">
-                  <span className="text-[10px] font-mono text-muted-foreground uppercase">arXiv论文/日</span>
-                  <span className="text-[10px] font-mono text-primary font-bold">+24.2%</span>
+                  <span className="text-[10px] font-mono text-muted-foreground">arXiv论文/日</span>
+                  <span className="text-[10px] font-mono text-primary">+24.2%</span>
                 </div>
                 <div className="h-10 flex items-end gap-1">
-                  <div className="bg-primary/20 w-full h-[40%]"></div>
-                  <div className="bg-primary/20 w-full h-[60%]"></div>
-                  <div className="bg-primary/20 w-full h-[45%]"></div>
-                  <div className="bg-primary/20 w-full h-[75%]"></div>
-                  <div className="bg-primary/20 w-full h-[65%]"></div>
-                  <div className="bg-primary w-full h-[95%]"></div>
+                  <div className="bg-primary/15 w-full h-[40%] rounded-sm"></div>
+                  <div className="bg-primary/15 w-full h-[60%] rounded-sm"></div>
+                  <div className="bg-primary/15 w-full h-[45%] rounded-sm"></div>
+                  <div className="bg-primary/15 w-full h-[75%] rounded-sm"></div>
+                  <div className="bg-primary/15 w-full h-[65%] rounded-sm"></div>
+                  <div className="bg-primary w-full h-[95%] rounded-sm"></div>
                 </div>
               </div>
               <div>
                 <div className="flex justify-between mb-2">
-                  <span className="text-[10px] font-mono text-muted-foreground uppercase">Top 10 仓库星标</span>
-                  <span className="text-[10px] font-mono text-primary font-bold">+3.2k</span>
+                  <span className="text-[10px] font-mono text-muted-foreground">Top 10 仓库星标</span>
+                  <span className="text-[10px] font-mono text-primary">+3.2k</span>
                 </div>
                 <div className="h-10 flex items-end gap-1">
-                  <div className="bg-primary/20 w-full h-[20%]"></div>
-                  <div className="bg-primary/20 w-full h-[35%]"></div>
-                  <div className="bg-primary/20 w-full h-[50%]"></div>
-                  <div className="bg-primary/20 w-full h-[40%]"></div>
-                  <div className="bg-primary/20 w-full h-[70%]"></div>
-                  <div className="bg-primary w-full h-[85%]"></div>
+                  <div className="bg-primary/15 w-full h-[20%] rounded-sm"></div>
+                  <div className="bg-primary/15 w-full h-[35%] rounded-sm"></div>
+                  <div className="bg-primary/15 w-full h-[50%] rounded-sm"></div>
+                  <div className="bg-primary/15 w-full h-[40%] rounded-sm"></div>
+                  <div className="bg-primary/15 w-full h-[70%] rounded-sm"></div>
+                  <div className="bg-primary w-full h-[85%] rounded-sm"></div>
                 </div>
               </div>
             </div>
           </Link>
 
-          <div className="bg-card p-6 terminal-border shadow-sm">
-            <h4 className="font-bold text-sm mb-6 flex items-center gap-2 text-muted-foreground">
-              <Network className="w-5 h-5" />
+          <div className="bg-card p-5 terminal-border">
+            <h4 className="text-sm mb-5 flex items-center gap-2 text-muted-foreground">
+              <Network className="w-4 h-4" />
               技术演进
             </h4>
-            <div className="space-y-4">
-              <Link className="flex items-center justify-between group" href="/explore/methodologies">
-                <span className="text-xs font-medium group-hover:text-primary transition-colors text-foreground">推理加速全景</span>
-                <ChevronRight className="w-4 h-4 text-muted-foreground/30 group-hover:text-primary" />
+            <div className="space-y-3">
+              <Link className="flex items-center justify-between group py-1.5" href="/explore/methodologies">
+                <span className="text-xs text-muted-foreground group-hover:text-primary transition-colors">推理加速全景</span>
+                <ChevronRight className="w-4 h-4 text-muted-foreground/30 group-hover:text-primary group-hover:translate-x-0.5 transition-all" />
               </Link>
-              <Link className="flex items-center justify-between group" href="/explore/methodologies">
-                <span className="text-xs font-medium group-hover:text-primary transition-colors text-foreground">MoE架构发展史</span>
-                <ChevronRight className="w-4 h-4 text-muted-foreground/30 group-hover:text-primary" />
+              <Link className="flex items-center justify-between group py-1.5" href="/explore/methodologies">
+                <span className="text-xs text-muted-foreground group-hover:text-primary transition-colors">MoE架构发展史</span>
+                <ChevronRight className="w-4 h-4 text-muted-foreground/30 group-hover:text-primary group-hover:translate-x-0.5 transition-all" />
               </Link>
-              <Link className="flex items-center justify-between group" href="/explore/methodologies">
-                <span className="text-xs font-medium group-hover:text-primary transition-colors text-foreground">量化理论路线图</span>
-                <ChevronRight className="w-4 h-4 text-muted-foreground/30 group-hover:text-primary" />
+              <Link className="flex items-center justify-between group py-1.5" href="/explore/methodologies">
+                <span className="text-xs text-muted-foreground group-hover:text-primary transition-colors">量化理论路线图</span>
+                <ChevronRight className="w-4 h-4 text-muted-foreground/30 group-hover:text-primary group-hover:translate-x-0.5 transition-all" />
               </Link>
             </div>
           </div>
 
-          <div className="bg-foreground p-8 rounded-xl relative overflow-hidden group">
+          <div className="bg-foreground p-6 rounded-xl relative overflow-hidden group">
             <div className="absolute -top-10 -right-10 w-40 h-40 bg-primary/20 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-700"></div>
             <div className="relative z-10">
-              <h5 className="text-background font-bold text-lg mb-3">智能终端</h5>
-              <p className="text-background/50 text-[11px] mb-6 leading-relaxed">每日深度分析和市场情报报告，为AI研究者自动策划。</p>
-              <button className="w-full py-3 bg-primary text-primary-foreground font-mono font-bold text-xs rounded hover:brightness-110 transition-all shadow-[0_10px_20px_-10px_rgba(0,82,255,0.4)] cursor-pointer">
+              <h5 className="text-background text-base mb-2">智能终端</h5>
+              <p className="text-background/50 text-xs mb-5 leading-relaxed">每日深度分析和市场情报报告，为AI研究者自动策划。</p>
+              <button className="w-full py-2.5 bg-primary text-primary-foreground font-mono text-xs rounded hover:brightness-110 transition-all shadow-[0_10px_20px_-10px_rgba(0,82,255,0.4)] cursor-pointer">
                 订阅摘要
               </button>
             </div>

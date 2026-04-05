@@ -580,19 +580,22 @@ html.dark :not(.themed-code-block) > pre[data-theme] code span {
 }
 
 .dark .terminal-border {
-  border: 1px solid hsl(var(--border));
+  border: 1px solid hsl(var(--border) / 0.5);
 }
 
 /* Card hover effect */
 .card-hover {
-  transition: all 0.3s ease;
+  transition: all 0.25s ease;
 }
 .card-hover:hover {
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.04);
-  transform: translateY(-2px);
+  box-shadow: 0 4px 20px rgba(0, 82, 255, 0.06);
+  transform: translateY(-1px);
+  border-color: hsl(var(--primary) / 0.2);
 }
 .dark .card-hover:hover {
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  border-color: hsl(var(--primary) / 0.3);
+  background-color: hsl(var(--card) / 1);
 }
 
 /* No scrollbar */
